@@ -5,11 +5,11 @@ class UsuarioModel extends Model
 {
 
 protected $table = 'usuarios';
-protected $primaryKey = 'id';
-protected $allowedFields = ['usuario', 'password'];
+protected $primaryKey = 'usuario_id';
+protected $allowedFields = ['carne', 'password'];
 public function verificarUsuario($usuario, $password)
 {
-return $this->where('usuario', $usuario)
+return $this->where('carne', $usuario)
 ->where('password', md5($password))
 
 ->first();

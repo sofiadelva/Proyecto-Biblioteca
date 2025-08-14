@@ -16,8 +16,10 @@ $datosUsuario = $usuarioModel->verificarUsuario($usuario,
 $password);
 if ($datosUsuario) {
 session()->set([
-'usuario' => $datosUsuario['usuario'],
-'logged_in' => true
+    'usuario' => $datosUsuario['carne'],   // si quieres seguir guardando el carne
+    'nombre'  => $datosUsuario['nombre'],  // guarda también el nombre
+    'logged_in' => true
+
 ]);
 return redirect()->to('/panel');
 } else {
