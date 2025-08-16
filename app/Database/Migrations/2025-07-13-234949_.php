@@ -1,10 +1,10 @@
 <?php 
-namespace App\Database\Migrations;
+// namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class  extends Migration{
-    public function up(){
+// class  extends Migration{
+    // public function up(){
 
         // Uncomment below if want config
         // $this->forge->addField([
@@ -19,10 +19,10 @@ class  extends Migration{
         // 		],
         // ]);
         // $this->forge->addKey('id', TRUE);
-        $this->forge->createTable('');
-    }
+        // $this->forge->createTable('');
+    // }
 
-    public function down(){
-        $this->forge->dropTable('');
-    }
-}
+    // public function down(){
+       //  $this->forge->dropTable('');
+   //  }
+// }

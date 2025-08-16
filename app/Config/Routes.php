@@ -10,3 +10,6 @@ $routes->get('/', 'Login::index');
 $routes->post('login/autenticar', 'Login::autenticar');
 $routes->get('panel', 'Login::panel');
 $routes->get('login/salir', 'Login::salir');
+
+$routes->get('libros','Libros::index' );
+$routes->get('libros/new','Libros::new' );
