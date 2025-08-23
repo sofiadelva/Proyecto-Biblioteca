@@ -38,11 +38,22 @@
             <option value="Dañado">Dañado</option>
         </select>
     </div>
-
+    <div class="col-md-6">
+        <label for="categoria_id" class="form-label">Categoría</label>
+        <select class="form-select" name="categoria_id" required>
+            <option value="">Seleccionar</option>
+            <!-- 👇 Iteramos todas las categorías -->
+            <?php foreach($categorias as $cat): ?>
+                <option value="<?= $cat['categoria_id']; ?>"><?= $cat['nombre']; ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
     <div class="col-12">
         <a href="<?= base_url('libros'); ?>" class="btn btn-secondary">Regresar</a>
         <button type="submit" class="btn btn-primary">Guardar</button>
     </div>
+
+
 </form>
 
 <?php $this->endSection(); ?>
