@@ -111,41 +111,53 @@
     <div class="row">
       
       <!-- Sidebar -->
-      <nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
-        <ul class="nav flex-column" id="sidebarMenu">
-          <li class="nav-item mb-3">
-            <a class="nav-link active" href="<?= base_url('panel'); ?>">
-              <i class="bi bi-house-fill"></i> Home
-            </a>
-          </li>
+<nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
+  <ul class="nav flex-column" id="sidebarMenu">
+    
+    <li class="nav-item mb-3">
+      <a class="nav-link <?= (uri_string() == 'panel') ? 'active' : '' ?>" 
+         href="<?= base_url('panel'); ?>">
+        <i class="bi bi-house-fill"></i> Home
+      </a>
+    </li>
 
-          <li class="nav-item mb-3">
-            <a class="nav-link" href="<?= base_url('libros'); ?>">
-              <i class="bi bi-book-fill"></i> Libros
-            </a>
-          </li>
-          <li class="nav-item mb-3">
-            <a class="nav-link" href="<?= base_url('categorias'); ?>">
-              <i class="bi bi-card-list"></i> Categorías
-            </a>
-          </li>
-          <li class="nav-item mb-3">
-            <a class="nav-link" href="#">
-              <i class="bi bi-cash-stack"></i> Transacciones
-            </a>
-          </li>
-          <li class="nav-item mb-3">
-            <a class="nav-link" href="<?= base_url('usuarios'); ?>">
-              <i class="bi bi-person-fill"></i> Usuarios
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">
-              <i class="bi bi-bar-chart-fill"></i> Reportes
-            </a>
-          </li>
-        </ul>
-      </nav>
+    <li class="nav-item mb-3">
+      <a class="nav-link <?= (uri_string() == 'libros') ? 'active' : '' ?>" 
+         href="<?= base_url('libros'); ?>">
+        <i class="bi bi-book-fill"></i> Libros
+      </a>
+    </li>
+
+    <li class="nav-item mb-3">
+      <a class="nav-link <?= (uri_string() == 'categorias') ? 'active' : '' ?>" 
+         href="<?= base_url('categorias'); ?>">
+        <i class="bi bi-card-list"></i> Categorías
+      </a>
+    </li>
+
+    <li class="nav-item mb-3">
+      <a class="nav-link <?= (uri_string() == 'transacciones') ? 'active' : '' ?>" 
+         href="<?= base_url('transacciones'); ?>">
+        <i class="bi bi-cash-stack"></i> Transacciones
+      </a>
+    </li>
+
+    <li class="nav-item mb-3">
+      <a class="nav-link <?= (uri_string() == 'usuarios') ? 'active' : '' ?>" 
+         href="<?= base_url('usuarios'); ?>">
+        <i class="bi bi-person-fill"></i> Usuarios
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link <?= (uri_string() == 'reportes') ? 'active' : '' ?>" 
+         href="<?= base_url('reportes'); ?>">
+        <i class="bi bi-bar-chart-fill"></i> Reportes
+      </a>
+    </li>
+
+  </ul>
+</nav>
 
       <!-- Main Content -->
       <main class="col-md-10">
