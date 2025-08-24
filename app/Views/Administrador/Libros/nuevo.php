@@ -1,4 +1,8 @@
-<?php echo $this->extend('plantilla'); ?>
+<?php echo $this->extend('Plantillas/plantilla_admin'); ?>
+<?php $this->section('titulo'); ?>
+Agregar Libro
+<?php $this->endSection(); ?>
+
 <?php $this->section('contenido'); ?>
 
 <h3 class="my-3">Nuevo Libro</h3>

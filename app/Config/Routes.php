@@ -17,3 +17,21 @@ $routes->post('libros/create', 'Libros::create');
 $routes->get('libros/edit/(:num)', 'Libros::edit/$1');
 $routes->post('libros/update/(:num)', 'Libros::update/$1');
 $routes->get('libros/delete/(:num)', 'Libros::delete/$1');
+
+$routes->get('administrador/panel', 'Administrador::panel');
+$routes->get('bibliotecario/panel', 'Bibliotecario::panel');
+$routes->get('alumno/panel', 'Alumno::panel');
+
+$routes->get('categorias', 'Categorias::index');
+$routes->get('categorias/create', 'Categorias::create');
+$routes->post('categorias/store', 'Categorias::store');
+$routes->get('categorias/edit/(:num)', 'Categorias::edit/$1');
+$routes->post('categorias/update/(:num)', 'Categorias::update/$1');
+$routes->get('categorias/delete/(:num)', 'Categorias::delete/$1');
+
+$routes->get('usuarios', 'Usuarios::index');
+$routes->get('usuarios/create', 'Usuarios::create');
+$routes->post('usuarios/store', 'Usuarios::store');
+$routes->get('usuarios/edit/(:num)', 'Usuarios::edit/$1');
+$routes->post('usuarios/update/(:num)', 'Usuarios::update/$1');
+$routes->get('usuarios/delete/(:num)', 'Usuarios::delete/$1');

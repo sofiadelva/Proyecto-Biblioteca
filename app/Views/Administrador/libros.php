@@ -1,7 +1,10 @@
-<?php echo $this->extend('plantilla'); ?>
-<?php $this->section('contenido'); ?>
+<?php echo $this->extend('Plantillas/plantilla_admin'); ?>
 
-<h3 class="my-3" id="titulo">Libros</h3>
+<?php $this->section('titulo'); ?>
+Libros
+<?php $this->endSection(); ?>
+
+<?php $this->section('contenido'); ?>
 
 <!-- ✅ Mensaje flash de éxito o error -->
 <?php if(session()->getFlashdata('msg')): ?>
@@ -43,7 +46,7 @@
     </form>
 </div>
 
-<table class="table table-hover table-bordered my-3" aria-describedby="titulo">
+<table class="table table-hover table-bordered my-3">
     <thead class="table-dark">
     <tr>
         <th>Título</th>
@@ -56,7 +59,7 @@
         <th>Opciones</th>
     </tr>
     </thead>
-<tbody>
+    <tbody>
     <?php foreach($libros as $libro): ?>
         <tr>
             <td><?= $libro['titulo'] ?></td>
@@ -70,12 +73,12 @@
                 <div class="d-flex gap-1">
                     <a href="<?= base_url('libros/edit/'.$libro['libro_id']); ?>" class="btn btn-warning btn-sm">Editar</a>
                     <a href="<?= base_url('libros/delete/'.$libro['libro_id']); ?>" class="btn btn-danger btn-sm"
-                    onclick="return confirm('¿Seguro que quieres eliminar este libro?')">Eliminar</a>
+                       onclick="return confirm('¿Seguro que quieres eliminar este libro?')">Eliminar</a>
                 </div>
             </td>
         </tr>
     <?php endforeach; ?>
-</tbody>
+    </tbody>
 </table>
 
 <?php $this->endSection(); ?>
