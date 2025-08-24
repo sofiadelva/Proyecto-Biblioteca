@@ -6,8 +6,6 @@ Editar Libro
 
 <?php $this->section('contenido'); ?>
 
-<h3 class="my-3">Editar Libro</h3>
-
 <form action="<?= base_url('libros/update/'.$libro['libro_id']); ?>" method="post" class="row g-3" autocomplete="off">
 
     <div class="col-md-6">

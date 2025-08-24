@@ -5,8 +5,6 @@ Agregar Libro
 
 <?php $this->section('contenido'); ?>
 
-<h3 class="my-3">Nuevo Libro</h3>
-
 <form action="<?= base_url('libros/create'); ?>" method="post" class="row g-3" autocomplete="off">
 
     <div class="col-md-6">
