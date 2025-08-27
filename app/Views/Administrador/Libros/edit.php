@@ -6,8 +6,6 @@ Editar Libro
 
 <?php $this->section('contenido'); ?>
 
-<h3 class="my-3">Editar Libro</h3>
-
 <form action="<?= base_url('libros/update/'.$libro['libro_id']); ?>" method="post" class="row g-3" autocomplete="off">
 
     <div class="col-md-6">
@@ -27,7 +25,7 @@ Editar Libro
 
     <div class="col-md-3">
         <label for="cantidad_total" class="form-label">Cantidad Total</label>
-        <input type="number" class="form-control" name="cantidad_total" value="<?= $libro['cantidad_total'] ?>" required>
+        t type="number" class="form-control" name="cantidad_total" value="<?= $libro['cantidad_total'] ?>" required>
     </div>
 
     <div class="col-md-3">
