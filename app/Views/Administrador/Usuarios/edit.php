@@ -18,14 +18,14 @@ Editar Usuario
         <label>Correo</label>
         <input type="email" name="correo" class="form-control" value="<?= $usuario['correo'] ?>" required>
     </div>
-   <div class="md-3">
-        <label for="estado" class="form-label">Rol</label>
-        <select class="form-select" name="estado" required>
+   <div class="mb-3">
+        <label for="rol" class="form-label">Rol</label>
+        <select class="form-select" name="rol" required>
             <option value="">Seleccionar</option>
-            <option value="Disponible">Administrador</option>
-            <option value="Dañado">Bibliotecario</option>
-            <option value="Disponible">Alumno</option>
-            <option value="Dañado">Maestro</option>
+            <option value="Administrador" <?= ($usuario['rol'] == 'Administrador') ? 'selected' : '' ?>>Administrador</option>
+            <option value="Bibliotecario" <?= ($usuario['rol'] == 'Bibliotecario') ? 'selected' : '' ?>>Bibliotecario</option>
+            <option value="Alumno" <?= ($usuario['rol'] == 'Alumno') ? 'selected' : '' ?>>Alumno</option>
+            <option value="Maestro" <?= ($usuario['rol'] == 'Maestro') ? 'selected' : '' ?>>Maestro</option>
         </select>
     </div>
     <div class="mb-3">
