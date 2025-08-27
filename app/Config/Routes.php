@@ -35,3 +35,6 @@ $routes->post('usuarios/store', 'Usuarios::store');
 $routes->get('usuarios/edit/(:num)', 'Usuarios::edit/$1');
 $routes->post('usuarios/update/(:num)', 'Usuarios::update/$1');
 $routes->get('usuarios/delete/(:num)', 'Usuarios::delete/$1');
+
+$routes->get('reportes', 'Reportes::index');
+$routes->post('reportes/generar', 'Reportes::generar');

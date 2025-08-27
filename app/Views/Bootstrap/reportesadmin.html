@@ -15,7 +15,6 @@
     }
 
     /* Sidebar */
-    /* Sidebar */
     .sidebar {
       min-height: 100vh;
       background-color: #095959; /* deep teal */
@@ -192,7 +191,12 @@
 
         <!-- Contenido -->
         <div class="p-4">
-          <!-- Aquí va el contenido de la página -->
+          <!-- Formulario para generar PDF -->
+          <h2>Generar Reporte de Libros</h2>
+          <form action="<?= base_url('reportes/generar') ?>" method="post">
+            <!-- Puedes agregar aquí filtros si los necesitas -->
+            <button type="submit" class="btn btn-primary">Generar PDF</button>
+          </form>
         </div>
       </main>
     </div>
