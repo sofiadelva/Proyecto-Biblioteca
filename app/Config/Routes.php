@@ -35,3 +35,22 @@ $routes->post('usuarios/store', 'Usuarios::store');
 $routes->get('usuarios/edit/(:num)', 'Usuarios::edit/$1');
 $routes->post('usuarios/update/(:num)', 'Usuarios::update/$1');
 $routes->get('usuarios/delete/(:num)', 'Usuarios::delete/$1');
+
+$routes->group('transacciones', ['namespace' => 'App\Controllers'], function($routes) {
+    
+    // Listado de transacciones
+    $routes->get('/', 'Transacciones::index');
+
+    // Crear nueva transacción
+    $routes->get('create', 'Transacciones::create');
+    $routes->post('store', 'Transacciones::store');
+
+    // Editar transacción
+    $routes->get('edit/(:num)', 'Transacciones::edit/$1');
+    $routes->post('update/(:num)', 'Transacciones::update/$1');
+
+    // Eliminar transacción
+    $routes->get('delete/(:num)', 'Transacciones::delete/$1');
+
+});
+

@@ -195,7 +195,7 @@
           </a>
         </li>
         <li class="nav-item mb-3">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="<?= base_url('transacciones'); ?>">
             <i class="bi bi-cash-stack"></i> Transacciones
           </a>
         </li>

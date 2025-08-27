@@ -25,7 +25,7 @@ Editar Libro
 
     <div class="col-md-3">
         <label for="cantidad_total" class="form-label">Cantidad Total</label>
-        <input type="number" class="form-control" name="cantidad_total" value="<?= $libro['cantidad_total'] ?>" required>
+        t type="number" class="form-control" name="cantidad_total" value="<?= $libro['cantidad_total'] ?>" required>
     </div>
 
     <div class="col-md-3">
