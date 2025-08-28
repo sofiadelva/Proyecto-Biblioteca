@@ -129,8 +129,8 @@
           </li>
 
           <li class="nav-item mb-3">
-            <a class="nav-link <?= (uri_string() === 'prestamos') ? 'active' : '' ?>" 
-               href="<?= base_url('prestamos'); ?>">
+            <a class="nav-link <?= (uri_string() === 'alumno/prestamos') ? 'active' : '' ?>" 
+               href="<?= base_url('alumno/prestamos'); ?>">
               <i class="bi bi-box-arrow-in-right"></i> Préstamos
             </a>
           </li>

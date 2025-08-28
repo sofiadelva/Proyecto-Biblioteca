@@ -86,6 +86,7 @@ $routes->post('devoluciones/store', 'Devoluciones::store');
 // Inventario Alumno
 $routes->get('alumno/inventario', 'InventarioAlumno::index');
 
+$routes->get('alumno/prestamos', 'PrestamosAlumno::index');
 
 
 
