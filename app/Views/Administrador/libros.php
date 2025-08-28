@@ -74,6 +74,12 @@ Libros
                     <a href="<?= base_url('libros/edit/'.$libro['libro_id']); ?>" class="btn btn-warning btn-sm">Editar</a>
                     <a href="<?= base_url('libros/delete/'.$libro['libro_id']); ?>" class="btn btn-danger btn-sm"
                        onclick="return confirm('¿Seguro que quieres eliminar este libro?')">Eliminar</a>
+                    <!-- ✅ Botón con verde #206060 y letras blancas -->
+                    <a href="<?= base_url('ejemplares/listar/'.$libro['libro_id']); ?>" 
+                       class="btn btn-sm" 
+                       style="background-color:#206060; color:#fff;">
+                        Editar Ejemplares
+                    </a>
                 </div>
             </td>
         </tr>

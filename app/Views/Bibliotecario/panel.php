@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -203,7 +204,7 @@
               <a class="nav-link active" href="#"><i class="bi bi-house-door-fill"></i> Home</a>
             </li>
             <li class="nav-item mb-3">
-              <a class="nav-link" href="#"><i class="bi bi-journal-bookmark-fill"></i> Inventario</a>
+              <a class="nav-link" href="<?= base_url('inventario'); ?>"><i class="bi bi-journal-bookmark-fill"></i> Inventario</a>
             </li>
             <li class="nav-item mb-3">
               <a class="nav-link" href="#"><i class="bi bi-book-half"></i> Gestión de Libros</a>

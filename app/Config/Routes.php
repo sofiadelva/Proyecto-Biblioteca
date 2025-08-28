@@ -57,3 +57,15 @@ $routes->group('transacciones', ['namespace' => 'App\Controllers'], function($ro
 
 $routes->get('reportes', 'Reportes::index');
 $routes->post('reportes/generar', 'Reportes::generar');
+
+// Ejemplares
+// Ejemplares
+$routes->get('ejemplares/listar/(:num)', 'Ejemplares::listar/$1');   // ver todos los ejemplares de un libro
+$routes->get('ejemplares/new/(:num)', 'Ejemplares::new/$1');         // form para crear ejemplar ligado a un libro
+$routes->post('ejemplares/create', 'Ejemplares::create');            // guardar nuevo ejemplar
+$routes->get('ejemplares/edit/(:num)', 'Ejemplares::edit/$1');       // form editar ejemplar
+$routes->post('ejemplares/update/(:num)', 'Ejemplares::update/$1');  // actualizar ejemplar
+$routes->get('ejemplares/delete/(:num)', 'Ejemplares::delete/$1');   // eliminar ejemplar
+
+$routes->get('inventario', 'Inventario::index');
+
