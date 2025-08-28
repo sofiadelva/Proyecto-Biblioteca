@@ -69,3 +69,23 @@ $routes->get('ejemplares/delete/(:num)', 'Ejemplares::delete/$1');   // eliminar
 
 $routes->get('inventario', 'Inventario::index');
 
+// Gestión de libros
+$routes->get('gestion_libros', 'GestionLibros::index');
+
+// Préstamos
+$routes->get('prestamos', 'Prestamos::create');   // botón lleva directo al form
+$routes->post('prestamos/store', 'Prestamos::store');
+$routes->get('prestamos/getEjemplares/(:num)', 'Prestamos::getEjemplares/$1');
+
+// Devoluciones
+// Devoluciones
+$routes->get('devoluciones', 'Devoluciones::index');
+$routes->post('devoluciones/store', 'Devoluciones::store');
+
+
+// Inventario Alumno
+$routes->get('alumno/inventario', 'InventarioAlumno::index');
+
+
+
+

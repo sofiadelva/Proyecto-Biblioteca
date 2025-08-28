@@ -202,10 +202,15 @@
               <a class="nav-link active" href="#"><i class="bi bi-house-door-fill"></i> Home</a>
             </li>
             <li class="nav-item mb-3">
-              <a class="nav-link" href="#"><i class="bi bi-journal-bookmark-fill"></i> Inventario</a>
+              <a class="nav-link <?= (uri_string() === 'alumno/inventario') ? 'active' : '' ?>" 
+   href="<?= base_url('alumno/inventario'); ?>">
+   <i class="bi bi-journal-bookmark-fill"></i> Inventario
+</a>
+
             </li>
             <li class="nav-item mb-3">
-              <a class="nav-link" href="#"><i class="bi bi-box-arrow-in-right"></i> Préstamos</a>
+              <a class="nav-link <?= (uri_string() === 'alumno/inventario') ? 'active' : '' ?>" 
+               href="<?= base_url('prestamos'); ?>"><i class="bi bi-box-arrow-in-right"></i> Préstamos</a>
             </li>
           </ul>
         </div>

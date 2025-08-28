@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Everbook Dashboard</title>
+  <title>Everbook - Panel Alumno</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
   <style>
@@ -17,7 +17,7 @@
     /* Sidebar */
     .sidebar {
       min-height: 100vh;
-      background-color: #095959; /* deep teal */
+      background-color: #0e4c51;
       color: #f8f9fa;
       padding-top: 20px;
     }
@@ -114,28 +114,26 @@
       <!-- Sidebar -->
       <nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
         <ul class="nav flex-column" id="sidebarMenu">
-
           <li class="nav-item mb-3">
-            <a class="nav-link <?= (uri_string() === 'panel_bibliotecario') ? 'active' : '' ?>" 
-               href="<?= base_url('bibliotecario/panel'); ?>">
+            <a class="nav-link <?= (uri_string() === 'alumno/panel') ? 'active' : '' ?>" 
+               href="<?= base_url('alumno/panel'); ?>">
               <i class="bi bi-house-door-fill"></i> Home
             </a>
           </li>
 
           <li class="nav-item mb-3">
-            <a class="nav-link <?= (uri_string() === 'inventario') ? 'active' : '' ?>" 
-               href="<?= base_url('inventario'); ?>">
+            <a class="nav-link <?= (uri_string() === 'alumno/inventario') ? 'active' : '' ?>" 
+               href="<?= base_url('alumno/inventario'); ?>">
               <i class="bi bi-journal-bookmark-fill"></i> Inventario
             </a>
           </li>
 
           <li class="nav-item mb-3">
-            <a class="nav-link <?= (uri_string() === 'gestion_libros') ? 'active' : '' ?>" 
-               href="<?= base_url('gestion_libros'); ?>">
-              <i class="bi bi-book-half"></i> Gestión de Libros
+            <a class="nav-link <?= (uri_string() === 'prestamos') ? 'active' : '' ?>" 
+               href="<?= base_url('prestamos'); ?>">
+              <i class="bi bi-box-arrow-in-right"></i> Préstamos
             </a>
           </li>
-
         </ul>
       </nav>
 
@@ -158,7 +156,6 @@
     </div>
   </div>
 
-  
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
