@@ -207,7 +207,7 @@
               <a class="nav-link" href="<?= base_url('inventario'); ?>"><i class="bi bi-journal-bookmark-fill"></i> Inventario</a>
             </li>
             <li class="nav-item mb-3">
-              <a class="nav-link" href="#"><i class="bi bi-book-half"></i> Gestión de Libros</a>
+              <a class="nav-link" href="<?= base_url('gestion_libros'); ?>"><i class="bi bi-book-half"></i> Gestión de Libros</a>
             </li>
           </ul>
         </div>

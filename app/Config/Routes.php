@@ -56,7 +56,22 @@ $routes->group('transacciones', ['namespace' => 'App\Controllers'], function($ro
 
 
 $routes->get('reportes', 'Reportes::index');
-$routes->post('reportes/generar', 'Reportes::generar');
+$routes->post('reportes/alumno', 'Reportes::alumno');
+$routes->post('reportes/libro', 'Reportes::libro');
+$routes->post('reportes/prestamos-activos', 'Reportes::prestamosActivos');
+$routes->post('reportes/libros-disponibles', 'Reportes::librosDisponibles');
+
+
+
+
+
+
+// Generar los diferentes reportes
+$routes->post('reportes/porAlumno', 'Reportes::porAlumno');
+$routes->post('reportes/porLibro', 'Reportes::porLibro');
+$routes->post('reportes/prestamosActivos', 'Reportes::prestamosActivos');
+$routes->post('reportes/librosDisponibles', 'Reportes::librosDisponibles');
+
 
 // Ejemplares
 // Ejemplares

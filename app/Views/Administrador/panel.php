@@ -205,7 +205,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="<?= base_url('reportes'); ?>">
             <i class="bi bi-bar-chart-fill"></i> Reportes
           </a>
         </li>
