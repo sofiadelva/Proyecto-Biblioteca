@@ -55,22 +55,25 @@ $routes->group('transacciones', ['namespace' => 'App\Controllers'], function($ro
 });
 
 
+// INDEX
 $routes->get('reportes', 'Reportes::index');
-$routes->post('reportes/alumno', 'Reportes::alumno');
-$routes->post('reportes/libro', 'Reportes::libro');
-$routes->post('reportes/prestamos-activos', 'Reportes::prestamosActivos');
-$routes->post('reportes/libros-disponibles', 'Reportes::librosDisponibles');
 
+// POR ALUMNO
+$routes->get('reportes/alumno', 'Reportes::alumnoView');
+$routes->post('reportes/alumno/pdf', 'Reportes::alumno');
 
+// POR LIBRO
+$routes->get('reportes/libro', 'Reportes::libroView');
+$routes->post('reportes/libro/pdf', 'Reportes::libro');
 
+// ACTIVOS
+$routes->get('reportes/activos', 'Reportes::activosView');
+$routes->post('reportes/activos/pdf', 'Reportes::prestamosActivos');
 
+// DISPONIBLES
+$routes->get('reportes/disponibles', 'Reportes::disponiblesView');
+$routes->post('reportes/disponibles/pdf', 'Reportes::librosDisponibles');
 
-
-// Generar los diferentes reportes
-$routes->post('reportes/porAlumno', 'Reportes::porAlumno');
-$routes->post('reportes/porLibro', 'Reportes::porLibro');
-$routes->post('reportes/prestamosActivos', 'Reportes::prestamosActivos');
-$routes->post('reportes/librosDisponibles', 'Reportes::librosDisponibles');
 
 
 // Ejemplares
@@ -102,6 +105,3 @@ $routes->post('devoluciones/store', 'Devoluciones::store');
 $routes->get('alumno/inventario', 'InventarioAlumno::index');
 
 $routes->get('alumno/prestamos', 'PrestamosAlumno::index');
-
-
-
