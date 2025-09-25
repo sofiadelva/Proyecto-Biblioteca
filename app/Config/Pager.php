@@ -25,6 +25,9 @@ class Pager extends BaseConfig
         'default_simple' => 'CodeIgniter\Pager\Views\default_simple',
         'default_head'   => 'CodeIgniter\Pager\Views\default_head',
 
+        /**Esta versión de Codeigniter 4 no permitió un bootstrap por su versión, 
+         * por lo que se puso manualmente en una View. Esto permite filtrar las tablas 
+         * por páginas en el área de reportes. */
         'bootstrap_full'   => 'App\Views\pagers\bootstrap_full',
     ];
 

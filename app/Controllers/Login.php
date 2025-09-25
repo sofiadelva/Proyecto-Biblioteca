@@ -20,7 +20,7 @@ class Login extends BaseController
         if ($datosUsuario) {
             // Guardamos la sesión con más datos
             session()->set([
-            'usuario_id'=> $datosUsuario['usuario_id'], // 👈 guarda el id real
+            'usuario_id'=> $datosUsuario['usuario_id'], // guarda el id real
             'usuario'   => $datosUsuario['carne'],      
             'nombre'    => $datosUsuario['nombre'],
             'rol'       => $datosUsuario['rol'],

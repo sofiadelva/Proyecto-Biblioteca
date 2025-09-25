@@ -3,9 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Everbook Dashboard</title>
+
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Íconos de Bootstrap -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <!-- Fuente Montserrat -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet" />
+
+  <!-- Estilos personalizados -->
   <style>
     body, html {
       height: 100%;
@@ -15,7 +21,6 @@
       color: #343a40;
     }
 
-    /* Sidebar */
     .sidebar {
       min-height: 100vh;
       background-color: #095959;
@@ -126,6 +131,7 @@
       align-items: center;
       color: #343a40;
     }
+
     @media (max-width: 768px) {
       .hero-section { flex-direction: column; text-align: center; }
     }
@@ -174,36 +180,43 @@
   </style>
 </head>
 <body>
+  <!-- Contenedor general con sidebar y panel principal -->
   <div class="container-fluid" style="height: 100vh; display: flex; flex-direction: row;">
     
-    <!-- Sidebar SIN flechas ni collapse -->
+    <!-- Sidebar de navegación -->
     <nav class="col-md-2 d-none d-md-block sidebar py-4">
       <ul class="nav flex-column" id="sidebarMenu">
+
         <li class="nav-item mb-3">
           <a class="nav-link active" href="#">
             <i class="bi bi-house-fill"></i> Home
           </a>
         </li>
+
         <li class="nav-item mb-3">
             <a class="nav-link" href="<?= base_url('libros'); ?>">
               <i class="bi bi-book-fill"></i> Libros
             </a>
         </li>
+
         <li class="nav-item mb-3">
           <a class="nav-link" href="<?= base_url('categorias'); ?>">
             <i class="bi bi-card-list"></i> Categorías
           </a>
         </li>
+
         <li class="nav-item mb-3">
           <a class="nav-link" href="<?= base_url('transacciones'); ?>">
             <i class="bi bi-cash-stack"></i> Transacciones
           </a>
         </li>
+
         <li class="nav-item mb-3">
           <a class="nav-link" href="<?= base_url('usuarios'); ?>">
             <i class="bi bi-person-fill"></i> Usuarios
           </a>
         </li>
+
         <li class="nav-item">
           <a class="nav-link" href="<?= base_url('reportes'); ?>">
             <i class="bi bi-bar-chart-fill"></i> Reportes
@@ -212,8 +225,9 @@
       </ul>
     </nav>
 
-    <!-- Main content -->
+    <!-- Panel principal -->
     <main class="col-md-10 main-panel px-4 d-flex flex-column">
+      
       <div class="row mt-2 mb-3">
         <div class="col-sm-5">
           <div class="welcome-card shadow">
@@ -229,6 +243,7 @@
       </div>
 
       <div class="about-section mt-2 mb-2">Acerca de Nosotros</div>
+
       <div class="bg-white p-4">
         <div class="hero-section">
           <img src="<?= base_url('fotos/libros.png') ?>" alt="Libros" class="hero-img" />
@@ -238,7 +253,7 @@
              En Everbook, creemos que el conocimiento es la llave que abre todas las puertas hacia el éxito. 
              Nuestra biblioteca está dedicada a estudiantes y maestros, ofreciendo un espacio acogedor y 
              moderno donde la curiosidad y el aprendizaje se encuentran. Con una amplia colección de libros, 
-             ecursos digitales y actividades diseñadas para inspirar y apoyar tu crecimiento académico, Everbook 
+             recursos digitales y actividades diseñadas para inspirar y apoyar tu crecimiento académico, Everbook 
              es mucho más que una biblioteca: es tu aliado en cada etapa del aprendizaje. Ven y descubre un mundo de 
              posibilidades, porque en Everbook, tu educación comienza aquí.
             </p>
@@ -246,6 +261,7 @@
         </div>
       </div>
 
+      <!-- Botón de cerrar sesión -->
       <button class="btn logout-btn" type="button" onclick="window.location.href='<?= base_url('login/salir') ?>'"> 
         Cerrar Sesión <i class="bi bi-box-arrow-right"></i>
       </button>

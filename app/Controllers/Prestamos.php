@@ -9,22 +9,18 @@ use App\Models\UsuarioModel;
 
 class Prestamos extends BaseController
 {
-    /**
-     * Mostrar formulario de creación de préstamo
-     */
+    // Mostrar formulario de creación de préstamo.
     public function create()
     {
         $libroModel = new LibroModel();
 
-        // Traer lista de libros para el select
+        // Traer lista de libros para el select.
         $data['libros'] = $libroModel->findAll();
 
         return view('Bibliotecario/Gestion/prestamos', $data);
     }
 
-    /**
-     * Obtener ejemplares disponibles de un libro (AJAX)
-     */
+    // Obtener ejemplares disponibles de un libro
     public function getEjemplares($libro_id)
     {
         $ejemplarModel = new EjemplarModel();
@@ -38,9 +34,7 @@ class Prestamos extends BaseController
         return $this->response->setJSON($ejemplares);
     }
 
-    /**
-     * Guardar préstamo en BD
-     */
+    // Guardar préstamo en BD
     public function store()
     {
         $prestamoModel = new PrestamoModel();

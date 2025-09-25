@@ -9,9 +9,8 @@ use App\Models\EjemplarModel;
 
 class Devoluciones extends BaseController
 {
-    /**
-     * Mostrar lista de préstamos en proceso con opción de búsqueda
-     */
+    // Mostrar lista de préstamos en proceso con opción de búsqueda.
+    
     public function index()
     {
         $prestamoModel = new PrestamoModel();
@@ -21,10 +20,10 @@ class Devoluciones extends BaseController
 
         $buscar = $this->request->getGet('buscar');
 
-        // Base query: solo prestamos en proceso
+        // Base query: solo préstamos en proceso.
         $prestamos = $prestamoModel->where('estado', 'En proceso')->findAll();
 
-        // Enriquecer los datos con carne, titulo y no_copia
+        // Dar los datos con carne, titulo y no_copia.
         foreach ($prestamos as &$prestamo) {
             $usuario   = $usuarioModel->find($prestamo['usuario_id']);
             $libro     = $libroModel->find($prestamo['libro_id']);
@@ -35,7 +34,7 @@ class Devoluciones extends BaseController
             $prestamo['no_copia'] = $ejemplar['no_copia'] ?? '';
         }
 
-        // Filtrar si hay búsqueda
+        // Filtrar si se utiliza la búsqueda.
         if (!empty($buscar)) {
             $prestamos = array_filter($prestamos, function ($p) use ($buscar) {
                 return stripos($p['carne'], $buscar) !== false
@@ -52,9 +51,8 @@ class Devoluciones extends BaseController
         return view('Bibliotecario/Gestion/devoluciones', $data);
     }
 
-    /**
-     * Guardar devolución
-     */
+    //Guardar devolución.
+   
     public function store()
     {
         $prestamoModel = new PrestamoModel();

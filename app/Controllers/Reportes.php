@@ -9,15 +9,14 @@ use App\Models\PrestamoAlumnoModel;
 
 class Reportes extends BaseController
 {
-    // 📊 INDEX con botones
+    // INDEX con botones
     public function index()
     {
         return view('Administrador/Reportes/index');
     }
 
-    // =====================
-    // 🔹 REPORTE POR ALUMNO
-    // =====================
+    // REPORTE POR ALUMNO
+
     public function alumnoView()
     {
         $usuarioModel = new UsuarioModel();
@@ -94,9 +93,8 @@ class Reportes extends BaseController
         exit;
     }
 
-    // =====================
-    // 🔹 REPORTE POR LIBRO
-    // =====================
+    // REPORTE POR LIBRO
+
     public function libroView()
     {
         $libroModel = new LibroModel();
@@ -173,9 +171,8 @@ class Reportes extends BaseController
         exit;
     }
 
-    // ==============================
-    // 🔹 REPORTE PRÉSTAMOS ACTIVOS
-    // ==============================
+    // REPORTE PRÉSTAMOS ACTIVOS
+
     public function activosView()
     {
         $prestamoModel = new PrestamoAlumnoModel();
@@ -233,9 +230,8 @@ class Reportes extends BaseController
         exit;
     }
 
-    // ==================================
-    // 🔹 REPORTE LIBROS DISPONIBLES
-    // ==================================
+    // REPORTE LIBROS DISPONIBLES
+
     public function disponiblesView()
     {
         $libroModel = new LibroModel();

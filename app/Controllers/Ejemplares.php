@@ -16,7 +16,7 @@ class Ejemplares extends BaseController
         $this->libroModel = new LibroModel();
     }
 
-    // 📌 Listar ejemplares de un libro
+    // Listar ejemplares de un libro
     public function listar($libro_id)
 {
     $libro = $this->libroModel->find($libro_id);
@@ -34,7 +34,7 @@ class Ejemplares extends BaseController
 }
 
 
-    // 📌 Formulario nuevo ejemplar
+    // Formulario nuevo ejemplar
     public function new($libro_id)
     {
         $libro = $this->libroModel->find($libro_id);
@@ -44,7 +44,7 @@ class Ejemplares extends BaseController
         ]);
     }
 
-    // 📌 Guardar ejemplar
+    // Guardar ejemplar
     public function create()
     {
         $data = [
@@ -68,7 +68,7 @@ class Ejemplares extends BaseController
                          ->with('msg', 'Ejemplar agregado correctamente.');
     }
 
-    // 📌 Formulario editar ejemplar
+    // Formulario editar ejemplar
     public function edit($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -80,7 +80,7 @@ class Ejemplares extends BaseController
         ]);
     }
 
-    // 📌 Actualizar ejemplar
+    // Actualizar ejemplar
     public function update($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -88,7 +88,7 @@ class Ejemplares extends BaseController
 
         $this->ejemplarModel->update($ejemplar_id, ['estado' => $nuevoEstado]);
 
-        // 🔹 actualizar cantidad disponibles si cambió el estado
+        // Actualizar cantidad disponibles si cambió el estado
         if ($ejemplar['estado'] !== $nuevoEstado) {
             $libro = $this->libroModel->find($ejemplar['libro_id']);
 
@@ -107,7 +107,7 @@ class Ejemplares extends BaseController
                          ->with('msg', 'Ejemplar actualizado correctamente.');
     }
 
-    // 📌 Eliminar ejemplar
+    // Eliminar ejemplar
     public function delete($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -115,7 +115,7 @@ class Ejemplares extends BaseController
 
         $this->ejemplarModel->delete($ejemplar_id);
 
-        // 🔹 actualizar cantidades del libro
+        // Actualizar cantidades del libro
         $updateData = [
             'cantidad_total' => max(0, $libro['cantidad_total'] - 1)
         ];

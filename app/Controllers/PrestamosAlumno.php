@@ -8,7 +8,7 @@ class PrestamosAlumno extends BaseController
 {
     public function index()
     {
-        // 🔹 ID del alumno logueado desde la sesión
+        // ID del alumno logueado desde la sesión
         $usuarioId = session()->get('usuario_id');
 
         $prestamoModel = new PrestamoAlumnoModel();

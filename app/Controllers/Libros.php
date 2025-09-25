@@ -17,7 +17,7 @@ class Libros extends Controller
         $this->categoriaModel = new CategoriaModel();
     }
 
-    // 📌 Listar todos los libros
+    // Listar todos los libros
     public function index()
 {
     // Obtener parámetros GET
@@ -76,7 +76,7 @@ class Libros extends Controller
 
 
 
-    // 📌 Mostrar formulario de nuevo libro
+    // Mostrar formulario de nuevo libro
     public function new()
     {
         // Pasamos las categorías para llenar el <select>
@@ -84,7 +84,7 @@ class Libros extends Controller
         return view('Administrador/Libros/nuevo', $data);
     }
 
-    // 📌 Guardar libro en la base de datos
+    // Guardar libro en la base de datos
     public function create()
     {
         $this->libroModel->insert([
@@ -100,7 +100,7 @@ class Libros extends Controller
         return redirect()->to(base_url('libros'));
     }
 
-    // 📌 Mostrar formulario de edición de un libro
+    // Mostrar formulario de edición de un libro
     public function edit($id)
     {
         $data['libro'] = $this->libroModel->find($id);           // libro actual
@@ -108,7 +108,7 @@ class Libros extends Controller
         return view('Administrador/Libros/edit', $data);
     }
 
-    // 📌 Actualizar un libro
+    // Actualizar un libro
     public function update($id)
     {
         $this->libroModel->update($id, [

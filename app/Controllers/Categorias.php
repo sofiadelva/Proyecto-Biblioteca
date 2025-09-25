@@ -14,7 +14,7 @@ class Categorias extends Controller
         helper(['form', 'url']);
     }
 
-    // Listar categorías
+    // Lista las categorías
     public function index()
     {
         $categorias = $this->categoriaModel->findAll();

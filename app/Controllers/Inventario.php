@@ -10,13 +10,13 @@ class Inventario extends BaseController
     {
         $libroModel = new LibroModel();
 
-        // 🔹 Iniciar query con JOIN a categorías (solo libros disponibles)
+        // Iniciar query con JOIN a categorías (solo libros disponibles)
         $query = $libroModel
             ->select('libros.*, categorias.nombre as categoria')
             ->join('categorias', 'categorias.categoria_id = libros.categoria_id', 'left')
             ->where('libros.estado', 'Disponible');
 
-        // 🔹 Búsqueda por título o autor
+        // Búsqueda por título o autor
         $buscar = $this->request->getGet('buscar');
         if (!empty($buscar)) {
             $query->groupStart()
@@ -25,7 +25,7 @@ class Inventario extends BaseController
                   ->groupEnd();
         }
 
-        // 🔹 Ordenamiento
+        // Ordenamiento
         $ordenar = $this->request->getGet('ordenar');
         if (!empty($ordenar)) {
             switch ($ordenar) {
@@ -50,7 +50,7 @@ class Inventario extends BaseController
             }
         }
 
-        // 🔹 Pasar resultados y búsqueda a la vista
+        // Pasar resultados y búsqueda a la vista
         $data = [
             'libros' => $query->findAll(),
             'buscar' => $buscar

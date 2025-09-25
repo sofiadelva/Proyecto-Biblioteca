@@ -6,6 +6,6 @@ class Bibliotecario extends BaseController
 {
     public function panel()
     {
-        return view('Bibliotecario/panel'); // 👈 app/Views/Bibliotecario/panel.php
+        return view('Bibliotecario/panel'); // Muestra la view de la página principal del bibliotecario.
     }
 }

@@ -6,12 +6,11 @@ class Administrador extends BaseController
 {
     public function panel()
     {
-        return view('Administrador/panel'); // 👈 busca en app/Views/Administrador/panel.php
+        return view('Administrador/panel'); // Muestra la view de la página principal del administrador.
     }
 
     public function libros()
     {
-        // cuando entres a libros, cargas directamente la vista
-        return view('Administrador/Libros/libros');
+        return view('Administrador/Libros/libros');// Carga directamente la vista de libros.
     }
 }
