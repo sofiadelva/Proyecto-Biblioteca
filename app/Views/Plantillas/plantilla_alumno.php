@@ -1,3 +1,4 @@
+<!-- Plantilla oficial usada en alumnos -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

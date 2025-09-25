@@ -1,3 +1,4 @@
+<!-- Plantilla oficial usada en administrador -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

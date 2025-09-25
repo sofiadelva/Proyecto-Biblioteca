@@ -1,6 +1,11 @@
-<?= $this->extend('Plantillas/plantilla_admin'); ?>
-<?= $this->section('titulo'); ?>Reporte por Alumno<?= $this->endSection(); ?>
-<?= $this->section('contenido'); ?>
+<?= $this->extend('Plantillas/plantilla_admin'); ?> 
+<!-- Hereda la plantilla principal. -->
+
+<?= $this->section('titulo'); ?>Reporte por Alumno<?= $this->endSection(); ?> 
+<!-- Define el título de la vista. -->
+
+<?= $this->section('contenido'); ?> 
+<!-- Inicia el contenido principal. -->
 
 <form method="get" action="">
     <label>Alumno:</label>
@@ -10,32 +15,10 @@
             <option value="<?= esc($a['nombre']) ?>"></option>
         <?php endforeach; ?>
     </datalist>
+    <!-- Campo para elegir un alumno con lista desplegable. -->
 
     <label>Filas por página:</label>
     <input type="number" name="per_page" value="<?= $perPage ?>" min="1" class="form-control w-25">
     <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
 </form>
-
-<table class="table table-bordered mt-3">
-    <tr><th>Título</th><th>No.Copia</th><th>Préstamo</th><th>Devolución</th><th>Devuelto</th><th>Estado</th></tr>
-    <?php foreach($prestamos as $p): ?>
-    <tr>
-        <td><?= $p['titulo'] ?></td>
-        <td><?= $p['no_copia'] ?></td>
-        <td><?= $p['fecha_prestamo'] ?></td>
-        <td><?= $p['fecha_de_devolucion'] ?></td>
-        <td><?= $p['fecha_devuelto'] ?? '-' ?></td>
-        <td><?= $p['estado'] ?></td>
-    </tr>
-    <?php endforeach; ?>
-</table>
-
-<?= $pager->links('default', 'bootstrap_full') ?>
-
-
-<form method="post" action="<?= base_url('reportes/alumno/pdf') ?>">
-    <input type="hidden" name="usuario_nombre" value="<?= $nombreAlumno ?>">
-    <button type="submit" class="btn btn-danger">Descargar PDF</button>
-</form>
-
-<?= $this->endSection(); ?>
+<!-- Formulario GET para filtrar por alumno y

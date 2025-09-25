@@ -1,19 +1,22 @@
-<?= $this->extend('Plantillas/plantilla_alumno'); ?>
+<?= $this->extend('Plantillas/plantilla_alumno'); ?>  
+<!-- Extiende la plantilla específica para alumnos. -->
 
 <?= $this->section('titulo'); ?>
 Inventario
-<?= $this->endSection(); ?>
+<?= $this->endSection(); ?>  
+<!-- Título de la página. -->
 
-<?= $this->section('contenido'); ?>
+<?= $this->section('contenido'); ?>  
+<!-- Contenido principal. -->
 
-<!-- ✅ Mensaje flash -->
 <?php if(session()->getFlashdata('msg')): ?>
     <div class="alert alert-info">
         <?= session()->getFlashdata('msg') ?>
     </div>
-<?php endif; ?>
+<?php endif; ?>  
+<!-- Muestra mensajes flash (notificaciones). -->
 
-<!-- 🔹 Filtros: búsqueda y orden -->
+<!-- Filtros: búsqueda y orden -->
 <div class="d-flex justify-content-between align-items-center mb-3">
 
     <!-- Barra de búsqueda -->
@@ -29,6 +32,7 @@ Inventario
             Buscar
         </button>
     </form>
+    <!-- Permite buscar libros por título o autor. -->
 
     <!-- Ordenar -->
     <form class="d-inline" method="get" action="<?= base_url('inventario_alumno'); ?>">
@@ -43,10 +47,10 @@ Inventario
         </select>
         <button type="submit" class="btn btn-primary">Ordenar</button>
     </form>
+    <!-- Permite ordenar la tabla según diferentes criterios. -->
 </div>
 
-
-<!-- 🔹 Tabla de inventario -->
+<!-- Tabla de inventario -->
 <table class="table table-hover table-bordered my-3">
     <thead class="table-dark">
         <tr>
@@ -77,5 +81,7 @@ Inventario
         <?php endif; ?>
     </tbody>
 </table>
+<!-- Muestra los libros disponibles filtrando solo los que están en estado 'Disponible'. -->
 
-<?= $this->endSection(); ?>
+<?= $this->endSection(); ?>  
+<!-- Fin de la sección de contenido. -->

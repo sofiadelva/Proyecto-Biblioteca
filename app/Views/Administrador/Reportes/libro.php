@@ -1,6 +1,11 @@
-<?= $this->extend('Plantillas/plantilla_admin'); ?>
-<?= $this->section('titulo'); ?>Reporte por Libro<?= $this->endSection(); ?>
-<?= $this->section('contenido'); ?>
+<?= $this->extend('Plantillas/plantilla_admin'); ?>  
+<!-- Extiende la plantilla principal. -->
+
+<?= $this->section('titulo'); ?>Reporte por Libro<?= $this->endSection(); ?>  
+<!-- Título de la página. -->
+
+<?= $this->section('contenido'); ?>  
+<!-- Contenido principal. -->
 
 <form method="get" action="">
     <label>Libro:</label>
@@ -10,11 +15,13 @@
             <option value="<?= esc($l['titulo']) ?>"></option>
         <?php endforeach; ?>
     </datalist>
+    <!-- Campo para seleccionar un libro con autocompletado. -->
 
     <label class="mt-2">Filas por página:</label>
     <input type="number" name="per_page" value="<?= $perPage ?>" min="1" class="form-control w-25">
     <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
 </form>
+<!-- Formulario GET para filtrar préstamos por libro y número de filas. -->
 
 <table class="table table-bordered mt-3">
     <tr><th>Alumno</th><th>No.Copia</th><th>Préstamo</th><th>Devolución</th><th>Devuelto</th><th>Estado</th></tr>
@@ -29,12 +36,16 @@
     </tr>
     <?php endforeach; ?>
 </table>
+<!-- Tabla con los préstamos del libro seleccionado, mostrando fechas y estado. -->
 
-<?= $pager->links('default', 'bootstrap_full') ?>
+<?= $pager->links('default', 'bootstrap_full') ?>  
+<!-- Paginación con estilo Bootstrap. -->
 
 <form method="post" action="<?= base_url('reportes/libro/pdf') ?>">
     <input type="hidden" name="libro_titulo" value="<?= $tituloLibro ?>">
     <button type="submit" class="btn btn-danger">Descargar PDF</button>
 </form>
+<!-- Botón para exportar el reporte filtrado a PDF. -->
 
-<?= $this->endSection(); ?>
+<?= $this->endSection(); ?>  
+<!-- Fin del contenido principal. -->

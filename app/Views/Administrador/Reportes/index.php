@@ -1,24 +1,26 @@
-<?= $this->extend('Plantillas/plantilla_admin'); ?>
+<?= $this->extend('Plantillas/plantilla_admin'); ?>  
+<!-- Hereda la plantilla base. -->
 
 <?= $this->section('titulo'); ?>
 Reportes
-<?= $this->endSection(); ?>
+<?= $this->endSection(); ?>  
+<!-- Título de la página. -->
 
-<?= $this->section('contenido'); ?>
+<?= $this->section('contenido'); ?>  
+<!-- Contenido principal. -->
 
-<!-- ✅ Mensaje flash -->
+<!-- Mensaje flash si existe -->
 <?php if(session()->getFlashdata('msg')): ?>
     <div class="alert alert-info">
         <?= session()->getFlashdata('msg') ?>
     </div>
-<?php endif; ?>
+<?php endif; ?>  
 
 <div class="text-center my-5">
     <h3 class="mb-4">Opciones de Reporte</h3>
 
-    <!-- Botones de navegación -->
+    <!-- Botones de navegación a distintos reportes -->
     <div class="d-flex justify-content-center gap-4">
-        
         <a href="<?= base_url('reportes/alumno') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#206060; border:none;">
             <i class="bi bi-journal-plus me-2"></i> Reporte por Alumno
         </a>
@@ -36,5 +38,7 @@ Reportes
         </a>
     </div>
 </div>
+<!-- Cuatro botones principales que redirigen a los distintos reportes disponibles -->
 
-<?= $this->endSection(); ?>
+<?= $this->endSection(); ?>  
+<!-- Fin del contenido principal. -->

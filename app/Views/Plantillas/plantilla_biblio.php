@@ -1,3 +1,4 @@
+<!-- Plantilla oficial usada en bibliotecario -->
 <!DOCTYPE html>
 <html lang="es">
 <head>

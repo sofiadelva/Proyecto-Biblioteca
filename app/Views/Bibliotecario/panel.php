@@ -196,42 +196,55 @@
 <body>
   <div class="container-fluid" style="flex: 1 0 auto;">
     <div class="row" style="height: 100%;">
-      <!-- Sidebar -->
+      <!-- Barra lateral -->
       <nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
         <div class="mb-4">
           <ul class="nav flex-column">
+            <!-- Enlace a Home -->
             <li class="nav-item mb-3">
               <a class="nav-link active" href="#"><i class="bi bi-house-door-fill"></i> Home</a>
             </li>
+            <!-- Enlace al inventario -->
             <li class="nav-item mb-3">
               <a class="nav-link" href="<?= base_url('inventario'); ?>"><i class="bi bi-journal-bookmark-fill"></i> Inventario</a>
             </li>
+            <!-- Enlace a la gestión de libros -->
             <li class="nav-item mb-3">
               <a class="nav-link" href="<?= base_url('gestion_libros'); ?>"><i class="bi bi-book-half"></i> Gestión de Libros</a>
             </li>
           </ul>
         </div>
       </nav>
-      <!-- Main Content -->
+
+      <!-- Panel principal -->
       <main class="col-md-10 main-panel px-4">
+        <!-- Fila con tarjeta de bienvenida y logo -->
         <div class="row mt-2 mb-3">
           <div class="col-sm-5">
+            <!-- Tarjeta de bienvenida con el nombre del usuario desde sesión -->
             <div class="welcome-card shadow">
               Bienvenido/a<br /><?= session('nombre') ?>
             </div>
           </div>
           <div class="col-sm-7">
+            <!-- Logo y nombre del sistema -->
             <div class="header-logo shadow">
               <img src="<?= base_url('fotos/generated-image.png') ?>" class="logo-img" alt="Logo" />
               <span>EverBook</span>
             </div>
           </div>
         </div>
+
+        <!-- Sección "Acerca de Nosotros" -->
         <div class="about-section mt-2 mb-2">Acerca de Nosotros</div>
+
+        <!-- Sección con imagen y texto descriptivo -->
         <div class="bg-white p-4">
           <div class="hero-section">
+            <!-- Imagen de libros -->
             <img src="<?= base_url('fotos/libros.png') ?>" alt="Estantería de libros en Everbook" class="hero-img" />
             <div class="hero-text">
+              <!-- Título y párrafo explicativo -->
               <h1 class="hero-title">Bienvenido a Everbook</h1>
               <p class="hero-paragraph">
                 En Everbook, creemos que el conocimiento es la llave que abre todas las puertas hacia el éxito. Nuestra biblioteca está dedicada a estudiantes y maestros, ofreciendo un espacio acogedor y moderno donde la curiosidad y el aprendizaje se encuentran. Con una amplia colección de libros, recursos digitales y actividades diseñadas para inspirar y apoyar tu crecimiento académico, Everbook es mucho más que una biblioteca: es tu aliado en cada etapa del aprendizaje. Ven y descubre un mundo de posibilidades, porque en Everbook, tu educación comienza aquí.
@@ -239,12 +252,16 @@
             </div>
           </div>
         </div>
+
+        <!-- Botón de cierre de sesión -->
         <button class="btn logout-btn" type="button" onclick="window.location.href='<?= base_url('login/salir') ?>'"> 
-    Cerrar Sesión <i class="bi bi-box-arrow-right"></i>
-    </button>
+          Cerrar Sesión <i class="bi bi-box-arrow-right"></i>
+        </button>
       </main>
     </div>
   </div>
+
+  <!-- Script de Bootstrap -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

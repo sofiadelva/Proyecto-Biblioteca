@@ -1,38 +1,38 @@
+<!-- Esta vista hereda/usa la plantilla principal del bibliotecario -->
 <?= $this->extend('Plantillas/plantilla_biblio'); ?>
 
+<!-- Sección para el título de la página -->
 <?= $this->section('titulo'); ?>
 Inventario
 <?= $this->endSection(); ?>
 
+<!-- Sección para el contenido principal -->
 <?= $this->section('contenido'); ?>
 
-<!-- ✅ Mensaje flash -->
 <?php if(session()->getFlashdata('msg')): ?>
     <div class="alert alert-info">
         <?= session()->getFlashdata('msg') ?>
     </div>
 <?php endif; ?>
 
-<!-- 🔹 Filtros: búsqueda y orden -->
+<!-- Contenedor para filtros: búsqueda y orden -->
 <div class="d-flex justify-content-between align-items-center mb-3">
 
-    <!-- Barra de búsqueda -->
-    <!-- Barra de búsqueda -->
-<form method="get" action="<?= base_url('inventario'); ?>" class="d-flex">
-    <input 
-        type="text" 
-        name="buscar" 
-        class="form-control me-2" 
-        placeholder="Buscar por título o autor..." 
-        value="<?= esc($buscar ?? '') ?>"
-    >
-    <button type="submit" class="btn btn-success" style="background-color:#206060; border:none;">
-        Buscar
-    </button>
-</form>
+    <!-- Formulario de búsqueda (filtra por título o autor) -->
+    <form method="get" action="<?= base_url('inventario'); ?>" class="d-flex">
+        <input 
+            type="text" 
+            name="buscar" 
+            class="form-control me-2" 
+            placeholder="Buscar por título o autor..." 
+            value="<?= esc($buscar ?? '') ?>"  <!-- Mantiene el texto buscado si ya se envió -->
+        >
+        <button type="submit" class="btn btn-success" style="background-color:#206060; border:none;">
+            Buscar
+        </button>
+    </form>
 
-
-    <!-- Ordenar -->
+    <!-- Formulario de orden (ordena los resultados según el criterio seleccionado) -->
     <form class="d-inline" method="get" action="<?= base_url('inventario'); ?>">
         <select name="ordenar" class="form-select d-inline w-auto">
             <option value="">Ordenar por...</option>
@@ -47,7 +47,7 @@ Inventario
     </form>
 </div>
 
-<!-- 🔹 Tabla de inventario -->
+<!-- Tabla donde se listan los libros disponibles del inventario -->
 <table class="table table-hover table-bordered my-3">
     <thead class="table-dark">
         <tr>
@@ -59,8 +59,11 @@ Inventario
         </tr>
     </thead>
     <tbody>
+        <!-- Si existen libros en la variable $libros -->
         <?php if (!empty($libros)): ?>
+            <!-- Recorre cada libro de la lista -->
             <?php foreach($libros as $libro): ?>
+                <!-- Solo se muestran los libros cuyo estado sea "Disponible" -->
                 <?php if ($libro['estado'] === 'Disponible'): ?>
                     <tr>
                         <td><?= esc($libro['titulo']) ?></td>
@@ -72,6 +75,7 @@ Inventario
                 <?php endif; ?>
             <?php endforeach; ?>
         <?php else: ?>
+            <!-- Si no hay libros, se muestra un mensaje -->
             <tr>
                 <td colspan="5" class="text-center text-muted">No hay libros disponibles en el inventario.</td>
             </tr>
@@ -79,4 +83,5 @@ Inventario
     </tbody>
 </table>
 
+<!-- Fin de la sección de contenido -->
 <?= $this->endSection(); ?>

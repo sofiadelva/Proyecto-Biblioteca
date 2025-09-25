@@ -3,66 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <title>Everbook Dashboard</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
   <style>
-    /* Reset and base */
+    /* Reset de estilos y base */
     body, html {
-      height: 100%;
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f7f8;
-      color: #343a40;
+      height: 100%; /* Asegura que el body ocupe toda la altura */
+      margin: 0;    /* Elimina margenes por defecto */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente base */
+      background-color: #f4f7f8; /* Fondo gris claro */
+      color: #343a40; /* Color de texto principal */
     }
 
-    /* Sidebar */
+    /* Sidebar lateral */
     .sidebar {
-      min-height: 100vh;
-      background-color: #0e4c51; /* deep teal */
-      color: #f8f9fa;
+      min-height: 100vh; /* Ocupa toda la altura de la ventana */
+      background-color: #0e4c51; /* Color fondo teal oscuro */
+      color: #f8f9fa; /* Texto blanco */
       padding-top: 20px;
     }
 
     .sidebar .nav-link {
-      color: #f8f9fa;
+      color: #f8f9fa; /* Color de enlaces */
       font-size: 1.1rem;
       padding: 12px 24px;
       display: flex;
       align-items: center;
-      gap: 15px;
+      gap: 15px; /* Espacio entre ícono y texto */
       border-radius: 6px;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.3s ease; /* Animación suave */
       font-weight: 500;
     }
 
+    /* Estado hover o activo */
     .sidebar .nav-link:hover,
     .sidebar .nav-link.active {
-      background-color: #0f7a7a;
+      background-color: #0f7a7a; /* Cambio de color al pasar el mouse o activo */
       color: #ffffff;
       text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); /* Sombra suave */
     }
 
     .sidebar .nav-link i {
-      font-size: 1.4rem;
-      min-width: 28px;
+      font-size: 1.4rem; /* Tamaño del icono */
+      min-width: 28px;   /* Espacio mínimo */
       text-align: center;
     }
 
-    /* Main content */
+    /* Main panel / contenido principal */
     .main-panel {
-      background-color: #ffffff;
+      background-color: #ffffff; /* Fondo blanco */
       min-height: 100vh;
       padding: 2rem 2.5rem;
       position: relative;
       display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
+      flex-direction: column; /* Columna para secciones verticales */
+      gap: 1.5rem; /* Separación entre elementos */
     }
 
-    /* Welcome card */
+    /* Tarjeta de bienvenida */
     .welcome-card {
-      background: linear-gradient(135deg, #206060, #0d7373);
+      background: linear-gradient(135deg, #206060, #0d7373); /* Gradiente teal */
       color: #f8f9fa;
       border-radius: 12px;
       min-height: 180px;
@@ -73,11 +76,11 @@
       font-size: 2.8rem;
       font-weight: 700;
       text-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      box-shadow: 0 8px 20px rgba(13,115,115,0.4);
-      user-select: none;
+      box-shadow: 0 8px 20px rgba(13,115,115,0.4); /* Sombra de profundidad */
+      user-select: none; /* Evita selección de texto */
     }
 
-    /* Header logo */
+    /* Logo de header */
     .header-logo {
       display: flex;
       align-items: center;
@@ -103,9 +106,9 @@
       user-select: none;
     }
 
-    /* About section header */
+    /* Sección "Acerca de Nosotros" */
     .about-section {
-      background: linear-gradient(90deg, #9c443a, #c75447);
+      background: linear-gradient(90deg, #9c443a, #c75447); /* Gradiente rojo */
       color: #fff;
       padding: 16px 32px;
       font-size: 1.8rem;
@@ -115,7 +118,7 @@
       user-select: none;
     }
 
-    /* Hero section */
+    /* Hero section (imagen + texto) */
     .hero-section {
       display: flex;
       gap: 40px;
@@ -127,7 +130,7 @@
     }
     @media (max-width: 768px) {
       .hero-section {
-        flex-direction: column;
+        flex-direction: column; /* Columna en pantallas pequeñas */
         text-align: center;
       }
     }
@@ -163,7 +166,7 @@
       user-select: none;
     }
 
-    /* Logout button */
+    /* Botón flotante de cierre de sesión */
     .logout-btn {
       position: fixed;
       bottom: 30px;
@@ -199,30 +202,38 @@
         <div class="mb-4">
           <ul class="nav flex-column">
             <li class="nav-item mb-3">
+              <!-- Link Home -->
               <a class="nav-link active" href="#"><i class="bi bi-house-door-fill"></i> Home</a>
             </li>
             <li class="nav-item mb-3">
+              <!-- Link Inventario -->
               <a class="nav-link <?= (uri_string() === 'alumno/inventario') ? 'active' : '' ?>" 
-   href="<?= base_url('alumno/inventario'); ?>">
-   <i class="bi bi-journal-bookmark-fill"></i> Inventario
-</a>
-
+                 href="<?= base_url('alumno/inventario'); ?>">
+                 <i class="bi bi-journal-bookmark-fill"></i> Inventario
+              </a>
             </li>
             <li class="nav-item mb-3">
+              <!-- Link Préstamos -->
               <a class="nav-link <?= (uri_string() === 'alumno/prestamos') ? 'active' : '' ?>" 
-               href="<?= base_url('alumno/prestamos'); ?>"><i class="bi bi-box-arrow-in-right"></i> Préstamos</a>
+                 href="<?= base_url('alumno/prestamos'); ?>">
+                 <i class="bi bi-box-arrow-in-right"></i> Préstamos
+              </a>
             </li>
           </ul>
         </div>
       </nav>
+
       <!-- Main Content -->
       <main class="col-md-10 main-panel px-4">
         <div class="row mt-2 mb-3">
+          <!-- Tarjeta de bienvenida -->
           <div class="col-sm-5">
             <div class="welcome-card shadow">
               Bienvenido/a<br /><?= session('nombre') ?>
             </div>
           </div>
+
+          <!-- Logo y nombre -->
           <div class="col-sm-7">
             <div class="header-logo shadow">
               <img src="<?= base_url('fotos/generated-image.png') ?>" class="logo-img" alt="Logo" />
@@ -230,7 +241,11 @@
             </div>
           </div>
         </div>
+
+        <!-- Sección Acerca de Nosotros -->
         <div class="about-section mt-2 mb-2">Acerca de Nosotros</div>
+
+        <!-- Hero section -->
         <div class="bg-white p-4">
           <div class="hero-section">
             <img src="<?= base_url('fotos/libros.png') ?>" alt="Estantería de libros en Everbook" class="hero-img" />
@@ -242,12 +257,15 @@
             </div>
           </div>
         </div>
+
+        <!-- Botón de cerrar sesión -->
         <button class="btn logout-btn" type="button" onclick="window.location.href='<?= base_url('login/salir') ?>'"> 
-    Cerrar Sesión <i class="bi bi-box-arrow-right"></i>
-    </button>
+          Cerrar Sesión <i class="bi bi-box-arrow-right"></i>
+        </button>
       </main>
     </div>
   </div>
+  <!-- Bootstrap JS bundle -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
