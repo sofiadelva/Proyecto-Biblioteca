@@ -1,39 +1,97 @@
-<?= $this->extend('Plantillas/plantilla_admin'); ?>  
-<!-- Usa la plantilla principal de admin. -->
+<?= $this->extend('Plantillas/plantilla_admin'); ?> 
 
-<?= $this->section('titulo'); ?>Reporte de Libros Disponibles<?= $this->endSection(); ?>  
-<!-- Define el título de la vista. -->
+<?= $this->section('titulo'); ?>Reporte de Libros Disponibles<?= $this->endSection(); ?> 
 
-<?= $this->section('contenido'); ?>  
-<!-- Inicia el contenido principal. -->
+<?= $this->section('contenido'); ?> 
 
-<form method="get" action="">
-    <label>Filas por página:</label>
-    <input type="number" name="per_page" value="<?= $perPage ?>" min="1" class="form-control w-25">
-    <button type="submit" class="btn btn-primary mt-2">Filtrar</button>
-</form>
-<!-- Formulario GET para ajustar cuántos libros mostrar por página. -->
+<div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
+    <h3 class="section-title mb-3 pb-2 border-bottom">
+        <i class="bi bi-funnel me-2" style="color: #206060;"></i>
+        Filtros de Reporte
+    </h3>
+    <form method="get" action="" class="row g-3 align-items-end">
+        
+        <div class="col-md-3">
+            <label for="inputPerPage" class="form-label fw-bold">Filas por página:</label>
+            <input type="number" name="per_page" id="inputPerPage" 
+                   value="<?= esc($perPage ?? 10) ?>" min="1" class="form-control">
+        </div>
+        
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#095959; border-color:#095959;">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+    </form>
+</div>
 
-<table class="table table-bordered mt-3">
-    <tr><th>Título</th><th>Autor</th><th>Editorial</th><th>Cantidad</th></tr>
-    <?php foreach($libros as $l): ?>
-    <tr>
-        <td><?= $l['titulo'] ?></td>
-        <td><?= $l['autor'] ?></td>
-        <td><?= $l['editorial'] ?></td>
-        <td><?= $l['cantidad_disponibles'] ?></td>
-    </tr>
-    <?php endforeach; ?>
-</table>
-<!-- Tabla que lista los libros con sus datos y cantidad disponible. -->
+<h3 class="mt-4 mb-3">Inventario de Libros Disponibles</h3>
+<div class="card shadow-sm border-0" style="border-radius: 12px; overflow-x: auto;">
+    <table class="clean-table table-hover"> 
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Editorial</th>
+                <th>Cantidad Disponible</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (empty($libros)): ?> 
+                <tr>
+                    <td colspan="4" class="text-center py-4">No hay libros marcados como disponibles en el inventario.</td>
+                </tr>
+            <?php else: ?>
+                <?php foreach($libros as $l): ?>
+                <tr>
+                    <td><?= esc($l['titulo']) ?></td>
+                    <td><?= esc($l['autor']) ?></td>
+                    <td><?= esc($l['editorial']) ?></td>
+                    <td>
+                        <span class="badge bg-success">
+                            <?= esc($l['cantidad_disponibles']) ?>
+                        </span>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </tbody>
+    </table>
+</div>
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <?= $pager->links('default', 'bootstrap_full') ?>
+    
+    <form method="post" action="<?= base_url('reportes/disponibles/pdf') ?>">
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-file-earmark-pdf-fill me-1"></i> Descargar PDF
+        </button>
+    </form>
+</div>
 
-<?= $pager->links('default', 'bootstrap_full') ?>  
-<!-- Paginación con estilo Bootstrap. -->
+<?= $this->endSection(); ?> 
 
-<form method="post" action="<?= base_url('reportes/disponibles/pdf') ?>">
-    <button type="submit" class="btn btn-danger">Descargar PDF</button>
-</form>
-<!-- Botón para generar y descargar el reporte en PDF. -->
-
-<?= $this->endSection(); ?>  
-<!-- Cierra la sección de contenido. -->
+<?php $this->section('head'); ?>
+<style>
+    .section-title {
+        color: #206060;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: none !important;
+        border: 1px solid #ced4da;
+    }
+    .btn-primary {
+        background-color: #095959; 
+        border-color: #095959;
+    }
+    .clean-table thead th {
+        background-color: #095959; 
+        color: #ffffff;
+        font-weight: 600;
+        padding: 15px 20px;
+    }
+</style>
+<?php $this->endSection(); ?>

@@ -1,56 +1,101 @@
-<?php echo $this->extend('Plantillas/plantilla_admin'); ?>  
-<!-- Extiende la plantilla base. -->
+<?php 
+// Extiende de la plantilla principal
+echo $this->extend('Plantillas/plantilla_admin'); 
+?>
 
-<?php $this->section('titulo'); ?>
+<?php 
+// Define la sección "titulo" para el encabezado de la página y el tag <title>
+$this->section('titulo'); 
+?>
 Agregar Usuario
-<?php $this->endSection(); ?>  
-<!-- Título de la página. -->
+<?php 
+$this->endSection(); 
+?>
 
-<?php $this->section('contenido'); ?>  
-<!-- Contenido principal. -->
+<?php 
+// Abre la sección "contenido"
+$this->section('contenido'); 
+?>
 
-<form method="post" action="<?= base_url('usuarios/store'); ?>">
-    <!-- Formulario que envía los datos al método store para crear un nuevo usuario. -->
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
+            
+            <h2 class="section-title mb-4 pb-2 border-bottom">
+                <i class="bi bi-person-plus-fill me-2" style="color: #206060;"></i>
+                Registrar Nuevo Usuario
+            </h2>
+            
+            <form method="post" action="<?= base_url('usuarios/store'); ?>" class="row g-4" autocomplete="off">
+                
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
+                    <input type="text" name="nombre" id="nombre" class="form-control" value="<?= old('nombre'); ?>" required>
+                </div>
 
-    <div class="mb-3">
-        <label>Nombre</label>
-        <input type="text" name="nombre" class="form-control" required>
+                <div class="col-md-6">
+                    <label for="carne" class="form-label fw-bold">Carné <span class="text-danger">*</span></label>
+                    <input type="number" name="carne" id="carne" class="form-control" value="<?= old('carne'); ?>" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="correo" class="form-label fw-bold">Correo <span class="text-danger">*</span></label>
+                    <input type="email" name="correo" id="correo" class="form-control" value="<?= old('correo'); ?>" required>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="rol" class="form-label fw-bold">Rol <span class="text-danger">*</span></label>
+                    <select class="form-select" name="rol" id="rol" required>
+                        <option value="">Seleccionar Rol</option>
+                        <option value="admin" <?= old('rol') == 'admin' ? 'selected' : ''; ?>>Administrador</option>
+                        <option value="bibliotecario" <?= old('rol') == 'bibliotecario' ? 'selected' : ''; ?>>Bibliotecario</option>
+                        <option value="alumno" <?= old('rol') == 'alumno' ? 'selected' : ''; ?>>Alumno</option>
+                        <option value="maestro" <?= old('rol') == 'maestro' ? 'selected' : ''; ?>>Maestro</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label for="password" class="form-label fw-bold">Contraseña <span class="text-danger">*</span></label>
+                    <input type="password" name="password" id="password" class="form-control" required>
+                </div>
+                
+                <div class="col-12 mt-5 d-flex justify-content-start gap-3">
+                    <a href="<?= base_url('usuarios'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
+                        <i class="bi bi-arrow-left-short"></i> Regresar
+                    </a>
+                    <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#206060;">
+                        <i class="bi bi-person-plus-fill me-2"></i> Guardar Usuario
+                    </button>
+                </div>
+
+            </form>
+        </div>
     </div>
-    <!-- Campo para ingresar el nombre del usuario. -->
+</div>
 
-    <div class="mb-3">
-        <label>Carne</label>
-        <input type="number" name="carne" class="form-control" required>
-    </div>
-    <!-- Campo para ingresar el número de carne del usuario. -->
+<style>
+    .section-title {
+        color: #206060;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: none !important;
+        border: 1px solid #ced4da;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+</style>
 
-    <div class="mb-3">
-        <label>Correo</label>
-        <input type="email" name="correo" class="form-control" required>
-    </div>
-    <!-- Campo para ingresar el correo del usuario. -->
-
-    <div class="md-3">
-        <label for="estado" class="form-label">Rol</label>
-        <select class="form-select" name="estado" required>
-            <option value="">Seleccionar</option>
-            <option value="Disponible">Administrador</option>
-            <option value="Dañado">Bibliotecario</option>
-            <option value="Disponible">Alumno</option>
-            <option value="Dañado">Maestro</option>
-        </select>
-    </div>
-    <!-- Selector para asignar el rol del usuario. Nota: los values no coinciden con los nombres de roles. -->
-
-    <div class="mb-3">
-        <label>Contraseña</label>
-        <input type="password" name="password" class="form-control" required>
-    </div>
-    <!-- Campo para asignar la contraseña al usuario. -->
-
-    <button type="submit" class="btn btn-success">Agregar</button>
-    <!-- Botón para enviar el formulario y crear el usuario. -->
-</form>
-
-<?php $this->endSection(); ?>  
-<!-- Fin de la sección de contenido. -->
+<?php 
+$this->endSection(); 
+?>

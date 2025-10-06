@@ -135,6 +135,14 @@
               <i class="bi bi-box-arrow-in-right"></i> Préstamos
             </a>
           </li>
+
+          <hr style="margin: 15px 0; border-color: var(--color-accent-soft);">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('login/salir') ?>">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </li>
         </ul>
       </nav>
 

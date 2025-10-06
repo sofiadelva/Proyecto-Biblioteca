@@ -1,75 +1,175 @@
-<?php echo $this->extend('Plantillas/plantilla_admin'); ?>
-<!-- Extiende la plantilla base. -->
+<?php 
+// Extiende de la plantilla principal llamada "plantilla_admin"
+echo $this->extend('Plantillas/plantilla_admin'); 
+?>
 
-<?php $this->section('titulo'); ?>
-Agregar Libro
-<?php $this->endSection(); ?>
-<!-- Sección del título de la página. -->
+<?php 
+// Define la sección "titulo" de la plantilla
+$this->section('titulo'); 
+?>
+Agregar Nuevo Libro
+<?php 
+$this->endSection(); 
+?>
 
-<?php $this->section('contenido'); ?>
-<!-- Contenido principal. -->
+<?php 
+// Abre la sección "contenido" que se mostrará en el layout
+$this->section('contenido'); 
+?>
 
-<form action="<?= base_url('libros/create'); ?>" method="post" class="row g-3" autocomplete="off">
-    <!-- Formulario que envía datos al método create. -->
+<div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
+    
+    <h2 class="section-title mb-4 pb-2 border-bottom">
+        <i class="bi bi-book-half me-2" style="color: #206060;"></i>
+        Registrar Nuevo Libro
+    </h2>
+    
+    <?php if(session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <ul>
+                <?php foreach(session()->getFlashdata('errors') as $error): ?>
+                    <li><?= $error ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-    <div class="col-md-6">
-        <label for="titulo" class="form-label">Título</label>
-        <input type="text" class="form-control" name="titulo" required>
-    </div>
-    <!-- Campo para el título del libro. -->
+    <form action="<?= base_url('libros/create'); ?>" method="post" class="row g-4" autocomplete="off">
+        
+        <div class="col-md-6">
+            <label for="titulo" class="form-label fw-bold">Título <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="titulo" value="<?= old('titulo') ?>" required>
+        </div>
 
-    <div class="col-md-6">
-        <label for="autor" class="form-label">Autor</label>
-        <input type="text" class="form-control" name="autor" required>
-    </div>
-    <!-- Campo para el autor. -->
+        <div class="col-md-6">
+            <label for="autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="autor" value="<?= old('autor') ?>" required>
+        </div>
 
-    <div class="col-md-6">
-        <label for="editorial" class="form-label">Editorial</label>
-        <input type="text" class="form-control" name="editorial">
-    </div>
-    <!-- Campo para la editorial (opcional). -->
+        <div class="col-md-6">
+            <label for="editorial" class="form-label fw-bold">Editorial</label>
+            <input type="text" class="form-control" name="editorial" value="<?= old('editorial') ?>">
+        </div>
 
-    <div class="col-md-3">
-        <label for="cantidad_total" class="form-label">Cantidad Total</label>
-        <input type="number" class="form-control" name="cantidad_total" required>
-    </div>
-    <!-- Total de ejemplares. -->
+        <div class="col-md-3">
+            <label for="cantidad_total" class="form-label fw-bold">Cantidad Total <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="cantidad_total" name="cantidad_total" value="<?= old('cantidad_total') ?? 1 ?>" required min="1">
+        </div>
 
-    <div class="col-md-3">
-        <label for="cantidad_disponibles" class="form-label">Disponibles</label>
-        <input type="number" class="form-control" name="cantidad_disponibles" required>
-    </div>
-    <!-- Ejemplares disponibles. -->
+        <div class="col-md-3">
+            <label for="cantidad_disponibles" class="form-label fw-bold">Disponibles <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" name="cantidad_disponibles" value="<?= old('cantidad_disponibles') ?? 1 ?>" required min="0">
+            <small class="form-text text-muted">Debe ser igual o menor que la Cantidad Total.</small>
+        </div>
 
-    <div class="col-md-6">
-        <label for="estado" class="form-label">Estado</label>
-        <select class="form-select" name="estado" required>
-            <option value="">Seleccionar</option>
-            <option value="Disponible">Disponible</option>
-            <option value="Dañado">Dañado</option>
-        </select>
-    </div>
-    <!-- Estado inicial del libro. -->
+        <div class="col-md-6">
+            <label for="estado" class="form-label fw-bold">Estado <span class="text-danger">*</span></label>
+            <select class="form-select" name="estado" required>
+                <option value="Disponible" <?= old('estado') == "Disponible" || old('estado') === null ? 'selected':''; ?>>Disponible</option>
+                <option value="Dañado" <?= old('estado') == "Dañado" ? 'selected':''; ?>>Dañado</option>
+            </select>
+        </div>
 
-    <div class="col-md-6">
-        <label for="categoria_id" class="form-label">Categoría</label>
-        <select class="form-select" name="categoria_id" required>
-            <option value="">Seleccionar</option>
-            <!-- Itera todas las categorías disponibles -->
-            <?php foreach($categorias as $cat): ?>
-                <option value="<?= $cat['categoria_id']; ?>"><?= $cat['nombre']; ?></option>
-            <?php endforeach; ?>
-        </select>
-    </div>
-    <!-- Selector dinámico de categorías. -->
+        <div class="col-md-6">
+            <label for="select-categoria" class="form-label fw-bold">Categoría <span class="text-danger">*</span></label>
+            
+            <select class="form-control" name="categoria_id" id="select-categoria" required> 
+                <option value="<?= old('categoria_id') ?>" selected><?= old('categoria_id') ? 'Cargando Categoría...' : 'Seleccionar Categoría' ?></option>
+            </select>
+        </div>
 
-    <div class="col-12">
-        <a href="<?= base_url('libros'); ?>" class="btn btn-secondary">Regresar</a>
-        <button type="submit" class="btn btn-primary">Guardar</button>
-    </div>
-    <!-- Botones: regresar o guardar. -->
-</form>
+        <div class="col-12 mt-5 d-flex justify-content-start gap-3">
+            <a href="<?= base_url('libros'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
+                <i class="bi bi-arrow-left-short"></i> Regresar
+            </a>
+            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#206060;">
+                <i class="bi bi-plus-circle-fill me-2"></i> Guardar Libro
+            </button>
+        </div>
 
-<?php $this->endSection(); ?>
-<!-- Cierra la sección de contenido. -->
+    </form>
+</div>
+
+<style>
+    .section-title {
+        color: #206060;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 15px;
+        box-shadow: none !important;
+        border: 1px solid #ced4da;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+</style>
+
+<?php 
+$this->endSection(); 
+?>
+
+<?php 
+// ⭐️ SECCIÓN DE SCRIPTS: Inicialización de Select2 con búsqueda dinámica
+$this->section('scripts'); 
+?>
+<script>
+    $(document).ready(function() {
+        var selectCategoria = $('#select-categoria');
+        
+        selectCategoria.select2({
+            placeholder: "Buscar o seleccionar una categoría",
+            allowClear: true,
+            theme: "bootstrap4", 
+            ajax: {
+                url: '<?= base_url('libros/get_categorias_json'); ?>', 
+                dataType: 'json',
+                delay: 250, 
+                data: function (params) {
+                    return {
+                        term: params.term, 
+                        page: params.page
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: {
+                            more: false 
+                        }
+                    };
+                },
+                cache: true
+            }
+        });
+        
+        // Cargar el valor antiguo si existe (para manejar errores de validación)
+        var old_category_id = '<?= old('categoria_id') ?>';
+        if (old_category_id) {
+             $.ajax({
+                dataType: 'json',
+                url: '<?= base_url('libros/get_categorias_json'); ?>',
+                data: { term: '', id: old_category_id } 
+            }).then(function (data) {
+                // El controlador devuelve un array de resultados, tomamos el primero
+                var category = data.results[0]; 
+                if (category) {
+                    var newOption = new Option(category.text, category.id, true, true);
+                    selectCategoria.append(newOption).trigger('change');
+                }
+            });
+        }
+    });
+</script>
+<?php 
+$this->endSection(); 
+?>

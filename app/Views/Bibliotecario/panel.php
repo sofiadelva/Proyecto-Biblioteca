@@ -212,6 +212,14 @@
             <li class="nav-item mb-3">
               <a class="nav-link" href="<?= base_url('gestion_libros'); ?>"><i class="bi bi-book-half"></i> Gestión de Libros</a>
             </li>
+
+            <hr style="margin: 15px 0; border-color: var(--color-accent-soft);">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('login/salir') ?>">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </li>
           </ul>
         </div>
       </nav>

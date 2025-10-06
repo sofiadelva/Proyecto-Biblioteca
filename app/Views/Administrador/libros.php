@@ -23,43 +23,85 @@ $this->section('contenido');
     </div>
 <?php endif; ?>
 
-<div class="mb-3">
-    <!-- Botón para agregar un nuevo libro -->
-    <a href="<?= base_url('libros/new'); ?>" class="btn btn-success">Agregar</a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <a href="<?= base_url('libros/new'); ?>" class="btn btn-lg text-white shadow" style="background-color:#206060;">
+        <i class="bi bi-plus-circle-fill me-2"></i>Agregar Nuevo Libro
+    </a>
+    
+    <form method="get" action="<?= base_url('libros'); ?>" class="search-bar-container">
+        <input 
+            type="text" 
+            name="buscar" 
+            placeholder="Buscar por Título o Autor..." 
+            value="<?= esc($buscar ?? '') ?>" 
+        />
+        <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
+        <input type="hidden" name="estado" value="<?= esc($_GET['estado'] ?? '') ?>">
+        <input type="hidden" name="cantidad_disponible" value="<?= esc($_GET['cantidad_disponible'] ?? '') ?>">
+        <input type="hidden" name="per_page" value="<?= esc($_GET['per_page'] ?? '') ?>">
 
-    <!-- Formulario para ordenar los libros -->
-    <form class="d-inline" method="get" action="<?= base_url('libros'); ?>">
-        <select name="ordenar" class="form-select d-inline w-auto">
-            <option value="">Ordenar por...</option>
-            <option value="titulo_asc">Título A → Z</option>
-            <option value="titulo_desc">Título Z → A</option>
-            <option value="autor_asc">Autor A → Z</option>
-            <option value="autor_desc">Autor Z → A</option>
-            <option value="reciente">Más reciente</option>
-            <option value="viejo">Más viejo</option>
-        </select>
-        <button type="submit" class="btn btn-primary">Ordenar</button>
-    </form>
-
-    <!-- Formulario para filtrar los libros -->
-    <form class="d-inline" method="get" action="<?= base_url('libros'); ?>">
-        <select name="estado" class="form-select d-inline w-auto">
-            <option value="">Filtrar por estado...</option>
-            <option value="Disponible">Disponible</option>
-            <option value="Dañado">Dañado</option>
-        </select>
-        <select name="cantidad_disponible" class="form-select d-inline w-auto">
-            <option value="">Filtrar por cantidad...</option>
-            <option value="0">0 disponibles</option>
-            <option value="1">1 o más disponibles</option>
-        </select>
-        <button type="submit" class="btn btn-secondary">Filtrar</button>
+        <button type="submit" class="search-icon">
+            <i class="bi bi-search"></i>
+        </button>
     </form>
 </div>
+<div class="row mb-3">
+    
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-secondary border-opacity-25">
+            <div class="card-body py-3">
+                <h6 class="card-title text-muted mb-3"><i class="bi bi-sort-alpha-down me-2"></i>Opciones de Visualización</h6>
+                
+                <form class="d-flex align-items-center mb-3" method="get" action="<?= base_url('libros'); ?>">
+                    <input type="number" name="per_page" value="<?= $perPage ?? 10 ?>" min="1" class="form-control w-auto me-2" style="max-width: 150px;" placeholder="Filas">
+                    
+                    <select name="ordenar" class="form-select w-auto me-2">
+                        <option value="">Ordenar por...</option>
+                        <option value="titulo_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'titulo_asc') ? 'selected' : '' ?>>Título A → Z</option>
+                        <option value="titulo_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'titulo_desc') ? 'selected' : '' ?>>Título Z → A</option>
+                        <option value="autor_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'autor_asc') ? 'selected' : '' ?>>Autor A → Z</option>
+                        <option value="autor_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'autor_desc') ? 'selected' : '' ?>>Autor Z → A</option>
+                        <option value="reciente" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'reciente') ? 'selected' : '' ?>>Más reciente</option>
+                        <option value="viejo" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'viejo') ? 'selected' : '' ?>>Más viejo</option>
+                    </select>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
 
-<!-- Tabla con los datos de los libros -->
-<table class="table table-hover table-bordered my-3">
-    <thead class="table-dark">
+                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
+                    <input type="hidden" name="estado" value="<?= esc($_GET['estado'] ?? '') ?>">
+                    <input type="hidden" name="cantidad_disponible" value="<?= esc($_GET['cantidad_disponible'] ?? '') ?>">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-secondary border-opacity-25">
+            <div class="card-body py-3">
+                <h6 class="card-title text-muted mb-3"><i class="bi bi-funnel-fill me-2"></i>Opciones de Filtrado</h6>
+                <form class="d-flex align-items-center" method="get" action="<?= base_url('libros'); ?>">
+                    <select name="estado" class="form-select w-auto me-2">
+                        <option value="">Estado...</option>
+                        <option value="Disponible" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Disponible') ? 'selected' : '' ?>>Disponible</option>
+                        <option value="Dañado" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Dañado') ? 'selected' : '' ?>>Dañado</option>
+                    </select>
+                    <select name="cantidad_disponible" class="form-select w-auto me-2">
+                        <option value="">Cantidad...</option>
+                        <option value="0" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '0') ? 'selected' : '' ?>>0 disponibles</option>
+                        <option value="1" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '1') ? 'selected' : '' ?>>1 o más</option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> Aplicar Filtro</button>
+                    
+                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
+                    <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
+                    <input type="hidden" name="per_page" value="<?= esc($_GET['per_page'] ?? '') ?>">
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table clean-table my-3">
+    <thead>
     <tr>
         <th>Título</th>
         <th>Autor</th>
@@ -73,7 +115,6 @@ $this->section('contenido');
     </thead>
     <tbody>
     <?php 
-    // Recorre todos los libros que vienen desde el controlador
     foreach($libros as $libro): 
     ?>
         <tr>
@@ -85,21 +126,19 @@ $this->section('contenido');
             <td><?= $libro['estado'] ?></td>
             <td><?= $libro['categoria'] ?></td>
             <td>
-                <div class="d-flex gap-1">
-                    <!-- Botón para editar el libro -->
+                <div class="d-flex gap-2">
                     <a href="<?= base_url('libros/edit/'.$libro['libro_id']); ?>" 
-                       class="btn btn-warning btn-sm">Editar</a>
+                        class="btn-sm btn-accion-editar">Editar</a>
 
-                    <!-- Botón para eliminar el libro con confirmación -->
                     <a href="<?= base_url('libros/delete/'.$libro['libro_id']); ?>" 
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('¿Seguro que quieres eliminar este libro?')">Eliminar</a>
+                        class="btn-sm btn-accion-eliminar"
+                        onclick="return confirm('¿Seguro que quieres eliminar este libro?')">Eliminar</a>
 
-                    <!-- Botón para administrar ejemplares del libro -->
                     <a href="<?= base_url('ejemplares/listar/'.$libro['libro_id']); ?>" 
-                       class="btn btn-sm" 
-                       style="background-color:#206060; color:#fff;">
-                        Editar Ejemplares
+                        class="btn btn-sm btn-info"
+                        title="Ver Ejemplares"
+                        style="background-color:#206060; color:#fff; border-color:#206060;">
+                        <i class="bi bi-list-columns-reverse"></i>
                     </a>
                 </div>
             </td>
@@ -107,6 +146,10 @@ $this->section('contenido');
     <?php endforeach; ?>
     </tbody>
 </table>
+
+<div class="mt-4">
+    <?= $pager->links('default', 'bootstrap_full') ?>
+</div>
 
 <?php 
 $this->endSection(); 

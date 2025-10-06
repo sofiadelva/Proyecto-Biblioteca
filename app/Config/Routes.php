@@ -16,10 +16,11 @@ $routes->get('login/salir', 'Login::salir');
 /**Rutas para CRUD de libros (administrador). */
 $routes->get('libros','Libros::index' );
 $routes->get('libros/new','Libros::new' );
-$routes->post('libros/create', 'Libros::create');
+$routes->post('libros/save', 'Libros::create');
 $routes->get('libros/edit/(:num)', 'Libros::edit/$1');
 $routes->post('libros/update/(:num)', 'Libros::update/$1');
 $routes->get('libros/delete/(:num)', 'Libros::delete/$1');
+$routes->get('libros/get_categorias_json', 'Libros::get_categorias_json');
 
 /**Rutas para página principal de los tres usuarios. */
 $routes->get('administrador/panel', 'Administrador::panel');
