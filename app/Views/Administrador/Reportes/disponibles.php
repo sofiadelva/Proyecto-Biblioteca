@@ -61,7 +61,7 @@
 <div class="d-flex justify-content-between align-items-center mt-3">
     <?= $pager->links('default', 'bootstrap_full') ?>
     
-    <form method="post" action="<?= base_url('reportes/disponibles/pdf') ?>">
+    <form method="post" action="<?= base_url('reportes/disponibles/pdf') ?>" target="_blank">
         <button type="submit" class="btn btn-danger">
             <i class="bi bi-file-earmark-pdf-fill me-1"></i> Descargar PDF
         </button>

@@ -225,7 +225,8 @@ class Reportes extends BaseController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
-        $dompdf->stream('reporte_alumno.pdf', ["Attachment" => false]);
+        // El parámetro ["Attachment" => false] permite que el PDF se abra en el navegador (nueva ventana/pestaña)
+        $dompdf->stream('reporte_alumno.pdf', ["Attachment" => false]); 
         exit;
     }
 
@@ -337,6 +338,7 @@ class Reportes extends BaseController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
+        // El parámetro ["Attachment" => false] permite que el PDF se abra en el navegador (nueva ventana/pestaña)
         $dompdf->stream('reporte_libro.pdf', ["Attachment" => false]);
         exit;
     }
@@ -416,6 +418,7 @@ class Reportes extends BaseController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
+        // El parámetro ["Attachment" => false] permite que el PDF se abra en el navegador (nueva ventana/pestaña)
         $dompdf->stream('reporte_activos.pdf', ["Attachment" => false]);
         exit;
     }
@@ -480,6 +483,7 @@ class Reportes extends BaseController
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
 
+        // El parámetro ["Attachment" => false] permite que el PDF se abra en el navegador (nueva ventana/pestaña)
         $dompdf->stream('reporte_disponibles.pdf', ["Attachment" => false]);
         exit;
     }
