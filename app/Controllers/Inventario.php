@@ -2,27 +2,32 @@
 
 namespace App\Controllers;
 
-use App\Models\LibroModel; // Asegúrate de que este sea el nombre correcto de tu modelo
+use App\Models\LibroModel; 
+use App\Models\CategoriaModel; 
 
 class Inventario extends BaseController
 {
     public function index()
     {
         $libroModel = new LibroModel();
+        $categoriaModel = new CategoriaModel(); 
         
         // --- 1. Obtener Parámetros de la URL ---
         $buscar = $this->request->getGet('buscar');
         $ordenar = $this->request->getGet('ordenar');
-        $estado = $this->request->getGet('estado');
-        $cantidadDisponible = $this->request->getGet('cantidad_disponible');
-        $perPage = 10; // Número de filas por página por defecto
+        $categoriaId = $this->request->getGet('categoria_id'); // Filtro de Categoría
+        
+        // Obtener el número de filas por página, default a 10
+        $perPage = (int)$this->request->getGet('per_page') ?? 10;
+        // Asegurarse de que perPage sea un número válido y razonable
+        $perPage = ($perPage > 0 && $perPage <= 100) ? $perPage : 10; 
 
-        // --- 2. Iniciar Query Base ---
-        // Excluir libros que estén marcados como 'Inactivo' (si tienes ese estado)
+        // --- 2. Iniciar Query Base y Filtrar por 'Disponible' (Fijo) ---
         $query = $libroModel
             ->select('libros.*, categorias.nombre as categoria')
-            ->join('categorias', 'categorias.categoria_id = libros.categoria_id', 'left');
-            // Nota: Se elimina el where('libros.estado', 'Disponible') estático para usar el filtro dinámico
+            ->join('categorias', 'categorias.categoria_id = libros.categoria_id', 'left')
+            // Filtrar SIEMPRE por libros disponibles
+            ->where('libros.estado', 'Disponible');
 
         // --- 3. Aplicar Búsqueda (título o autor) ---
         if (!empty($buscar)) {
@@ -32,49 +37,37 @@ class Inventario extends BaseController
                   ->groupEnd();
         }
         
-        // --- 4. Aplicar Filtro de Estado (Disponible, Dañado, etc.) ---
-        if (!empty($estado)) {
-            $query->where('libros.estado', $estado);
+        // --- 4. Aplicar Filtro de Categoría ---
+        if (!empty($categoriaId)) {
+            $query->where('libros.categoria_id', $categoriaId);
         }
 
-        // --- 5. Aplicar Filtro de Cantidad Disponible ---
-        if ($cantidadDisponible !== null && $cantidadDisponible !== '') {
-            if ($cantidadDisponible == '0') {
-                $query->where('libros.cantidad_disponibles', 0);
-            } else if ($cantidadDisponible == '1') {
-                $query->where('libros.cantidad_disponibles >', 0);
-            }
-        }
-        
-        // Si no se aplicó ningún filtro de estado, mostramos *solo* los disponibles (comportamiento por defecto)
-        if (empty($estado)) {
-             $query->where('libros.estado', 'Disponible');
-        }
-
-        // --- 6. Aplicar Ordenamiento ---
+        // --- 5. Aplicar Ordenamiento ---
         if (!empty($ordenar)) {
             switch ($ordenar) {
                 case 'titulo_asc': $query->orderBy('libros.titulo', 'ASC'); break;
                 case 'titulo_desc': $query->orderBy('libros.titulo', 'DESC'); break;
                 case 'autor_asc': $query->orderBy('libros.autor', 'ASC'); break;
                 case 'autor_desc': $query->orderBy('libros.autor', 'DESC'); break;
-                case 'reciente': $query->orderBy('libros.libro_id', 'DESC'); break; // Asumiendo ID es autoincremental
+                case 'reciente': $query->orderBy('libros.libro_id', 'DESC'); break; 
                 case 'viejo': $query->orderBy('libros.libro_id', 'ASC'); break;
-                default: $query->orderBy('libros.titulo', 'ASC'); // Orden por defecto
+                default: $query->orderBy('libros.titulo', 'ASC'); 
             }
         } else {
-            $query->orderBy('libros.titulo', 'ASC'); // Orden por defecto si no se especifica
+            $query->orderBy('libros.titulo', 'ASC');
         }
 
-        // --- 7. Paginación y Envío de Datos ---
+        // --- 6. Paginación y Envío de Datos ---
         $data = [
-            'libros' => $query->paginate($perPage), // Usar paginate() en lugar de findAll()
-            'pager' => $libroModel->pager,          // Pasar el objeto pager a la vista
-            'buscar' => $buscar,                     // Mantener el valor de búsqueda
-            // Los otros parámetros se mantienen en la URL a través de la vista
+            'libros' => $query->paginate($perPage, 'default', $this->request->getVar('page')),
+            'pager' => $libroModel->pager, 
+            'buscar' => $buscar, 
+            'categorias' => $categoriaModel->findAll(), 
+            'categoriaId' => $categoriaId, 
+            'perPage' => $perPage,
+            // $cantidadDisponible ya no se incluye
         ];
 
-        // Asegúrate de usar la ruta de vista correcta (ej. 'Bibliotecario/inventario')
         return view('Bibliotecario/inventario', $data); 
     }
 }

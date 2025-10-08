@@ -1,90 +1,293 @@
-<!-- Esta vista extiende la plantilla del bibliotecario -->
-<?= $this->extend('Plantillas/plantilla_biblio'); ?>
+<?php 
+// Extiende de la plantilla principal
+echo $this->extend('Plantillas/plantilla_biblio'); 
+?>
 
-<!-- Sección del título de la página -->
-<?= $this->section('titulo'); ?>
-Agregar Préstamo
-<?= $this->endSection(); ?>
+<?php 
+// Define la sección "titulo"
+$this->section('titulo'); 
+?>
+Registrar Préstamo
+<?php 
+$this->endSection(); 
+?>
 
-<!-- Inicio de la sección de contenido -->
-<?= $this->section('contenido'); ?>
+<?php 
+// Abre la sección "contenido"
+$this->section('contenido'); 
+?>
 
-<!-- Si hay un mensaje flash en la sesión, lo muestra en una alerta -->
-<?php if(session()->getFlashdata('msg')): ?>
-    <div class="alert alert-info">
-        <?= session()->getFlashdata('msg') ?>
-    </div>
-<?php endif; ?>
+<div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
+    
+    <h2 class="section-title mb-4 pb-2 border-bottom">
+        <i class="bi bi-arrow-right-circle-fill me-2" style="color: #206060;"></i>
+        Registrar Nuevo Préstamo
+    </h2>
+    
+    <?php if(session()->getFlashdata('errors')): ?>
+        <div class="alert alert-danger">
+            <ul>
+                <?php foreach(session()->getFlashdata('errors') as $error): ?>
+                    <li><?= $error ?></li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
 
-<!-- Formulario para registrar un nuevo préstamo -->
-<form method="post" action="<?= base_url('prestamos/store'); ?>">
-    <!-- Token de seguridad contra ataques CSRF -->
-    <?= csrf_field() ?>
+    <?php if(session()->getFlashdata('msg')): ?>
+        <div class="alert alert-warning">
+            <?= session()->getFlashdata('msg') ?>
+        </div>
+    <?php endif; ?>
 
-    <!-- Selección de libro -->
-    <div class="mb-3">
-        <label for="libro_id" class="form-label">Libro</label>
-        <select id="libro_id" name="libro_id" class="form-select" required>
-            <option value="">Seleccione un libro...</option>
-            <?php foreach ($libros as $libro): ?>
-                <option value="<?= $libro['libro_id'] ?>">
-                    <?= esc($libro['titulo']) ?>
+    <form action="<?= base_url('prestamos/store'); ?>" method="post" class="row g-4" autocomplete="off">
+        
+        <div class="col-12">
+            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Datos del Prestatario</h5>
+        </div>
+
+        <div class="col-md-6">
+            <label for="usuario_select" class="form-label fw-bold">Carné del Usuario <span class="text-danger">*</span></label>
+            <select class="form-select" name="carne" id="usuario_select" required>
+                <option value="<?= old('carne') ?>"> 
+                    <?= old('carne') ? 'Cargando Usuario: ' . esc(old('carne')) : 'Buscar usuario por carné o nombre' ?>
                 </option>
-            <?php endforeach; ?>
-        </select>
-    </div>
+            </select>
+            <small class="form-text text-muted">Busque al usuario por carné o nombre.</small>
+        </div>
+        
+        <div class="col-12 mt-5">
+            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Datos del Libro</h5>
+        </div>
 
-    <!-- Selección de ejemplar (copia del libro) -->
-    <div class="mb-3">
-        <label for="ejemplar_id" class="form-label">Ejemplar (N° copia)</label>
-        <select id="ejemplar_id" name="ejemplar_id" class="form-select" required>
-            <option value="">Seleccione un ejemplar...</option>
-        </select>
-    </div>
+        <div class="col-md-6">
+            <label for="libro_select" class="form-label fw-bold">Libro a Prestar <span class="text-danger">*</span></label>
+            <select class="form-select" name="libro_id" id="libro_select" required>
+                 <option value="<?= old('libro_id') ?>">
+                    <?= old('libro_id') ? 'Cargando Libro (ID: ' . esc(old('libro_id')) . ')' : 'Buscar libro por título o autor' ?>
+                </option>
+            </select>
+        </div>
 
-    <!-- Campo para ingresar el carné del usuario -->
-    <div class="mb-3">
-        <label for="carne" class="form-label">Carné del Usuario</label>
-        <input type="text" name="carne" id="carne" class="form-control" required>
-    </div>
+        <div class="col-md-6">
+            <label for="ejemplar_id" class="form-label fw-bold">Ejemplar (ID de Inventario) <span class="text-danger">*</span></label>
+            <select class="form-select" name="ejemplar_id" id="ejemplar_id" required disabled>
+                <option value="">Seleccione un libro primero</option>
+                <?php if(old('ejemplar_id')): ?>
+                    <option value="<?= esc(old('ejemplar_id')) ?>" selected>Cargando ejemplar...</option>
+                <?php endif; ?>
+            </select>
+            <small class="form-text text-muted">Se listarán solo los ejemplares disponibles del libro seleccionado.</small>
+        </div>
+        
+        <div class="col-12 mt-5">
+            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Fechas del Préstamo</h5>
+        </div>
 
-    <!-- Campo para seleccionar la fecha de préstamo -->
-    <div class="mb-3">
-        <label for="fecha_prestamo" class="form-label">Fecha de Préstamo</label>
-        <input type="date" name="fecha_prestamo" class="form-control" required>
-    </div>
+        <div class="col-md-6">
+            <label for="fecha_prestamo" class="form-label fw-bold">Fecha de Préstamo <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="fecha_prestamo" value="<?= old('fecha_prestamo') ?? date('Y-m-d') ?>" required>
+        </div>
 
-    <!-- Campo para seleccionar la fecha de devolución -->
-    <div class="mb-3">
-        <label for="fecha_de_devolucion" class="form-label">Fecha de Devolución</label>
-        <input type="date" name="fecha_de_devolucion" class="form-control" required>
-    </div>
+        <div class="col-md-6">
+            <label for="fecha_de_devolucion" class="form-label fw-bold">Fecha Límite de Devolución <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" name="fecha_de_devolucion" value="<?= old('fecha_de_devolucion') ?? date('Y-m-d', strtotime('+7 days')) ?>" required>
+        </div>
 
-    <!-- Botón para guardar el préstamo -->
-    <button type="submit" class="btn btn-success" style="background-color:#206060; border:none;">
-        Guardar Préstamo
-    </button>
-</form>
+        <div class="col-12 mt-5 d-flex justify-content-start gap-3">
+            <a href="<?= base_url('gestion_libros'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
+                <i class="bi bi-arrow-left-short"></i> Regresar
+            </a>
+            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#206060;">
+                <i class="bi bi-plus-circle-fill me-2"></i> Confirmar Préstamo
+            </button>
+        </div>
 
-<!-- Script para cargar los ejemplares según el libro seleccionado -->
+    </form>
+</div>
+
+<style>
+    .section-title {
+        color: #206060;
+        font-weight: 700;
+        font-size: 1.75rem;
+    }
+    .form-control, .form-select, .select2-container--bootstrap4 .select2-selection--single {
+        border-radius: 8px;
+        padding: 10px 15px !important; 
+        box-shadow: none !important;
+        border: 1px solid #ced4da;
+        height: auto !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+        padding-left: 0 !important;
+        line-height: inherit !important;
+    }
+    .select2-container .select2-selection--single {
+        height: 44px !important;
+    }
+    .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+        height: 42px !important;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        transition: background-color 0.2s;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+</style>
+
+<?php 
+$this->endSection(); 
+?>
+
+<?php 
+// SECCIÓN DE SCRIPTS: Lógica AJAX para Select2 y ejemplares
+$this->section('scripts'); 
+?>
 <script>
-document.getElementById('libro_id').addEventListener('change', function() {
-    let libroId = this.value; // Obtiene el id del libro seleccionado
-    let ejemplarSelect = document.getElementById('ejemplar_id');
-    ejemplarSelect.innerHTML = '<option value="">Cargando...</option>';
+    $(document).ready(function() {
+        const libroSelect = $('#libro_select');
+        const ejemplarSelect = document.getElementById('ejemplar_id');
+        const usuarioSelect = $('#usuario_select');
+        
+        // Función para cargar ejemplares
+        function cargarEjemplares(libroId, oldEjemplarId = null) {
+            ejemplarSelect.innerHTML = '<option value="">Cargando ejemplares...</option>';
+            ejemplarSelect.disabled = true;
 
-    // Hace una petición al servidor para obtener los ejemplares de ese libro
-    fetch("<?= base_url('prestamos/getEjemplares'); ?>/" + libroId)
-        .then(res => res.json())
-        .then(data => {
-            // Limpia y carga los ejemplares disponibles en el select
-            ejemplarSelect.innerHTML = '<option value="">Seleccione un ejemplar...</option>';
-            data.forEach(ej => {
-                ejemplarSelect.innerHTML += `<option value="${ej.ejemplar_id}">Copia #${ej.no_copia}</option>`;
-            });
+            if (!libroId) {
+                ejemplarSelect.innerHTML = '<option value="">Seleccione un libro primero</option>';
+                return;
+            }
+
+            fetch(`<?= base_url('prestamos/getEjemplares') ?>/${libroId}`)
+                .then(response => response.json())
+                .then(data => {
+                    ejemplarSelect.innerHTML = '';
+                    if (data.length > 0) {
+                        ejemplarSelect.disabled = false;
+                        ejemplarSelect.innerHTML += '<option value="">Seleccione un ejemplar</option>';
+                        data.forEach(ejemplar => {
+                            const option = document.createElement('option');
+                            option.value = ejemplar.ejemplar_id;
+                            
+                            // *** CAMBIO: Mostrar no_copia ***
+                            option.textContent = `ID Inventario: ${ejemplar.ejemplar_id} (No. Copia: ${ejemplar.no_copia ?? 'N/A'})`;
+                            
+                            if (oldEjemplarId && ejemplar.ejemplar_id == oldEjemplarId) {
+                                option.selected = true;
+                            }
+
+                            ejemplarSelect.appendChild(option);
+                        });
+
+                    } else {
+                        ejemplarSelect.innerHTML = '<option value="">No hay ejemplares disponibles</option>';
+                        ejemplarSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error al obtener ejemplares:', error);
+                    ejemplarSelect.innerHTML = '<option value="">Error al cargar ejemplares</option>';
+                    ejemplarSelect.disabled = true;
+                });
+        }
+
+        // Event listener para el cambio de libro (Select2)
+        libroSelect.on('change', function() {
+            cargarEjemplares(this.value); 
         });
-});
-</script>
 
-<!-- Fin de la sección de contenido -->
-<?= $this->endSection(); ?>
+
+        // --- 1. Inicialización de Select2 para Usuario (Carné) ---
+        usuarioSelect.select2({
+            placeholder: "Buscar usuario por carné o nombre",
+            allowClear: true,
+            theme: "bootstrap4", 
+            minimumInputLength: 2,
+            ajax: {
+                url: '<?= base_url('usuarios/getUsuariosJson'); ?>', 
+                dataType: 'json',
+                delay: 250, 
+                data: function (params) {
+                    return { term: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            }
+        });
+        
+        // --- 2. Inicialización de Select2 para Libro (ID) ---
+        libroSelect.select2({
+            placeholder: "Buscar libro por título o autor",
+            allowClear: true,
+            theme: "bootstrap4", 
+            minimumInputLength: 2,
+            ajax: {
+                url: '<?= base_url('prestamos/getLibrosJson'); ?>', 
+                dataType: 'json',
+                delay: 250, 
+                data: function (params) {
+                    return { term: params.term };
+                },
+                processResults: function (data) {
+                    return { results: data.results };
+                },
+                cache: true
+            }
+        });
+        
+        // --- 3. Recarga de valores 'old' (manejo de errores de validación) ---
+        
+        // 3.1. Recargar Usuario (Carné)
+        const initialCarne = '<?= old('carne') ?>';
+        if (initialCarne) {
+            console.log("Recargando valor old del usuario con carné:", initialCarne);
+            $.ajax({
+                dataType: 'json',
+                url: '<?= base_url('usuarios/getUsuariosJson'); ?>',
+                data: { id: initialCarne } 
+            }).then(function (data) {
+                var usuario = data.results[0]; 
+                if (usuario) {
+                    console.log("Usuario encontrado:", usuario);
+                    var newOption = new Option(usuario.text, usuario.id, true, true);
+                    usuarioSelect.append(newOption).trigger('change.select2');
+                } else {
+                    console.log("No se encontró usuario para el carné old:", initialCarne);
+                }
+            });
+        }
+        
+        // 3.2. Recargar Libro y Ejemplares
+        const initialLibroId = '<?= old('libro_id') ?>';
+        const initialEjemplarId = '<?= old('ejemplar_id') ?>';
+        
+        if (initialLibroId) {
+            console.log("Recargando valor old del libro con ID:", initialLibroId);
+             $.ajax({
+                dataType: 'json',
+                url: '<?= base_url('prestamos/getLibrosJson'); ?>',
+                data: { id: initialLibroId } 
+            }).then(function (data) {
+                var libro = data.results[0]; 
+                if (libro) {
+                    var newOption = new Option(libro.text, libro.id, true, true);
+                    libroSelect.append(newOption).trigger('change.select2');
+                }
+                // Cargar los ejemplares con el ID de ejemplar antiguo
+                cargarEjemplares(initialLibroId, initialEjemplarId);
+            });
+        }
+    });
+</script>
+<?php 
+$this->endSection(); 
+?>

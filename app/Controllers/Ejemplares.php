@@ -4,8 +4,9 @@ namespace App\Controllers;
 
 use App\Models\EjemplarModel;
 use App\Models\LibroModel;
+use CodeIgniter\Controller; // Usar Controller o BaseController según la herencia de tu proyecto
 
-class Ejemplares extends BaseController
+class Ejemplares extends Controller
 {
     protected $ejemplarModel;
     protected $libroModel;
@@ -16,25 +17,30 @@ class Ejemplares extends BaseController
         $this->libroModel = new LibroModel();
     }
 
-    // Listar ejemplares de un libro
+    /**
+     * Listar ejemplares de un libro específico.
+     * @param int $libro_id ID del libro.
+     */
     public function listar($libro_id)
-{
-    $libro = $this->libroModel->find($libro_id);
+    {
+        $libro = $this->libroModel->find($libro_id);
 
-    $ejemplares = $this->ejemplarModel
-        ->select('ejemplares.*, libros.titulo as titulo_libro')
-        ->join('libros', 'libros.libro_id = ejemplares.libro_id')
-        ->where('ejemplares.libro_id', $libro_id)
-        ->findAll();
+        $ejemplares = $this->ejemplarModel
+            ->select('ejemplares.*, libros.titulo as titulo_libro')
+            ->join('libros', 'libros.libro_id = ejemplares.libro_id')
+            ->where('ejemplares.libro_id', $libro_id)
+            ->findAll();
 
-    return view('Administrador/Libros/Ejemplares/listar', [
-        'libro' => $libro,
-        'ejemplares' => $ejemplares
-    ]);
-}
+        return view('Administrador/Libros/Ejemplares/listar', [
+            'libro' => $libro,
+            'ejemplares' => $ejemplares
+        ]);
+    }
 
-
-    // Formulario nuevo ejemplar
+    /**
+     * Muestra el formulario para agregar un nuevo ejemplar a un libro.
+     * @param int $libro_id ID del libro al que se agregará el ejemplar.
+     */
     public function new($libro_id)
     {
         $libro = $this->libroModel->find($libro_id);
@@ -44,31 +50,51 @@ class Ejemplares extends BaseController
         ]);
     }
 
-    // Guardar ejemplar
+    /**
+     * Guarda un nuevo ejemplar en la base de datos y actualiza las cantidades del libro.
+     */
     public function create()
     {
+        $libro_id = $this->request->getPost('libro_id');
+        
+        // 🌟 CLAVE: Calcular el siguiente número de copia (no_copia) 🌟
+        // 1. Obtener el último número de copia para este libro
+        $ultimoEjemplar = $this->ejemplarModel
+            ->where('libro_id', $libro_id)
+            ->orderBy('no_copia', 'DESC')
+            ->first();
+            
+        // 2. El nuevo número de copia es el último encontrado + 1. Si no hay, empieza en 1.
+        $nuevoNoCopia = ($ultimoEjemplar ? $ultimoEjemplar['no_copia'] : 0) + 1;
+
         $data = [
-            'libro_id' => $this->request->getPost('libro_id'),
+            'libro_id' => $libro_id,
             'estado'   => $this->request->getPost('estado'),
+            'no_copia' => $nuevoNoCopia // Asignamos el número de copia calculado
         ];
 
         $this->ejemplarModel->insert($data);
 
-        // 🔹 actualizar cantidades del libro
+        // 🔹 Actualizar cantidades del libro
         $libro = $this->libroModel->find($data['libro_id']);
         $updateData = [
             'cantidad_total' => $libro['cantidad_total'] + 1
         ];
+        
         if ($data['estado'] === 'Disponible') {
             $updateData['cantidad_disponibles'] = $libro['cantidad_disponibles'] + 1;
         }
+        
         $this->libroModel->update($data['libro_id'], $updateData);
 
         return redirect()->to(base_url('ejemplares/listar/'.$data['libro_id']))
-                         ->with('msg', 'Ejemplar agregado correctamente.');
+                         ->with('msg', 'Ejemplar agregado correctamente. Número de copia: ' . $nuevoNoCopia);
     }
 
-    // Formulario editar ejemplar
+    /**
+     * Muestra el formulario para editar un ejemplar específico.
+     * @param int $ejemplar_id ID del ejemplar a editar.
+     */
     public function edit($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -80,7 +106,10 @@ class Ejemplares extends BaseController
         ]);
     }
 
-    // Actualizar ejemplar
+    /**
+     * Actualiza el estado de un ejemplar y ajusta las cantidades del libro.
+     * @param int $ejemplar_id ID del ejemplar a actualizar.
+     */
     public function update($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -93,10 +122,12 @@ class Ejemplares extends BaseController
             $libro = $this->libroModel->find($ejemplar['libro_id']);
 
             if ($nuevoEstado === 'Disponible') {
+                // Estado cambió a Disponible: Aumentar disponibles
                 $this->libroModel->update($libro['libro_id'], [
                     'cantidad_disponibles' => $libro['cantidad_disponibles'] + 1
                 ]);
             } elseif ($ejemplar['estado'] === 'Disponible' && $nuevoEstado !== 'Disponible') {
+                // Estado cambió de Disponible a otro: Disminuir disponibles
                 $this->libroModel->update($libro['libro_id'], [
                     'cantidad_disponibles' => max(0, $libro['cantidad_disponibles'] - 1)
                 ]);
@@ -107,7 +138,10 @@ class Ejemplares extends BaseController
                          ->with('msg', 'Ejemplar actualizado correctamente.');
     }
 
-    // Eliminar ejemplar
+    /**
+     * Elimina un ejemplar y actualiza las cantidades del libro.
+     * @param int $ejemplar_id ID del ejemplar a eliminar.
+     */
     public function delete($ejemplar_id)
     {
         $ejemplar = $this->ejemplarModel->find($ejemplar_id);
@@ -115,13 +149,16 @@ class Ejemplares extends BaseController
 
         $this->ejemplarModel->delete($ejemplar_id);
 
-        // Actualizar cantidades del libro
+        // Actualizar cantidades del libro (Total siempre disminuye)
         $updateData = [
             'cantidad_total' => max(0, $libro['cantidad_total'] - 1)
         ];
+        
+        // Si el ejemplar eliminado estaba disponible, disminuir también esa cantidad
         if ($ejemplar['estado'] === 'Disponible') {
             $updateData['cantidad_disponibles'] = max(0, $libro['cantidad_disponibles'] - 1);
         }
+        
         $this->libroModel->update($libro['libro_id'], $updateData);
 
         return redirect()->to(base_url('ejemplares/listar/'.$ejemplar['libro_id']))

@@ -1,5 +1,6 @@
 <?php
 namespace App\Controllers;
+
 use App\Models\UsuarioModel;
 use CodeIgniter\Controller;
 
@@ -9,7 +10,6 @@ class Usuarios extends Controller
 
     public function __construct()
     {
-        // Inicializa el modelo de usuario y helpers
         $this->usuarioModel = new UsuarioModel();
         helper(['form', 'url']);
     }
@@ -21,23 +21,19 @@ class Usuarios extends Controller
     {
         $defaultPerPage = 10;
         
-        // 1. Obtener parámetros GET para filtros y ordenación
         $ordenar = $this->request->getGet('ordenar');
         $buscar = $this->request->getGet('buscar'); 
         $rolFiltro = $this->request->getGet('rol'); 
         
-        // Obtener y validar $perPage (filas por página)
         $perPage = (int)($this->request->getGet('per_page') ?? $defaultPerPage); 
 
-        // Aseguramos que $perPage sea al menos 1
         if ($perPage < 1) {
             $perPage = $defaultPerPage; 
         }
 
-        // Crear el constructor de consultas usando el modelo
         $builder = $this->usuarioModel;
 
-        // 2. Aplicar BÚSQUEDA por nombre, correo o carne (Corregido: usa 'correo' y 'carne')
+        // 2. Aplicar BÚSQUEDA por nombre, correo o carne
         if ($buscar) {
             $builder = $builder->groupStart()
                                ->like('nombre', $buscar, 'both')
@@ -66,7 +62,11 @@ class Usuarios extends Controller
                 case 'correo_asc': 
                     $builder = $builder->orderBy('correo', 'ASC');
                     break;
+                default:
+                    $builder = $builder->orderBy('nombre', 'ASC');
             }
+        } else {
+            $builder = $builder->orderBy('nombre', 'ASC');
         }
         
         // 5. Aplicar paginación
@@ -77,9 +77,7 @@ class Usuarios extends Controller
         $data['perPage'] = $perPage;
         $data['buscar'] = $buscar; 
         $data['rolFiltro'] = $rolFiltro;
-
-        // CORREGIDO: Definir los roles disponibles para el filtro de la vista
-        $data['rolesDisponibles'] = ['Administrador', 'Bibliotecario', 'Alumno']; 
+        $data['rolesDisponibles'] = ['Administrador', 'Bibliotecario', 'Alumno', 'Docente']; 
 
         return view('Administrador/usuarios', $data);
     }
@@ -89,7 +87,6 @@ class Usuarios extends Controller
      */
     public function create()
     {
-        // Se puede pasar una lista de roles para el formulario de creación si es necesario
         return view('Administrador/Usuarios/nuevo');
     }
 
@@ -99,10 +96,14 @@ class Usuarios extends Controller
     public function store()
     {
         $data = $this->request->getPost();
-        // Cifra la contraseña antes de guardarla (usando md5 como en tu modelo)
+        // Cifra la contraseña antes de guardarla (usando md5)
         $data['password'] = md5($data['password']); 
-        $this->usuarioModel->insert($data);
-        return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario agregado correctamente.');
+        
+        if ($this->usuarioModel->insert($data)) {
+            return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario agregado correctamente.');
+        } else {
+            return redirect()->back()->withInput()->with('errors', $this->usuarioModel->errors());
+        }
     }
 
     /**
@@ -112,7 +113,9 @@ class Usuarios extends Controller
     public function edit($id)
     {
         $data['usuario'] = $this->usuarioModel->find($id);
-        // Se pueden pasar los roles para que el usuario pueda cambiarlo
+        if (!$data['usuario']) {
+            return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario no encontrado.');
+        }
         return view('Administrador/Usuarios/edit', $data);
     }
 
@@ -124,16 +127,17 @@ class Usuarios extends Controller
     {
         $data = $this->request->getPost();
         
-        // Solo actualiza la contraseña si se proporcionó una nueva
         if (!empty($data['password'])) {
             $data['password'] = md5($data['password']);
         } else {
-            // Si el campo de contraseña está vacío, lo eliminamos para no sobreescribir la existente con un hash vacío
             unset($data['password']);
         }
         
-        $this->usuarioModel->update($id, $data);
-        return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario actualizado correctamente.');
+        if ($this->usuarioModel->update($id, $data)) {
+            return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario actualizado correctamente.');
+        } else {
+            return redirect()->back()->withInput()->with('errors', $this->usuarioModel->errors());
+        }
     }
 
     /**
@@ -144,5 +148,40 @@ class Usuarios extends Controller
     {
         $this->usuarioModel->delete($id);
         return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario eliminado correctamente.');
+    }
+
+    /**
+     * Obtener usuarios para la búsqueda dinámica (Select2).
+     */
+    public function getUsuariosJson()
+    {
+        $term = $this->request->getGet('term');
+        $id = $this->request->getGet('id'); // CLAVE para la recarga del valor 'old' (carné)
+
+        $query = $this->usuarioModel->select('usuario_id, carne, nombre');
+        
+        if (!empty($term)) {
+            // Lógica para BÚSQUEDA DINÁMICA (Select2 envía 'term')
+            $query->groupStart()
+                  ->like('carne', $term)
+                  ->orLike('nombre', $term)
+                  ->groupEnd();
+        } elseif (!empty($id)) {
+             // Lógica para RECARGA DE VALOR 'OLD' (CLAVE: castear a entero)
+             $id_entero = (int)$id;
+             if ($id_entero > 0) {
+                 $query->where('carne', $id_entero);
+             }
+        }
+
+        $usuarios = $query->findAll();
+
+        // Formatear resultados
+        $results = array_map(function($usuario) {
+            $text = "{$usuario['carne']} - {$usuario['nombre']}";
+            return ['id' => $usuario['carne'], 'text' => $text]; 
+        }, $usuarios);
+
+        return $this->response->setJSON(['results' => $results]);
     }
 }

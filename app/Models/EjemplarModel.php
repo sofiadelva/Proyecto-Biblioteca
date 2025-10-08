@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// Importamos la clase base Model de CodeIgniter
 use CodeIgniter\Model;
 
 class EjemplarModel extends Model
@@ -11,5 +10,14 @@ class EjemplarModel extends Model
     protected $table      = 'ejemplares';
     // Nombre de la columna que actúa como clave primaria en la tabla
     protected $primaryKey = 'ejemplar_id';
-    protected $allowedFields = ['libro_id', 'codigo', 'estado'];
+    
+    // 🌟 ¡SOLUCIÓN! Agregamos 'no_copia' a los campos permitidos.
+    // También he eliminado 'codigo' ya que no lo hemos usado en los controladores.
+    protected $allowedFields = [
+        'libro_id', 
+        'estado', 
+        'no_copia' // ⬅️ ¡Este es el campo que faltaba!
+    ];
+
+    // Opcional: Si tienes más campos en la tabla ejemplares que necesites modificar, agrégalos aquí.
 }

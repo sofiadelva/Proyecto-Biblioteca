@@ -20,7 +20,7 @@ class Libros extends Controller
         $this->ejemplarModel = new EjemplarModel();
     }
 
-    // Listar todos los libros con paginación, filtros y ordenación
+    // ... (Método index() - Sin cambios) ...
     public function index()
     {
         // GEMINI: Configuración inicial de paginación
@@ -104,15 +104,14 @@ class Libros extends Controller
         // Mostramos la vista
         return view('Administrador/libros', $data);
     }
-
-    // Mostrar formulario de nuevo libro
+    // ... (Método new() - Sin cambios) ...
     public function new()
     {
         // Ya no se pasan categorías, se cargan por AJAX
         return view('Administrador/Libros/nuevo'); 
     }
 
-    // MÉTODO JSON: Retorna categorías en formato JSON para Select2/Búsqueda dinámica
+    // ... (Método get_categorias_json() - Sin cambios) ...
     public function get_categorias_json()
     {
         $term = $this->request->getGet('term'); // Término de búsqueda enviado por Select2
@@ -127,7 +126,7 @@ class Libros extends Controller
         } elseif ($term) {
             // Búsqueda por término
             $categorias = $builder->like('nombre', $term, 'both')
-                               ->findAll(10); // Limitar a 10 resultados para no sobrecargar
+                                 ->findAll(10); // Limitar a 10 resultados para no sobrecargar
         } else {
             // Cargar los primeros 5 por defecto si no hay búsqueda
             $categorias = $builder->findAll(5); 
@@ -186,7 +185,10 @@ class Libros extends Controller
 
                 $ejemplares[] = [
                     'libro_id' => $nuevoLibroId,
-                    'estado'   => $estado_ejemplar 
+                    'estado'   => $estado_ejemplar,
+                    // 🌟 SOLUCIÓN: Asignar el número de copia de forma secuencial
+                    // Sumamos 1 a $i porque los índices empiezan en 0, y las copias en 1.
+                    'no_copia' => $i + 1
                 ];
             }
             
@@ -197,6 +199,8 @@ class Libros extends Controller
         // 4. Redirigir y mostrar mensaje de éxito
         return redirect()->to(base_url('libros'))->with('msg', 'Libro y sus ejemplares iniciales creados correctamente.');
     }
+
+    // ... (Métodos edit(), update(), delete() - Sin cambios) ...
 
     // Mostrar formulario de edición de un libro
     public function edit($id)
