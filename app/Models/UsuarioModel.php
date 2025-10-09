@@ -8,7 +8,7 @@ class UsuarioModel extends Model
     protected $primaryKey = 'usuario_id';
     protected $allowedFields = ['nombre', 'password', 'carne', 'correo', 'rol'];
 
-    // Función para verificar usuario (ya la tienes)
+    // Función para verificar usuario
     public function verificarUsuario($usuario, $password)
     {
         return $this->where('carne', $usuario)

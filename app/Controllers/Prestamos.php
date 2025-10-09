@@ -70,7 +70,6 @@ class Prestamos extends Controller
             return redirect()->back()->withInput()->with('errors', $validation->getErrors());
         }
         
-        // 3. 💥 SOLUCIÓN DE FALLO: Validación manual de fechas 
         // Convertimos las fechas a objetos DateTime para poder compararlas
         try {
             $fechaPrestamoObj = new \DateTime($fecha_prestamo);

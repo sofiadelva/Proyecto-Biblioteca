@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class TransaccionModel extends Model
 {
-    protected $table = 'prestamos'; // seguimos usando la tabla prestamos
+    protected $table = 'prestamos'; 
     protected $primaryKey = 'prestamo_id';
     protected $allowedFields = [
         'libro_id',

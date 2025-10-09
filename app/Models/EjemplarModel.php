@@ -11,7 +11,6 @@ class EjemplarModel extends Model
     // Nombre de la columna que actúa como clave primaria en la tabla
     protected $primaryKey = 'ejemplar_id';
     
-    // 🌟 ¡SOLUCIÓN! Agregamos 'no_copia' a los campos permitidos.
     // También he eliminado 'codigo' ya que no lo hemos usado en los controladores.
     protected $allowedFields = [
         'libro_id', 

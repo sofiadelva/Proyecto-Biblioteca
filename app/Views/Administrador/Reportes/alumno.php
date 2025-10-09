@@ -72,11 +72,11 @@
                                 $estado = $p['estado'];
 
                                 if ($estado == 'Devuelto') {
-                                    echo 'bg-success';      // 🟢 Verde
+                                    echo 'bg-success';      // Verde
                                 } elseif ($estado == 'Vencido' || $estado == 'Perdido') {
-                                    echo 'bg-danger';       // 🔴 Rojo
+                                    echo 'bg-danger';       // Rojo
                                 } else {
-                                    echo 'bg-warning text-dark'; // 🟡 Amarillo/Naranja (Activo/En Proceso/Prestado)
+                                    echo 'bg-warning text-dark'; // Amarillo/Naranja (Activo/En Proceso/Prestado)
                                 }
                             ?>">
                             <?= esc($estado) ?>

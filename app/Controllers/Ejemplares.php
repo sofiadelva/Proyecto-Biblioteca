@@ -57,7 +57,7 @@ class Ejemplares extends Controller
     {
         $libro_id = $this->request->getPost('libro_id');
         
-        // 🌟 CLAVE: Calcular el siguiente número de copia (no_copia) 🌟
+
         // 1. Obtener el último número de copia para este libro
         $ultimoEjemplar = $this->ejemplarModel
             ->where('libro_id', $libro_id)

@@ -58,9 +58,9 @@
 
                                 // La lógica del estado para activos:
                                 if ($estado == 'Vencido') {
-                                    echo 'bg-danger';       // 🔴 Rojo para vencido
+                                    echo 'bg-danger';       // Rojo para vencido
                                 } else {
-                                    echo 'bg-warning text-dark'; // 🟡 Amarillo/Naranja para activo (en proceso)
+                                    echo 'bg-warning text-dark'; // Amarillo/Naranja para activo (en proceso)
                                 }
                             ?>">
                             <?= esc($estado) ?>
