@@ -1,6 +1,6 @@
 <?php 
 // Extiende de la plantilla principal
-echo $this->extend('Plantillas/plantilla_admin'); 
+echo $this->extend('Plantillas/plantilla_biblio'); 
 ?>
 
 <?php 

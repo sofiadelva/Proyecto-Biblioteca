@@ -4,6 +4,7 @@ namespace App\Controllers;
 use App\Models\LibroModel;
 use App\Models\CategoriaModel;
 use App\Models\EjemplarModel; 
+use App\Models\PrestamoModel; // <-- IMPORTAMOS EL MODELO DE PRÉSTAMOS
 use CodeIgniter\Controller;
 
 class Libros extends Controller
@@ -11,6 +12,7 @@ class Libros extends Controller
     protected $libroModel;
     protected $categoriaModel;
     protected $ejemplarModel;
+    protected $prestamoModel; // <-- PROPIEDAD PARA EL MODELO DE PRÉSTAMOS
 
     public function __construct()
     {
@@ -18,6 +20,7 @@ class Libros extends Controller
         $this->libroModel = new LibroModel();
         $this->categoriaModel = new CategoriaModel();
         $this->ejemplarModel = new EjemplarModel();
+        $this->prestamoModel = new PrestamoModel(); // <-- INSTANCIAMOS EL MODELO DE PRÉSTAMOS
     }
 
     // ... (Método index() - Sin cambios) ...
@@ -151,7 +154,7 @@ class Libros extends Controller
         // 1. Recoger datos del POST
         $dataLibro = [
             'titulo' => $this->request->getPost('titulo'),
-            'autor'  => $this->request->getPost('autor'),
+            'autor'=> $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
             'cantidad_total' => (int)$this->request->getPost('cantidad_total'),
             'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
@@ -185,7 +188,7 @@ class Libros extends Controller
 
                 $ejemplares[] = [
                     'libro_id' => $nuevoLibroId,
-                    'estado'   => $estado_ejemplar,
+                    'estado' => $estado_ejemplar,
                     // 🌟 SOLUCIÓN: Asignar el número de copia de forma secuencial
                     // Sumamos 1 a $i porque los índices empiezan en 0, y las copias en 1.
                     'no_copia' => $i + 1
@@ -200,13 +203,13 @@ class Libros extends Controller
         return redirect()->to(base_url('libros'))->with('msg', 'Libro y sus ejemplares iniciales creados correctamente.');
     }
 
-    // ... (Métodos edit(), update(), delete() - Sin cambios) ...
+    // ... (Métodos edit(), update() - Sin cambios) ...
 
     // Mostrar formulario de edición de un libro
     public function edit($id)
     {
-        $data['libro'] = $this->libroModel->find($id);      // libro actual
-        $data['categorias'] = $this->categoriaModel->findAll();  // todas las categorías
+        $data['libro'] = $this->libroModel->find($id); // libro actual
+        $data['categorias'] = $this->categoriaModel->findAll(); // todas las categorías
         return view('Administrador/Libros/edit', $data);
     }
 
@@ -215,7 +218,7 @@ class Libros extends Controller
     {
         $this->libroModel->update($id, [
             'titulo' => $this->request->getPost('titulo'),
-            'autor'  => $this->request->getPost('autor'),
+            'autor' => $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
             'cantidad_total' => $this->request->getPost('cantidad_total'),
             'cantidad_disponibles' => $this->request->getPost('cantidad_disponibles'),
@@ -235,13 +238,24 @@ class Libros extends Controller
             throw new \CodeIgniter\Exceptions\PageNotFoundException("El libro con ID $id no existe");
         }
 
-        // Eliminamos todos sus ejemplares asociados antes de eliminar el libro
+        // 1. Obtener los IDs de todos los ejemplares (hijos) ligados a este libro (padre).
+        $ejemplares = $this->ejemplarModel->where('libro_id', $id)->findAll();
+        $ejemplar_ids = array_column($ejemplares, 'ejemplar_id');
+
+        if (!empty($ejemplar_ids)) {
+            // 2. ELIMINAR PRÉSTAMOS (Nietos): Elimina todos los préstamos asociados a estos ejemplares.
+            // ESTO RESUELVE EL ERROR #1451.
+            $this->prestamoModel->whereIn('ejemplar_id', $ejemplar_ids)->delete();
+        }
+        
+        // 3. ELIMINAR EJEMPLARES (Hijos): Elimina todos los ejemplares ligados al libro.
+        // Ahora es seguro porque los préstamos ya fueron eliminados.
         $this->ejemplarModel->where('libro_id', $id)->delete();
         
-        // Elimina el libro
+        // 4. ELIMINAR LIBRO (Padre)
         $libroModel->delete($id);
 
         // Redirige con mensaje de éxito
-        return redirect()->to(base_url('libros'))->with('msg', 'Libro eliminado correctamente.');
+        return redirect()->to(base_url('libros'))->with('msg', 'Libro y todos sus ejemplares/préstamos relacionados eliminados correctamente.');
     }
 }
