@@ -12,6 +12,38 @@
 <?= $this->renderSection('head'); ?>
 
 <style>
+    /* === ESTILOS PARA PAGINACIÓN CON COLOR #0C1E44 === */
+.pagination .page-item.active .page-link {
+    background-color: #0C1E44; /* Azul Marino Oscuro */
+    border-color: #0C1E44;
+    color: #ffffff;
+    z-index: 1;
+}
+
+.pagination .page-link {
+    color: #0C1E44; /* Color del texto del link normal */
+    border-color: #e0e0e0; /* Usando un color claro para el borde (asumo --color-border-light) */
+    transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+    background-color: #6884BD; /* Color de hover (asumo --color-secondary-blue) */
+    border-color: #6884BD;
+    color: #ffffff;
+}
+
+/* Estilo del link en estado normal (no activo) */
+.pagination .page-item:not(.active) .page-link:focus {
+    /* Sombra enfocada usando una transparencia del color primario */
+    box-shadow: 0 0 0 0.25rem rgba(12, 30, 68, 0.25); 
+}
+
+/* Estilo para los botones de Anterior/Siguiente/Primer/Último */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    border-radius: 0.25rem;
+}
+/* === FIN ESTILOS PAGINACIÓN === */
 /* ---------------------------------------------------------------------- */
 /* DECLARACIÓN DE FUENTE PERSONALIZADA */
 /* ---------------------------------------------------------------------- */
