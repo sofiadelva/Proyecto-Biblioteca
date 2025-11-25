@@ -9,6 +9,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet" />
 
     <style>
+        @font-face {
+        /* Usa el nombre que quieras para referirte a esta fuente en el CSS */
+        font-family: 'beyond_the_mountains';
+        /* Ruta a tu archivo OTF en la carpeta public/fonts/ */
+        src: url('<?= base_url('fonts/beyond_the_mountains.otf') ?>') format('opentype'); 
+        font-weight: normal;
+        font-style: normal;
+        /* Recomendado: Muestra el texto inmediatamente mientras carga la fuente */
+        font-display: swap; 
+    }
         :root {
             /* Definición de la variable para el color de la línea */
             --color-accent-soft: rgba(255, 255, 255, 0.4);
@@ -18,13 +28,13 @@
             height: 100%;
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0a3f44;
+            background-color: #0C1E44;
             color: #343a40;
         }
 
         .sidebar {
             min-height: 100vh;
-            background-color: #095959;
+            background-color: #0C1E44;
             color: #f8f9fa;
             padding-top: 20px;
         }
@@ -43,7 +53,7 @@
 
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
-            background-color: #0f7a7a;
+            background-color: #6884BD;
             color: #ffffff;
             text-decoration: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -68,7 +78,7 @@
         }
 
         .welcome-card {
-            background: linear-gradient(135deg, #206060, #0d7373);
+            background: linear-gradient(135deg, #00ADC6, #00ADC6);
             color: #f8f9fa;
             border-radius: 12px;
             min-height: 180px;
@@ -77,15 +87,18 @@
             justify-content: center;
             align-items: center;
             font-size: 2.8rem;
-            font-weight: 700;
+            font-weight: 400;
             text-shadow: 0 2px 6px rgba(0,0,0,0.3);
             box-shadow: 0 8px 20px rgba(13,115,115,0.4);
             user-select: none;
+            font-family: 'beyond_the_mountains', 'Segoe UI', Tahoma;
         }
         
+        /* MODIFICADO: Contenedor para la imagen de fondo y la superpuesta */
         .header-logo {
             display: flex;
             align-items: center;
+            justify-content: center; 
             height: 180px;
             border-radius: 12px;
             box-shadow: 0 6px 16px rgba(0,0,0,0.1);
@@ -97,14 +110,15 @@
             position: relative;
             overflow: hidden; 
 
-            /* Fondo con la imagen de libros y sin transparencia */
-            background-image: url('<?= base_url('fotos/libros.png') ?>');
+            /* Fondo con la imagen de libros */
+            background-image: url('<?= base_url('fotos/fondo logo.png') ?>');
             background-size: cover; 
             background-position: center; 
             background-repeat: no-repeat;
         }
 
         .header-logo::before {
+            /* Overlay LIGERO para que la imagen superpuesta destaque */
             content: '';
             position: absolute;
             top: 0;
@@ -112,52 +126,52 @@
             right: 0;
             bottom: 0;
             background-color: #f5f5f5; 
-            opacity: 0.85; /* Overlay blanco para dar transparencia al fondo */
+            opacity: 0.85; /* VALOR AJUSTADO: Fondo más transparente (más claro) */
             z-index: 1;
         }
         
         .header-logo-content {
+            /* Contenedor de la imagen superpuesta, centrado */
             position: relative;
             z-index: 2; 
             display: flex;
-            align-items: center;
+            align-items: center; /* Centrado vertical */
+            justify-content: center; /* Centrado horizontal */
             padding: 0 24px; 
-            gap: 20px;
             width: 100%; 
+            height: 100%;
         }
         
-        .header-logo .logo-img {
-            height: 80px;
+        /* NUEVO: Estilo para la imagen superpuesta */
+        .header-image-overlay {
+            max-height: 90%; 
             width: auto;
-            border-radius: 8px;
-            filter: drop-shadow(0 0 2px rgba(0,0,0,0.15));
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.4)); 
         }
 
+        /* Ocultamos el viejo logo y texto */
+        .header-logo .logo-img,
         .header-logo span {
-            font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
-            font-weight: 700;
-            font-size: 3rem;
-            color: #206060;
-            text-shadow: 0 1px 3px rgba(255, 255, 255, 0.5);
+            display: none; 
         }
+
 
         .about-section {
-            background: linear-gradient(90deg, #9c443a, #c75447);
+            background: linear-gradient(90deg, #0C1E44, #0C1E44);
             color: #fff;
             padding: 16px 32px;
             font-size: 1.8rem;
             font-weight: 600;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(201, 75, 61, 0.65);
         }
         
         /* Contenedor del contenido "Acerca de Nosotros" */
         .hero-section-container {
-             background-color: #ffffff;
-             box-shadow: 0 8px 28px rgba(13, 115, 115, 0.15);
-             border-radius: 14px;
-             /* Aseguramos que crezca para usar todo el alto de la columna */
-             flex-grow: 1; 
+              background-color: #ffffff;
+              box-shadow: 0 8px 28px rgba(13, 115, 115, 0.15);
+              border-radius: 14px;
+              /* Aseguramos que crezca para usar todo el alto de la columna */
+              flex-grow: 1; 
         }
         
         .hero-section {
@@ -179,7 +193,7 @@
             font-size: 2.8rem;
             margin-bottom: 24px;
             font-weight: 700;
-            color: #8b2c2c;
+            color: #0C1E44;
             font-family: 'Georgia', serif;
         }
 
@@ -243,8 +257,8 @@
         }
 
         .kpi-card.color-secondary {
-             background: linear-gradient(135deg, #3a9c7b, #47c787);
-             box-shadow: 0 4px 10px rgba(58, 156, 123, 0.5);
+              background: linear-gradient(135deg, #3a9c7b, #47c787);
+              box-shadow: 0 4px 10px rgba(58, 156, 123, 0.5);
         }
         .kpi-card.color-secondary:hover {
             box-shadow: 0 8px 16px rgba(58, 156, 123, 0.8);
@@ -256,20 +270,59 @@
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #c75447;
+            background: #0C1E44;
             color: #fff;
             font-weight: 600;
             padding: 12px 24px;
             border-radius: 30px;
-            box-shadow: 0 4px 12px rgba(199, 84, 71, 0.8);
             border: none;
             cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
         }
-        .logout-btn:hover { background-color: #a63f39; }
+        .logout-btn:hover { background-color: #0C1E44; }
         .logout-btn i { font-size: 1.2rem; }
+
+        /* --- INICIO CÓDIGO CORREGIDO PARA KPI CARDS --- */
+        
+        /* Color para el primer y tercer KPI (#A01E53) */
+        .kpi-card.color-primary {
+            /* USAMOS 'background' para sobrescribir el linear-gradient */
+            background: #A01E53 !important;
+            color: #ffffff !important; 
+        }
+
+        .kpi-card.color-primary .kpi-icon,
+        .kpi-card.color-primary .kpi-title {
+            color: #ffffff !important;
+        }
+
+        /* Color para el segundo y cuarto KPI (#FBB800) */
+        .kpi-card.color-secondary {
+            /* USAMOS 'background' para sobrescribir el linear-gradient */
+            background: #FBB800 !important;
+            color: #000000 !important; /* Negro para mejor contraste con el amarillo */
+        }
+
+        .kpi-card.color-secondary .kpi-icon,
+        .kpi-card.color-secondary .kpi-title {
+            color: #000000 !important;
+        }
+
+        /* --- Estilo para la tarjeta de imagen inferior --- */
+
+        .image-card-section {
+            background-image: url('<?= base_url('fotos/ardilla y armadillo.png') ?>'); 
+            background-size: contain; 
+            background-position: center;
+            background-repeat: no-repeat;
+            border-radius: 14px;
+            box-shadow: 0 8px 28px rgba(13, 115, 115, 0.15);
+            flex-grow: 1; 
+            min-height: 200px; 
+        }
+
     </style>
 </head>
 <body>
@@ -337,8 +390,7 @@
                 <div class="col-sm-5">
                     <div class="header-logo shadow">
                         <div class="header-logo-content">
-                            <img src="<?= base_url('fotos/generated-image.png') ?>" class="logo-img" alt="Logo" />
-                            <span>EverBook</span>
+                            <img src="<?= base_url('fotos/scj.png') ?>" class="header-image-overlay" alt="Imagen superpuesta" />
                         </div>
                     </div>
                 </div>
@@ -346,30 +398,15 @@
             
             <div class="row mt-2 mb-3 flex-grow-1 d-flex align-items-stretch">
                 
-                <div class="col-lg-7 d-flex flex-column gap-3">
-                    <div class="about-section">Acerca de Nosotros</div>
-                    
-                    <div class="hero-section-container">
-                        <div class="hero-section">
-                            <div class="hero-text">
-                                <h1 class="hero-title">Bienvenido a Everbook</h1>
-                                <p class="hero-paragraph">
-                                    En Everbook, creemos que el conocimiento es la llave que abre todas las puertas hacia el éxito. 
-                                    Nuestra biblioteca está dedicada a estudiantes y maestros, ofreciendo un espacio acogedor y 
-                                    moderno donde la curiosidad y el aprendizaje se encuentran. Con una amplia colección de libros, 
-                                    recursos digitales y actividades diseñadas para inspirar y apoyar tu crecimiento académico, Everbook 
-                                    es mucho más que una biblioteca: es tu aliado en cada etapa del aprendizaje. Ven y descubre un mundo de 
-                                    posibilidades, porque en Everbook, tu educación comienza aquí.
-                                </p>
-                            </div>
-                        </div>
+                <div class="col-lg-7 d-flex flex-column">
+                    <div class="image-card-section">
                     </div>
                 </div>
 
                 <div class="col-lg-5 d-flex flex-column">
                     <div class="dashboard-grid">
                         
-                        <a href="<?= base_url('libros') ?>" class="kpi-card">
+                        <a href="<?= base_url('libros') ?>" class="kpi-card color-primary"> 
                             <i class="bi bi-journals kpi-icon"></i>
                             <p class="kpi-title">Libros en Inventario</p>
                         </a>
@@ -379,11 +416,11 @@
                             <p class="kpi-title">Usuarios Activos</p>
                         </a>
 
-                        <a href="<?= base_url('transacciones') ?>" class="kpi-card">
+                        <a href="<?= base_url('transacciones') ?>" class="kpi-card color-primary"> 
                             <i class="bi bi-box-arrow-in-up-right kpi-icon"></i>
                             <p class="kpi-title">Préstamos Activos</p>
                         </a>
-                        
+                                                
                         <a href="<?= base_url('categorias') ?>" class="kpi-card color-secondary">
                             <i class="bi bi-tags-fill kpi-icon"></i>
                             <p class="kpi-title">Total de Categorías</p>

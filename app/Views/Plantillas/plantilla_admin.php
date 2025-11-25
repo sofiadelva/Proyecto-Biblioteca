@@ -23,7 +23,7 @@
         /* Sidebar */
         .sidebar {
             min-height: 100vh;
-            background-color: #095959; /* deep teal */
+            background-color: #0C1E44; /* deep teal */
             color: #f8f9fa;
             padding-top: 20px;
         }
@@ -42,7 +42,7 @@
 
         .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
-            background-color: #0f7a7a;
+            background-color: #6884BD;
             color: #ffffff;
             text-decoration: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
@@ -67,7 +67,7 @@
         .header-bar .title {
             font-size: 1.8rem;
             font-weight: 600;
-            color: #8b2c2c;
+            color: #0C1E44;
         }
 
         .header-bar .header-logo {
@@ -85,7 +85,7 @@
         .header-bar span {
             font-size: 2rem;
             font-weight: 700;
-            color: #206060;
+            color: #0C1E44;
         }
 
         /* Logout button */
@@ -123,7 +123,7 @@
         }
 
         .clean-table thead th {
-            background-color: #095959; 
+            background-color: #0C1E44; 
             color: #ffffff;
             font-weight: 600;
             padding: 15px 20px;
@@ -171,7 +171,7 @@
         .search-bar-container {
             display: flex;
             align-items: center;
-            background-color: #095959; 
+            background-color: #0C1E44; 
             border-radius: 8px;
             padding: 2px;
             width: 400px; 
@@ -188,7 +188,7 @@
         }
 
         .search-bar-container .search-icon {
-            background-color: #0f7a7a; 
+            background-color: #0C1E44; 
             color: #ffffff;
             border: none;
             padding: 10px 15px;
@@ -203,7 +203,7 @@
         }
 
         .search-bar-container .search-icon:hover {
-            background-color: #074747;
+            background-color: #0C1E44;
         }
         
         /* AJUSTE PARA SELECT2 */

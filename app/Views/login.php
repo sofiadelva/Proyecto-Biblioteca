@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <!-- Adaptabilidad en móviles -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login EverBook</title>
+    <title>Login ReadZone</title>
 
     <!-- Icono de la pestaña -->
     <link rel="icon" href="<?= base_url('fotos/generated-image.png') ?>" type="image/png" />
@@ -16,26 +16,31 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css" rel="stylesheet"/>
 
     <style>
-        /* Estilos principales de la vista login */
-        body, html {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background: #197278 !important;
-        }
-        .center-card {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #197278;
-        }
-        .card {
-            border-radius: 1rem;
-            box-shadow: 0 2px 16px rgba(0,0,0,.08);
-            /* Se puede eliminar el fondo blanco transparente adicional si no es necesario */
-        }
-    </style>
+body, html {
+height: 100%;
+margin: 0;
+padding: 0;
+background: url('<?= base_url('fotos/Fondo login.png') ?>') no-repeat center center fixed;
+-webkit-background-size: cover;
+-moz-background-size: cover;
+-o-background-size: cover;
+background-size: cover;
+background-color: #197278 !important;
+}
+.center-card {
+min-height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+background: transparent;
+}
+.card {
+border-radius: 1rem;
+box-shadow: 0 2px 16px rgba(0,0,0,.08);
+
+}
+</style>
+
 </head>
 <body>
     <!-- Contenedor centrado -->
@@ -46,7 +51,7 @@
                 
                 <!-- Columna izquierda: imagen -->
                 <div class="col-md-5 d-flex align-items-center justify-content-center" style="background: none;">
-                    <img src="<?= base_url('fotos/libros.png') ?>"
+                    <img src="<?= base_url('fotos/Ardilla.png') ?>"
                         alt="login form"
                         class="img-fluid"
                         style="border-radius: 1rem 0 0 1rem;max-width: 95%;" />
@@ -58,10 +63,7 @@
                         
                         <!-- Logo + título -->
                         <div class="d-flex align-items-center mb-3 pb-1">
-                            <img src="<?= base_url('fotos/generated-image.png') ?>" 
-                            alt="Logo EverBook" 
-                            style="width: 40px; height: 40px; margin-right: 1rem;" />
-                            <span class="h1 fw-bold mb-0">EverBook</span>
+                            <span class="h1 fw-bold mb-0">ReadZone</span>
                         </div>
 
                         <!-- Subtítulo -->
@@ -89,7 +91,7 @@
                             
                             <!-- Botón de acceso -->
                             <div class="pt-1 mb-4">
-                                <button class="btn btn-dark btn-lg btn-block" type="submit">Ingresar</button>
+                                <button class="btn btn-dark btn-lg btn-block" type="submit" style="background-color: #0C1E44;">Ingresar</button>
                             </div>
                         </form>
                     </div>
