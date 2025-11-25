@@ -116,11 +116,11 @@ $this->section('contenido');
                     <?php endif; ?>
                 </td>
                 <td>
-                    <a href="<?= base_url('devoluciones/confirmar/'.$prestamo['prestamo_id']); ?>" 
-                        class="btn btn-sm text-white shadow-sm"
-                        style="background-color:#206060;"
-                        onclick="return confirm('¿Confirmar la devolución del libro [<?= esc($prestamo['titulo']) ?>] por parte de [<?= esc($prestamo['nombre_usuario']) ?>]?')">
-                        <i class="bi bi-box-arrow-in-down-right me-1"></i> Devolver
+                     <a href="<?= base_url('devoluciones/confirmar/'.$prestamo['prestamo_id']); ?>" 
+                    class="btn btn-sm text-white shadow-sm"
+                    style="background-color:#00ADC6;"
+                     onclick="return confirm('¿Confirmar la devolución del libro [<?= esc($prestamo['titulo']) ?>] por parte de [<?= esc($prestamo['nombre_usuario']) ?>]?')">
+                    <i class="bi bi-box-arrow-in-down-right me-1"></i> Devolver
                     </a>
                 </td>
             </tr>

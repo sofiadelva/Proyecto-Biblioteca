@@ -7,236 +7,308 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.0/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
 <?= $this->renderSection('head'); ?>
+
 <style>
+/* ---------------------------------------------------------------------- */
+/* DECLARACIÓN DE FUENTE PERSONALIZADA */
+/* ---------------------------------------------------------------------- */
+@font-face {
+    font-family: 'beyond_the_mountains';
+    /* Asegúrate de que la ruta y el formato (otf) sean correctos para tu entorno */
+    src: url('<?= base_url('fonts/beyond_the_mountains.otf') ?>') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap; 
+}
+
+/* Variables de color de la plantilla de Administrador */
 :root {
---color-primary: #206060;
---color-secondary-teal: #0f7a7a;
---color-text-dark: #343a40;
---color-border-light: #e0e0e0; 
---color-admin-title: #8b2c2c; 
+    --color-primary: #0C1E44; /* Azul Marino Oscuro (Sidebar, Título, Tablas) */
+    --color-secondary-blue: #6884BD; /* Azul Medio/Claro (Hover de Sidebar) */
+    --color-text-dark: #343a40;
+    --color-border-light: #e0e0e0;
+    --color-accent: #00ADC6; /* Azul Cian/Turquesa (Botones Primarios) */
+    --color-danger: #A01E53; /* Borgoña Oscuro (Botón Eliminar) */
+    --color-warning: #FBB800; /* Amarillo/Naranja (Botón Editar) */
 }
+
 body, html {
-height: 100%;
-margin: 0;
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background-color: #f4f7f8;
-color: var(--color-text-dark);
+    height: 100%;
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7f8;
+    color: var(--color-text-dark);
 }
+
 /* Sidebar */
+.bg-danger {
+    background-color:#A01E53 !important;
+}
 .sidebar {
-min-height: 100vh;
-background-color: #095959;
-color: #f8f9fa;
-padding-top: 20px;
+    min-height: 100vh;
+    background-color: var(--color-primary); /* #0C1E44 */
+    color: #f8f9fa;
+    padding-top: 20px;
 }
 .sidebar .nav-link {
-color: #f8f9fa;
-font-size: 1.1rem;
-padding: 12px 24px;
-display: flex;
-align-items: center;
-gap: 15px;
-border-radius: 6px;
-transition: background-color 0.3s ease;
-font-weight: 500;
+    color: #f8f9fa;
+    font-size: 1.1rem;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
 }
 .sidebar .nav-link:hover,
 .sidebar .nav-link.active {
-background-color: #0f7a7a;
-color: #ffffff;
-text-decoration: none;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    background-color: var(--color-secondary-blue); /* #6884BD */
+    color: #ffffff;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 .sidebar .nav-link i {
-font-size: 1.4rem;
-min-width: 28px;
-text-align: center;
+    font-size: 1.4rem;
+    min-width: 28px;
+    text-align: center;
 }
+
 /* Header bar */
 .header-bar {
-display: flex;
-justify-content: space-between;
-align-items: center;
-padding: 16px 24px;
-background: #ffffff;
-border-bottom: 2px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: #ffffff;
+    border-bottom: 2px solid #ccc;
 }
+
+/* APLICACIÓN DE LA NUEVA FUENTE AL TÍTULO */
 .header-bar .title {
-font-size: 1.8rem;
-font-weight: 600;
-color: var(--color-admin-title); 
+    font-family: 'beyond_the_mountains', cursive; 
+    font-size: 2rem; 
+    font-weight: normal;
+    color: var(--color-primary); 
 }
+
 .header-bar .header-logo {
-display: flex;
-align-items: center;
-gap: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
 }
 .header-bar .logo-img {
-height: 50px;
-width: auto;
-border-radius: 8px;
+    height: 50px;
+    width: auto;
+    border-radius: 8px;
 }
-.header-bar span {
-font-size: 2rem;
-font-weight: 700;
-color: var(--color-primary);
+.header-bar span { 
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-primary);
 }
-/* Logout button */
-.logout-btn {
-position: fixed;
-bottom: 30px;
-right: 30px;
-background: #c75447;
-color: #fff;
-font-weight: 600;
-padding: 12px 24px;
-border-radius: 30px;
-border: none;
-cursor: pointer;
-display: flex;
-align-items: center;
-gap: 8px;
-z-index: 1000;
-}
-.logout-btn:hover {
-background-color: #a63f39;
-}
-.logout-btn i {
-font-size: 1.2rem;
-}
+
+
 /* === [ESTILOS DE TABLA Y BOTONES PARA TODO EL DASHBOARD] === */
 .clean-table {
-border-collapse: separate; 
-border-spacing: 0;
-width: 100%;
-background-color: #ffffff;
-border-radius: 10px; 
-overflow: hidden; 
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
+    border-collapse: separate; 
+    border-spacing: 0;
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 10px; 
+    overflow: hidden; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); 
 }
 .clean-table thead th {
-background-color: #095959; 
-color: #ffffff;
-font-weight: 600;
-padding: 15px 20px;
-border-bottom: none; 
+    background-color: var(--color-primary); /* #0C1E44 */
+    color: #ffffff;
+    font-weight: 600;
+    padding: 15px 20px;
+    border-bottom: none; 
 }
 .clean-table tbody tr {
-transition: background-color 0.2s;
-border-bottom: 1px solid #e9ecef; 
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #e9ecef; 
 }
 .clean-table tbody tr:hover {
-background-color: #f4f7f8; 
+    background-color: #f4f7f8; 
 }
 .clean-table tbody td {
-padding: 12px 20px;
-vertical-align: middle;
+    padding: 12px 20px;
+    vertical-align: middle;
 }
-/* Estilos de Botones de Acción de la tabla */
+
+/* 1. Botón Editar: color #FBB800 (Amarillo/Naranja) */
 .clean-table .btn-accion-editar {
-background-color: #f0ad4e;
-color: #ffffff;
-padding: 6px 12px;
-border-radius: 5px;
-font-weight: 500;
-text-decoration: none;
+    background-color: var(--color-warning) !important; /* #FBB800 */
+    color: #000000 !important;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
 }
+.clean-table .btn-accion-editar:hover {
+    background-color: #d8a200 !important; 
+}
+
+/* 2. Botón Eliminar: color #A01E53 (Borgoña Oscuro) */
 .clean-table .btn-accion-eliminar {
-background-color: #c75447;
-color: #ffffff;
-padding: 6px 12px;
-border-radius: 5px;
-font-weight: 500;
-text-decoration: none;
+    background-color: var(--color-danger) !important; /* #A01E53 */
+    color: #ffffff !important;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s;
 }
+.clean-table .btn-accion-eliminar:hover {
+    background-color: #841843 !important; 
+}
+
+/* 3. Botón Info/Ejemplares (btn-info): color #0C1E44 (Azul Marino Oscuro) */
+.clean-table .btn-info,
+.clean-table .btn-info:focus,
+.clean-table .btn-info:active {
+    background-color: var(--color-primary) !important; /* #0C1E44 */
+    border-color: var(--color-primary) !important;
+    color: #ffffff !important;
+    transition: background-color 0.2s;
+}
+.clean-table .btn-info:hover {
+    background-color: #081634 !important;
+    border-color: #081634 !important;
+}
+
+/* SOBREESCRITURA DE ESTILOS DE BOOTSTRAP */
+.btn-primary,
+.btn-secondary {
+    background-color: var(--color-accent) !important; /* #00ADC6 */
+    border-color: var(--color-accent) !important;
+    color: #ffffff !important;
+}
+.btn-primary:hover, .btn-secondary:hover {
+    background-color: #008fa3 !important; 
+    border-color: #008fa3 !important;
+}
+.btn-danger{
+    background-color: var(--color-danger); /* #A01E53 */
+}
+
+
 /* Estilo de la barra de búsqueda */
 .search-bar-container {
-display: flex;
-align-items: center;
-background-color: var(--color-primary); 
-border-radius: 8px;
-padding: 2px;
-width: 400px; 
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    background-color: var(--color-primary); 
+    border-radius: 8px;
+    padding: 2px;
+    width: 400px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 .search-bar-container input[type="text"] {
-flex-grow: 1;
-padding: 10px 15px;
-border: none;
-border-radius: 8px 0 0 8px; 
-font-size: 1rem;
-outline: none;
-color: var(--color-text-dark);
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px 0 0 8px; 
+    font-size: 1rem;
+    outline: none;
+    color: var(--color-text-dark);
 }
 .search-bar-container .search-icon {
-background-color: var(--color-secondary-teal); 
-color: #ffffff;
-border: none;
-padding: 10px 15px;
-cursor: pointer;
-border-radius: 0 8px 8px 0; 
-font-size: 1.2rem;
-transition: background-color 0.3s ease;
-height: 42px; 
-display: flex;
-align-items: center;
-justify-content: center;
+    background-color: var(--color-primary); 
+    color: #ffffff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0; 
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+    height: 42px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .search-bar-container .search-icon:hover {
-background-color: #074747;
+    background-color: #081634;
+}
+
+/* AJUSTE PARA SELECT2 */
+.select2-container .select2-selection--single {
+    height: 42px !important; 
+    padding: 0.375rem 0.75rem !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 8px !important;
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+    line-height: 24px !important; 
+}
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    height: 40px !important; 
 }
 /* === [FIN ESTILOS DE TABLA Y BOTONES] === */
 </style>
 </head>
 <body>
-<div class="container-fluid">
-<div class="row">
-<nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
-<ul class="nav flex-column" id="sidebarMenu">
-<li class="nav-item mb-3">
-<a class="nav-link <?= (uri_string() === 'panel_bibliotecario') ? 'active' : '' ?>" 
-href="<?= base_url('bibliotecario/panel'); ?>">
-<i class="bi bi-house-door-fill"></i> Home
-</a>
-</li>
-<li class="nav-item mb-3">
-<a class="nav-link <?= (uri_string() === 'inventario') ? 'active' : '' ?>" 
-href="<?= base_url('inventario'); ?>">
-<i class="bi bi-journal-bookmark-fill"></i> Inventario
-</a>
-</li>
-<li class="nav-item mb-3">
-<a class="nav-link <?= (uri_string() === 'gestion_libros') ? 'active' : '' ?>" 
-href="<?= base_url('gestion_libros'); ?>">
-<i class="bi bi-book-half"></i> Gestión de Libros
-</a>
-</li>
-<hr style="margin: 15px 0; border-color: var(--color-border-light);">
-<li class="nav-item">
-<a class="nav-link" href="<?= base_url('login/salir') ?>">
-<i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-</a>
-</li>
-</ul>
-</nav>
-<main class="col-md-10">
-<div class="header-bar">
-<div class="title"><?= $this->renderSection('titulo'); ?></div>
-<div class="header-logo">
-<img src="<?= base_url('fotos/generated-image.png') ?>" class="logo-img" alt="Logo" />
-<span>EverBook</span>
-</div>
-</div>
-<div class="p-4">
-<?= $this->renderSection('contenido'); ?>
-</div>
-</main>
-</div>
-</div>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<?= $this->renderSection('scripts'); ?>
+    <div class="container-fluid">
+        <div class="row">
+            
+            <nav class="col-md-2 d-none d-md-block sidebar py-4 position-relative">
+                <ul class="nav flex-column" id="sidebarMenu">
+                    
+                    <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'panel_bibliotecario') ? 'active' : '' ?>" 
+                            href="<?= base_url('bibliotecario/panel'); ?>">
+                            <i class="bi bi-house-door-fill"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'inventario') ? 'active' : '' ?>" 
+                            href="<?= base_url('inventario'); ?>">
+                            <i class="bi bi-journal-bookmark-fill"></i> Inventario
+                        </a>
+                    </li>
+                    <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'gestion_libros') ? 'active' : '' ?>" 
+                            href="<?= base_url('gestion_libros'); ?>">
+                            <i class="bi bi-book-half"></i> Gestión de Libros
+                        </a>
+                    </li>
+                    <hr style="margin: 15px 0; border-color: var(--color-border-light);">
+
+                <li class="nav-item">
+                    <a class="nav-link" href="<?= base_url('login/salir') ?>">
+                        <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+                    </a>
+                </li>
+
+                </ul>
+            </nav>
+
+            <main class="col-md-10">
+                <div class="header-bar">
+                    <div class="title"><?= $this->renderSection('titulo'); ?></div>
+                    
+                    <div class="header-logo">
+                        <img src="<?= base_url('fotos/scj.png') ?>" class="logo-img" alt="Logo SCJ" />
+                       
+                    </div>
+                </div>
+
+                <div class="p-4">
+                    <?= $this->renderSection('contenido'); ?>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <?= $this->renderSection('scripts'); ?>
 </body>
 </html>

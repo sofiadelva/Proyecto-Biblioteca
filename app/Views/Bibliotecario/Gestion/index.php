@@ -33,7 +33,7 @@ Gestión de Libros
         <!-- Botón que redirige a la sección de devoluciones -->
         <a href="<?= base_url('devoluciones'); ?>" 
            class="btn btn-success btn-lg px-4 py-3" 
-           style="background-color:#0f7a7a; border:none;">
+           style="background-color:#0C1E44; border:none;">
             <i class="bi bi-arrow-repeat me-2"></i> Agregar Devolución
         </a>
     </div>
