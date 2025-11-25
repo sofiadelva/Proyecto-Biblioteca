@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <title>Everbook Dashboard - Bibliotecario</title>
+    <title>ReadZone - Home</title>
+     <link rel="icon" href="<?= base_url('fotos/scj.png') ?>" type="image/png" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
@@ -338,8 +339,7 @@
                     <div class="header-logo shadow">
                         <div class="header-logo-content">
                             <img src="<?= base_url('fotos/scj.png') ?>" class="header-image-overlay" alt="Imagen superpuesta" />
-                            <img src="<?= base_url('fotos/generated-image.png') ?>" class="logo-img" alt="Logo" style="display: none;" />
-                            <span style="display: none;">EverBook</span>
+                           
                         </div>
                     </div>
                 </div>
@@ -370,7 +370,7 @@
             </div>
 
             <div class="footer-credits">
-                Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar
+                Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar - Promo 2025
             </div>
 
             <button class="btn logout-btn" type="button" onclick="window.location.href='<?= base_url('login/salir') ?>'"> 

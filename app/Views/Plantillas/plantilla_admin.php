@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <title>Everbook Dashboard - <?php echo $this->renderSection('titulo', 'Panel Principal'); ?></title>
+    <title>ReadZone - <?php echo $this->renderSection('titulo', 'Panel Principal'); ?></title>
+     <link rel="icon" href="<?= base_url('fotos/scj.png') ?>" type="image/png" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     

@@ -49,6 +49,17 @@ Mis Préstamos
     .clean-table tbody tr:hover {
         background-color: #f1f1f1;
     }
+    .bg-success {
+        background-color:#61A392 !important;
+    }
+
+    .bg-warning {
+        background-color:#FFD45C!important;
+    }
+
+    .bg-danger {
+        background-color:#A01E53!important;
+    }
     
 </style>
 

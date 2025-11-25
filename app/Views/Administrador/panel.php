@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8" />
-    <title>Everbook Dashboard</title>
+    <title>ReadZone - Home</title>
+     <link rel="icon" href="<?= base_url('fotos/scj.png') ?>" type="image/png" />
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
@@ -323,6 +324,16 @@
             min-height: 200px; 
         }
 
+        .footer-credits {
+        margin-top: auto; /* Empuja el footer hacia abajo */
+        padding-top: 20px;
+        padding-bottom: 5px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #6c757d; /* Gris sutil */
+        border-top: 1px solid #e9ecef; /* Línea separadora */
+    }
+
     </style>
 </head>
 <body>
@@ -428,6 +439,11 @@
                         
                     </div>
                 </div>
+
+                
+            </div>
+            <div class="footer-credits">
+                Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar - Promo 2025
             </div>
 
             <button class="btn logout-btn" type="button" onclick="window.location.href='<?= base_url('login/salir') ?>'"> 
