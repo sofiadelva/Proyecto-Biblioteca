@@ -24,7 +24,7 @@ if(session()->getFlashdata('msg')):
 <?php endif; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <a href="<?= base_url('categorias/create'); ?>" class="btn btn-lg text-white shadow" style="background-color:#206060;">
+    <a href="<?= base_url('categorias/create'); ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44;">
         <i class="bi bi-plus-circle-fill me-2"></i>Agregar Nueva Categoría
     </a>
     

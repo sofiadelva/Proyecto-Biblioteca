@@ -6,7 +6,7 @@ Editar Ejemplar
 <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
 
     <h2 class="section-title mb-4 pb-2 border-bottom">
-        <i class="bi bi-pencil-square me-2" style="color: #c75447;"></i>
+        <i class="bi bi-pencil-square me-2" style="color: #0C1E44;"></i>
         Editar Ejemplar de: <span style="font-weight: 500;"><?= esc($libro['titulo']) ?></span>
     </h2>
 
@@ -27,7 +27,7 @@ Editar Ejemplar
         </div>
 
         <div class="col-12 mt-5 d-flex justify-content-start gap-3">
-            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#c75447;">
+            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#A01E53;">
                 <i class="bi bi-arrow-repeat me-2"></i> Actualizar Ejemplar
             </button>
             <a href="<?= base_url('ejemplares/listar/'.$libro['libro_id']); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
@@ -39,7 +39,7 @@ Editar Ejemplar
 
 <style>
     .section-title {
-        color: #206060;
+        color: #0C1E44;
         font-weight: 700;
         font-size: 1.75rem;
     }

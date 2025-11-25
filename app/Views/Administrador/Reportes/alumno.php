@@ -6,7 +6,7 @@
 
 <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
     <h3 class="section-title mb-3 pb-2 border-bottom">
-        <i class="bi bi-funnel me-2" style="color: #206060;"></i>
+        <i class="bi bi-funnel me-2" style="color: #0C1E44;"></i>
         Filtros de Reporte por Alumno
     </h3>
     <form method="get" action="" class="row g-3 align-items-end">
@@ -93,7 +93,7 @@
     
     <form method="post" action="<?= base_url('reportes/alumno/pdf') ?>" target="_blank">
     <input type="hidden" name="usuario_nombre" value="<?= esc($nombreAlumno ?? ''); ?>">
-    <button type="submit" class="btn btn-danger">
+    <button type="submit" class="btn btn-danger" >
         <i class="bi bi-file-earmark-pdf-fill me-1"></i> Descargar PDF
     </button>
 </form>
@@ -104,7 +104,7 @@
 <?php $this->section('head'); ?>
 <style>
     .section-title {
-        color: #206060;
+        color: #0C1E44;
         font-weight: 700;
         font-size: 1.75rem;
     }
@@ -115,11 +115,11 @@
         border: 1px solid #ced4da;
     }
     .btn-primary {
-        background-color: #095959; 
-        border-color: #095959;
+        background-color: #0C1E44; 
+        border-color: #0C1E44;
     }
     .clean-table thead th {
-        background-color: #095959; 
+        background-color: #0C1E44; 
         color: #ffffff;
         font-weight: 600;
         padding: 15px 20px;

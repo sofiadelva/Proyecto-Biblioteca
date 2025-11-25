@@ -13,7 +13,7 @@ use App\Models\PrestamoAlumnoModel;
 class Reportes extends BaseController
 {
     // Color principal verde oscuro para el reporte (Hex: #095959)
-    const COLOR_HEADER_BG = '#095959';
+    const COLOR_HEADER_BG = '#0C1E44';
     // Colores de fila ya no se usan como constantes directas, sino en el CSS
     // Color para estado Vencido/Perdido
     const COLOR_VENCIDO = '#dc3545';

@@ -21,19 +21,22 @@ Reportes
 
     <!-- Botones de navegación a distintos reportes -->
     <div class="d-flex justify-content-center gap-4">
-        <a href="<?= base_url('reportes/alumno') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#206060; border:none;">
+        <a href="<?= base_url('reportes/alumno') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#A01E53; border:none;">
             <i class="bi bi-journal-plus me-2"></i> Reporte por Alumno
         </a>
 
-        <a href="<?= base_url('reportes/libro') ?>" class="btn btn-success btn-lg px-4 py-3" style="background-color:#0f7a7a; border:none;">
+        <a href="<?= base_url('reportes/libro') ?>" class="btn btn-success btn-lg px-4 py-3" style="background-color:#0C1E44
+; border:none;">
             <i class="bi bi-arrow-repeat me-2"></i> Reporte por Libro
         </a>
 
-        <a href="<?= base_url('reportes/activos') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#206060; border:none;">
+        <a href="<?= base_url('reportes/activos') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#A01E53
+; border:none;">
             <i class="bi bi-journal-plus me-2"></i> Reporte Préstamos Activos
         </a>
 
-        <a href="<?= base_url('reportes/disponibles') ?>" class="btn btn-success btn-lg px-4 py-3" style="background-color:#0f7a7a; border:none;">
+        <a href="<?= base_url('reportes/disponibles') ?>" class="btn btn-success btn-lg px-4 py-3" style="background-color:#0C1E44
+; border:none;">
             <i class="bi bi-arrow-repeat me-2"></i> Reporte de Libros Disponibles
         </a>
     </div>

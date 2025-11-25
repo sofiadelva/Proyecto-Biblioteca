@@ -12,6 +12,19 @@
     <?php echo $this->renderSection('head'); ?>
     
     <style>
+        /* ---------------------------------------------------------------------- */
+        /* ESTILOS GLOBALES Y COMPONENTES */
+        /* ---------------------------------------------------------------------- */
+        @font-face {
+        /* Usa el nombre que quieras para referirte a esta fuente en el CSS */
+        font-family: 'beyond_the_mountains';
+        /* Ruta a tu archivo OTF en la carpeta public/fonts/ */
+        src: url('<?= base_url('fonts/beyond_the_mountains.otf') ?>') format('opentype'); 
+        font-weight: normal;
+        font-style: normal;
+        /* Recomendado: Muestra el texto inmediatamente mientras carga la fuente */
+        font-display: swap; 
+    }
         body, html {
             height: 100%;
             margin: 0;
@@ -64,16 +77,19 @@
             border-bottom: 2px solid #ccc;
         }
 
+        /* APLICACIÓN DE LA NUEVA FUENTE AL TÍTULO */
         .header-bar .title {
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-family: 'beyond_the_mountains', cursive; /* Aplica la fuente personalizada */
+            font-size: 2rem; /* Aumentamos el tamaño para fuentes tipo script */
+            font-weight: normal; /* Sobrescribimos el 600 ya que las fuentes script suelen ser normales */
             color: #0C1E44;
         }
 
+        /* Modificado para que solo contenga la imagen */
         .header-bar .header-logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            /* Eliminamos el gap ya que solo habrá un elemento */
         }
 
         .header-bar .logo-img {
@@ -81,12 +97,15 @@
             width: auto;
             border-radius: 8px;
         }
-
+        
+        /* Eliminamos el estilo para el span 'Everbook' */
+        /*
         .header-bar span {
             font-size: 2rem;
             font-weight: 700;
             color: #0C1E44;
         }
+        */
 
         /* Logout button */
         .logout-btn {
@@ -144,30 +163,99 @@
             vertical-align: middle;
         }
 
-        /* Estilos para los botones de acción en la tabla */
+        /* ---------------------------------------------------------------------- */
+        /* SOBREESCRITURA DE ESTILOS DE BOTONES DE BOOTSTRAP */
+        /* Color deseado: #00ADC6 */
+        /* ---------------------------------------------------------------------- */
+        
+        /* Botón Primario y Secundario */
+        .btn-primary,
+        .btn-secondary {
+            background-color: #00ADC6 !important;
+            border-color: #00ADC6 !important;
+            color: #ffffff !important;
+        }
+
+        /* Efecto Hover para Botones Primario y Secundario */
+        .btn-primary:hover,
+        .btn-primary:focus,
+        .btn-primary:active,
+        .btn-secondary:hover,
+        .btn-secondary:focus,
+        .btn-secondary:active {
+            background-color: #008fa3 !important; 
+            border-color: #008fa3 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 0.25rem rgba(0, 173, 198, 0.5) !important;
+        }
+        
+        .btn-danger{
+            background-color:#A01E53;
+        }
+
+        /* ---------------------------------------------------------------------- */
+        /* BOTONES DE ACCIÓN (Editar, Eliminar, Info) */
+        /* ---------------------------------------------------------------------- */
+
+        /* 1. Botón Editar: color #FBB800 (Amarillo/Naranja) */
         .clean-table .btn-accion-editar {
-            background-color: #f0ad4e; 
-            border-color: #f0ad4e;
-            color: #ffffff;
+            background-color: #FBB800 !important; 
+            border-color: #FBB800 !important;
+            color: #000000 !important;
             padding: 6px 12px;
             border-radius: 5px;
             font-weight: 500;
             text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .clean-table .btn-accion-editar:hover {
+            background-color: #d8a200 !important; 
+            border-color: #d8a200 !important;
         }
 
+        /* 2. Botón Eliminar: color #A01E53 (Borgoña Oscuro) */
         .clean-table .btn-accion-eliminar {
-            background-color: #c75447; 
-            border-color: #c75447;
-            color: #ffffff;
+            background-color: #A01E53 !important; 
+            border-color: #A01E53 !important;
+            color: #ffffff !important;
             padding: 6px 12px;
             border-radius: 5px;
             font-weight: 500;
             text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .clean-table .btn-accion-eliminar:hover {
+            background-color: #841843 !important; 
+            border-color: #841843 !important;
         }
 
+        /* 3. Botón Info/Ejemplares (btn-info): color #0C1E44 (Azul Marino Oscuro) */
+        .clean-table .btn-info,
+        .clean-table .btn-info:focus,
+        .clean-table .btn-info:active {
+            background-color: #0C1E44 !important; 
+            border-color: #0C1E44 !important;
+            color: #ffffff !important;
+            transition: background-color 0.2s;
+        }
+        .clean-table .btn-info:hover {
+            background-color: #081634 !important;
+            border-color: #081634 !important;
+        }
+
+        /* Ajustes generales de la tabla */
+        .clean-table .btn-sm {
+            font-size: 0.875rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+        }
         .clean-table .d-flex.gap-2 a {
             margin: 0 4px; 
         }
+
+
+        /* === [OTROS ESTILOS] === */
+
         .search-bar-container {
             display: flex;
             align-items: center;
@@ -219,8 +307,6 @@
         .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
             height: 40px !important; 
         }
-        /* === [FIN Nuevo CSS] === */
-
     </style>
 </head>
 <body>
@@ -285,11 +371,10 @@
 
             <main class="col-md-10">
                 <div class="header-bar">
-                    <!-- Esto renderiza el título que definas en cada vista -->
                     <div class="title"><?php echo $this->renderSection('titulo'); ?></div>
+                    
                     <div class="header-logo">
-                        <img src=<?= base_url('fotos/generated-image.png') ?> class="logo-img" alt="Logo" />
-                        <span>EverBook</span>
+                        <img src="<?= base_url('fotos/scj.png') ?>" class="logo-img" alt="Logo SCJ" />
                     </div>
                 </div>
 

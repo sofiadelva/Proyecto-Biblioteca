@@ -13,7 +13,7 @@ Gestión de Usuarios
 <?php endif; ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <a href="<?= base_url('usuarios/create'); ?>" class="btn btn-lg text-white shadow" style="background-color:#206060;">
+    <a href="<?= base_url('usuarios/create'); ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44;">
         <i class="bi bi-person-plus-fill me-2"></i>Agregar Nuevo Usuario
     </a>
     

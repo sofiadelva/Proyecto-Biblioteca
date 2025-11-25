@@ -6,7 +6,7 @@ Ejemplares de <?= esc($libro['titulo']) ?>
 <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
     
     <h2 class="section-title mb-4 pb-2 border-bottom">
-        <i class="bi bi-list-columns-reverse me-2" style="color: #206060;"></i>
+        <i class="bi bi-list-columns-reverse me-2" style="color: #0C1E44;"></i>
         Ejemplares de: <span style="font-weight: 500;"><?= esc($libro['titulo']) ?></span>
     </h2>
     
@@ -18,7 +18,7 @@ Ejemplares de <?= esc($libro['titulo']) ?>
 
     <div class="d-flex justify-content-between align-items-center mb-4">
         
-        <a href="<?= base_url('ejemplares/new/'.$libro['libro_id']) ?>" class="btn btn-lg text-white shadow" style="background-color:#206060;">
+        <a href="<?= base_url('ejemplares/new/'.$libro['libro_id']) ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44">
             <i class="bi bi-plus-circle-fill me-2"></i>Agregar Nuevo Ejemplar
         </a>
         
@@ -77,12 +77,12 @@ Ejemplares de <?= esc($libro['titulo']) ?>
 
 <style>
     .section-title {
-        color: #206060;
+        color: #0C1E44;
         font-weight: 700;
         font-size: 1.75rem;
     }
     .clean-table th {
-        background-color: #206060;
+        background-color: #0C1E44;
         color: white;
         border: none;
         vertical-align: middle;
@@ -93,8 +93,8 @@ Ejemplares de <?= esc($libro['titulo']) ?>
     }
     /* Estilos para botones de acción en la tabla (similar a la vista de Libros) */
     .btn-accion-editar {
-        color: #206060;
-        border: 1px solid #206060;
+        color: #0C1E44;
+        border: 1px solid #0C1E44;
         background-color: #e6f0f0;
         padding: 5px 10px;
         border-radius: 5px;

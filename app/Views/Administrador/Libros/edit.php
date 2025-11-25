@@ -20,7 +20,7 @@ $this->section('contenido');
 <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
     
     <h2 class="section-title mb-4 pb-2 border-bottom">
-        <i class="bi bi-pencil-square me-2" style="color: #206060;"></i>
+        <i class="bi bi-pencil-square me-2" style="color: #0C1E44;"></i>
         Modificar Información del Libro
     </h2>
     
@@ -93,7 +93,7 @@ $this->section('contenido');
             <a href="<?= base_url('libros'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
                 <i class="bi bi-arrow-left-short"></i> Regresar
             </a>
-            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#c75447;">
+            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#A01E53;">
                 <i class="bi bi-save-fill me-2"></i> Actualizar Libro
             </button>
         </div>
@@ -103,7 +103,7 @@ $this->section('contenido');
 
 <style>
     .section-title {
-        color: #206060;
+        color: #0C1E44;
         font-weight: 700;
         font-size: 1.75rem;
     }

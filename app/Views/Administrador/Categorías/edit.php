@@ -13,7 +13,7 @@ Editar Categoría
 
     <!-- Título estilizado de la sección -->
     <h2 class="section-title mb-4 pb-2 border-bottom">
-        <i class="bi bi-tag-fill me-2" style="color: #c75447;"></i>
+        <i class="bi bi-tag-fill me-2" style="color: #0C1E44;"></i>
         Editar Categoría
     </h2>
 
@@ -30,7 +30,7 @@ Editar Categoría
 
         <div class="col-12 mt-5 d-flex justify-content-start gap-3">
             <!-- Botón para enviar el formulario y actualizar la categoría -->
-            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#c75447;">
+            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#A01E53;">
                 <i class="bi bi-arrow-repeat me-2"></i> Actualizar Categoría
             </button>
 
@@ -45,7 +45,7 @@ Editar Categoría
 <!-- Estilos para consistencia visual -->
 <style>
     .section-title {
-        color: #206060;
+        color: #0C1E44;
         font-weight: 700;
         font-size: 1.75rem;
     }
