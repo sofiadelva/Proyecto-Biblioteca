@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login ReadZone</title>
 
-    <link rel="icon" href="<?= base_url('fotos/generated-image.png') ?>" type="image/png" />
+    <link rel="icon" href="<?= base_url('fotos/scj.png') ?>" type="image/png" />
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" />
@@ -135,7 +135,7 @@
                 </div>
             </div>
         </div> <footer class="footer-credits-integrated">
-            Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar
+            Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar - Promo 2025
         </footer>
 
     </section> <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.js"></script>
