@@ -9,12 +9,15 @@ class LibroModel extends Model
     protected $primaryKey = 'libro_id';
 
     protected $allowedFields = [
+    'codigo',
     'titulo',
     'autor',
     'editorial',
+    'subcategoria_id',
+    'paginas',
+    'ano',
     'cantidad_total',
     'cantidad_disponibles',
-    'estado',
-    'categoria_id'
+    'estado'
     ];
 }

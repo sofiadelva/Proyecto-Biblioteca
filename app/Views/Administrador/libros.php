@@ -103,28 +103,41 @@ $this->section('contenido');
 <table class="table clean-table my-3">
     <thead>
     <tr>
+        <th>Código</th> 
         <th>Título</th>
         <th>Autor</th>
         <th>Editorial</th>
+        <th>Año</th>
+        <th>Páginas</th>
+        <th>Colección</th> 
+        <th>Subgénero</th>
+        <th>Subcategoría</th>
         <th>Cantidad Total</th>
         <th>Cantidad Disponibles</th>
         <th>Estado</th>
-        <th>Categoría</th>
         <th>Opciones</th>
     </tr>
     </thead>
     <tbody>
     <?php 
+    // Usamos ?? 'N/A' para manejar el caso en que el LEFT JOIN no encuentre un registro
     foreach($libros as $libro): 
     ?>
         <tr>
-            <td><?= $libro['titulo'] ?></td>
-            <td><?= $libro['autor'] ?></td>
-            <td><?= $libro['editorial'] ?></td>
-            <td><?= $libro['cantidad_total'] ?></td>
-            <td><?= $libro['cantidad_disponibles'] ?></td>
-            <td><?= $libro['estado'] ?></td>
-            <td><?= $libro['categoria'] ?></td>
+            <td><?= esc($libro['codigo']) ?></td> 
+            <td><?= esc($libro['titulo']) ?></td>
+            <td><?= esc($libro['autor']) ?></td>
+            <td><?= esc($libro['editorial']) ?></td>
+            <td><?= esc($libro['ano']) ?></td> 
+            <td><?= esc($libro['paginas']) ?></td> 
+            
+            <td><?= esc($libro['coleccion_nombre'] ?? 'N/A') ?></td> 
+            <td><?= esc($libro['subgenero_nombre'] ?? 'N/A') ?></td> 
+            <td><?= esc($libro['subcategoria_nombre'] ?? '') ?></td> 
+            
+            <td><?= esc($libro['cantidad_total']) ?></td>
+            <td><?= esc($libro['cantidad_disponibles']) ?></td>
+            <td><?= esc($libro['estado']) ?></td>
             <td>
                 <div class="d-flex gap-2">
                     <a href="<?= base_url('libros/edit/'.$libro['libro_id']); ?>" 

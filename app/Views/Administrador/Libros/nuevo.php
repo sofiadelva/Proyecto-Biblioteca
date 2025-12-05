@@ -36,20 +36,61 @@ $this->section('contenido');
 
     <form action="<?= base_url('libros/create'); ?>" method="post" class="row g-4" autocomplete="off">
         
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="titulo" class="form-label fw-bold">Título <span class="text-danger">*</span></label>
             <input type="text" class="form-control" name="titulo" value="<?= old('titulo') ?>" required>
         </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
             <input type="text" class="form-control" name="autor" value="<?= old('autor') ?>" required>
         </div>
+        
+        <div class="col-md-4">
+            <label for="codigo" class="form-label fw-bold">Código (ISBN/Interno) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="codigo" value="<?= old('codigo') ?>" required>
+        </div>
 
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="editorial" class="form-label fw-bold">Editorial</label>
             <input type="text" class="form-control" name="editorial" value="<?= old('editorial') ?>">
         </div>
+
+        <div class="col-md-4">
+            <label for="ano" class="form-label fw-bold">Año de Publicación</label>
+            <input type="number" class="form-control" name="ano" value="<?= old('ano') ?? date('Y') ?>" min="1900" max="<?= date('Y') ?>">
+        </div>
+        
+        <div class="col-md-4">
+            <label for="paginas" class="form-label fw-bold">Número de Páginas</label>
+            <input type="number" class="form-control" name="paginas" value="<?= old('paginas') ?>" min="1">
+        </div>
+
+        <h5 class="mt-4 pt-3 border-top w-100">Clasificación</h5>
+
+        <div class="col-md-4">
+            <label for="select-coleccion" class="form-label fw-bold">Colección <span class="text-danger">*</span></label>
+            <select class="form-control" name="coleccion_id_dummy" id="select-coleccion" required> 
+                <option value="">Seleccionar Colección</option>
+            </select>
+        </div>
+        
+        <div class="col-md-4">
+            <label for="select-subgenero" class="form-label fw-bold">Subgénero <span class="text-danger required-subgenero">*</span></label>
+            <select class="form-control" name="subgenero_id_dummy" id="select-subgenero" disabled required> 
+                <option value="">Seleccionar Subgénero</option>
+            </select>
+        </div>
+        
+        <div class="col-md-4">
+            <label for="select-subcategoria" class="form-label fw-bold">Subcategoría <span class="text-danger">*</span></label>
+            <select class="form-control" name="subcategoria_id" id="select-subcategoria" disabled required> 
+                <option value="">Seleccionar Subcategoría</option>
+            </select>
+        </div>
+
+
+        <h5 class="mt-4 pt-3 border-top w-100">Inventario</h5>
 
         <div class="col-md-3">
             <label for="cantidad_total" class="form-label fw-bold">Cantidad Total <span class="text-danger">*</span></label>
@@ -67,14 +108,6 @@ $this->section('contenido');
             <select class="form-select" name="estado" required>
                 <option value="Disponible" <?= old('estado') == "Disponible" || old('estado') === null ? 'selected':''; ?>>Disponible</option>
                 <option value="Dañado" <?= old('estado') == "Dañado" ? 'selected':''; ?>>Dañado</option>
-            </select>
-        </div>
-
-        <div class="col-md-6">
-            <label for="select-categoria" class="form-label fw-bold">Categoría <span class="text-danger">*</span></label>
-            
-            <select class="form-control" name="categoria_id" id="select-categoria" required> 
-                <option value="<?= old('categoria_id') ?>" selected><?= old('categoria_id') ? 'Cargando Categoría...' : 'Seleccionar Categoría' ?></option>
             </select>
         </div>
 
@@ -118,53 +151,148 @@ $this->endSection();
 ?>
 
 <?php 
-// ⭐️ SECCIÓN DE SCRIPTS: Inicialización de Select2 con búsqueda dinámica
+// ⭐️ SECCIÓN DE SCRIPTS: Inicialización de Select2 con búsqueda dinámica y cascada
 $this->section('scripts'); 
 ?>
 <script>
     $(document).ready(function() {
-        var selectCategoria = $('#select-categoria');
+        var selectColeccion = $('#select-coleccion');
+        var selectSubgenero = $('#select-subgenero');
+        var selectSubcategoria = $('#select-subcategoria');
         
-        selectCategoria.select2({
-            placeholder: "Buscar o seleccionar una categoría",
+        // 1. Inicializar Select2 para Colecciones
+        selectColeccion.select2({
+            placeholder: "Buscar o seleccionar una Colección",
             allowClear: true,
             theme: "bootstrap4", 
             ajax: {
-                url: '<?= base_url('libros/get_categorias_json'); ?>', 
+                url: '<?= base_url('libros/get_colecciones_json'); ?>', 
                 dataType: 'json',
                 delay: 250, 
-                data: function (params) {
-                    return {
-                        term: params.term, 
-                        page: params.page
-                    };
-                },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-                    return {
-                        results: data.results,
-                        pagination: {
-                            more: false 
-                        }
-                    };
-                },
+                data: function (params) { return { term: params.term }; },
+                processResults: function (data) { return { results: data.results }; },
                 cache: true
             }
         });
-        
-        // Cargar el valor antiguo si existe (para manejar errores de validación)
-        var old_category_id = '<?= old('categoria_id') ?>';
-        if (old_category_id) {
-             $.ajax({
+
+        // 2. Lógica de Cascada: Colección -> Subgénero
+        selectColeccion.on('change', function () {
+            var coleccionId = $(this).val();
+            
+            // Limpiar y deshabilitar/habilitar selectores dependientes
+            selectSubgenero.val(null).trigger('change');
+            selectSubcategoria.val(null).trigger('change');
+            selectSubcategoria.prop('disabled', true); // La subcategoría siempre se deshabilita hasta que haya subgénero
+
+            if (coleccionId) {
+                // Habilitar Subgénero
+                selectSubgenero.prop('disabled', false);
+                
+                // Inicializar Subgénero con filtro
+                selectSubgenero.select2({
+                    placeholder: "Seleccionar Subgénero",
+                    allowClear: true,
+                    theme: "bootstrap4", 
+                    ajax: {
+                        url: '<?= base_url('libros/get_subgeneros_json'); ?>',
+                        dataType: 'json',
+                        delay: 250, 
+                        data: function (params) {
+                            return {
+                                term: params.term,
+                                coleccion_id: coleccionId 
+                            };
+                        },
+                        processResults: function (data) {
+                            // 🌟 Lógica de obligatoriedad condicional del Subgénero
+                            // Revisamos si solo existe una opción y el nombre de esa opción es vacío (o NULL en la BD)
+                            var hasOnlyNull = data.results.length === 1 && (data.results[0].text === '' || data.results[0].text.toUpperCase() === 'NULL');
+
+                            var requiredSpan = $('.required-subgenero');
+                            if (hasOnlyNull) {
+                                requiredSpan.hide();
+                                selectSubgenero.prop('required', false);
+                            } else {
+                                requiredSpan.show();
+                                selectSubgenero.prop('required', true);
+                            }
+
+                            return { results: data.results };
+                        },
+                        cache: true
+                    }
+                });
+            } else {
+                // Deshabilitar Subgénero si no hay Colección
+                selectSubgenero.prop('disabled', true);
+                selectSubgenero.prop('required', true); // Vuelve a ser requerido si no hay colección
+                $('.required-subgenero').show(); 
+            }
+        }).trigger('change'); // Llamar al change al cargar la página para inicializar estados
+
+        // 3. Lógica de Cascada: Subgénero -> Subcategoría
+        selectSubgenero.on('change', function () {
+            var subgeneroId = $(this).val();
+            
+            selectSubcategoria.val(null).trigger('change');
+
+            if (subgeneroId) {
+                // Habilitar Subcategoría
+                selectSubcategoria.prop('disabled', false);
+
+                // Inicializar Subcategoría con filtro
+                selectSubcategoria.select2({
+                    placeholder: "Seleccionar Subcategoría",
+                    allowClear: true,
+                    theme: "bootstrap4", 
+                    ajax: {
+                        url: '<?= base_url('libros/get_subcategorias_json'); ?>',
+                        dataType: 'json',
+                        delay: 250, 
+                        data: function (params) {
+                            return {
+                                term: params.term,
+                                subgenero_id: subgeneroId 
+                            };
+                        },
+                        processResults: function (data) { return { results: data.results }; },
+                        cache: true
+                    }
+                });
+            } else {
+                // Deshabilitar Subcategoría si no hay Subgénero
+                selectSubcategoria.prop('disabled', true);
+            }
+        });
+
+
+        // 4. Manejo de Old Values (Restauración de formulario después de error de validación)
+        var old_coleccion_id = '<?= old('coleccion_id_dummy') ?>';
+        if (old_coleccion_id) {
+            $.ajax({
                 dataType: 'json',
-                url: '<?= base_url('libros/get_categorias_json'); ?>',
-                data: { term: '', id: old_category_id } 
+                url: '<?= base_url('libros/get_colecciones_json'); ?>',
+                data: { id: old_coleccion_id } 
             }).then(function (data) {
-                // El controlador devuelve un array de resultados, tomamos el primero
-                var category = data.results[0]; 
-                if (category) {
-                    var newOption = new Option(category.text, category.id, true, true);
-                    selectCategoria.append(newOption).trigger('change');
+                var coleccion = data.results[0]; 
+                if (coleccion) {
+                    var newOption = new Option(coleccion.text, coleccion.id, true, true);
+                    selectColeccion.append(newOption).trigger('change');
+                    
+                    // Trigger de Subgénero (para cargar su old value)
+                    var old_subgenero_id = '<?= old('subgenero_id_dummy') ?>';
+                    if (old_subgenero_id) {
+                        // Creamos una opción temporal para que Select2 se inicialice correctamente con el valor
+                        var newSubgeneroOption = new Option("Cargando Subgénero...", old_subgenero_id, true, true);
+                        selectSubgenero.append(newSubgeneroOption).trigger('change');
+                        
+                        // Trigger de Subcategoría (para cargar su old value)
+                        var old_subcategoria_id = '<?= old('subcategoria_id') ?>';
+                        if (old_subcategoria_id) {
+                             var newSubcategoriaOption = new Option("Cargando Subcategoría...", old_subcategoria_id, true, true);
+                             selectSubcategoria.append(newSubcategoriaOption).trigger('change');
+                        }
+                    }
                 }
             });
         }

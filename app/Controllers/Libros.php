@@ -4,7 +4,10 @@ namespace App\Controllers;
 use App\Models\LibroModel;
 use App\Models\CategoriaModel;
 use App\Models\EjemplarModel; 
-use App\Models\PrestamoModel; // <-- IMPORTAMOS EL MODELO DE PRÉSTAMOS
+use App\Models\PrestamoModel;
+use App\Models\ColeccionModel;   // <-- NUEVO: Importación del modelo Coleccion
+use App\Models\SubgeneroModel;   // <-- NUEVO: Importación del modelo Subgenero
+use App\Models\SubcategoriaModel; // <-- NUEVO: Importación del modelo Subcategoria
 use CodeIgniter\Controller;
 
 class Libros extends Controller
@@ -12,7 +15,10 @@ class Libros extends Controller
     protected $libroModel;
     protected $categoriaModel;
     protected $ejemplarModel;
-    protected $prestamoModel; // <-- PROPIEDAD PARA EL MODELO DE PRÉSTAMOS
+    protected $prestamoModel;
+    protected $coleccionModel;   // <-- NUEVA PROPIEDAD
+    protected $subgeneroModel;   // <-- NUEVA PROPIEDAD
+    protected $subcategoriaModel; // <-- NUEVA PROPIEDAD
 
     public function __construct()
     {
@@ -20,50 +26,60 @@ class Libros extends Controller
         $this->libroModel = new LibroModel();
         $this->categoriaModel = new CategoriaModel();
         $this->ejemplarModel = new EjemplarModel();
-        $this->prestamoModel = new PrestamoModel(); // <-- INSTANCIAMOS EL MODELO DE PRÉSTAMOS
+        $this->prestamoModel = new PrestamoModel();
+        
+        // 🌟 INSTANCIAMOS LOS MODELOS DE CLASIFICACIÓN
+        $this->coleccionModel = new ColeccionModel();    
+        $this->subgeneroModel = new SubgeneroModel();    
+        $this->subcategoriaModel = new SubcategoriaModel(); 
     }
 
-    // ... (Método index() - Sin cambios) ...
+    /**
+     * Muestra la lista de libros con filtros, paginación y JOINs para clasificación. (READ principal)
+     */
     public function index()
     {
-        // GEMINI: Configuración inicial de paginación
-        $defaultPerPage = 10; // Número de filas por defecto
+        // Configuración inicial de paginación
+        $defaultPerPage = 10;
         
         // Obtener parámetros GET
         $ordenar = $this->request->getGet('ordenar');
         $estado = $this->request->getGet('estado');
         $cantidad_disponible = $this->request->getGet('cantidad_disponible');
         
-        // GEMINI: Obtener el parámetro 'per_page' y asegurar que es un entero.
+        // Obtener el parámetro 'per_page' y asegurar que es un entero.
         $perPage = (int)($this->request->getGet('per_page') ?? $defaultPerPage); 
+        if ($perPage < 1) { $perPage = $defaultPerPage; }
 
-        // CORRECCIÓN DE ERROR DE DIVISIÓN POR CERO: Aseguramos que $perPage sea al menos 1.
-        if ($perPage < 1) {
-            $perPage = $defaultPerPage; 
-        }
-
-        // GEMINI: Obtener el término de búsqueda
         $buscar = $this->request->getGet('buscar'); 
 
-        // Traemos libros con JOIN para obtener el nombre de la categoría
+        // 🌟 CADENA DE JOINs para obtener los nombres de Colección, Subgénero y Subcategoría
         $builder = $this->libroModel
-            ->select('libros.*, categorias.nombre as categoria')
-            ->join('categorias', 'categorias.categoria_id = libros.categoria_id');
+            ->select('
+                libros.*, 
+                subcategorias.nombre as subcategoria_nombre,
+                subgeneros.nombre as subgenero_nombre,
+                colecciones.nombre as coleccion_nombre
+            ') 
+            // 1. JOIN a subcategorias
+            ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
+            // 2. JOIN a subgeneros
+            ->join('subgeneros', 'subgeneros.subgenero_id = subcategorias.subgenero_id', 'left')
+            // 3. JOIN a colecciones
+            ->join('colecciones', 'colecciones.coleccion_id = subgeneros.coleccion_id', 'left');
         
-        // GEMINI: Aplicar la búsqueda por título o autor si existe un término
+        // Aplicar la búsqueda por título o autor
         if ($buscar) {
-            $builder = $builder->groupStart() // Abrir grupo OR
-                               ->like('titulo', $buscar, 'both')
-                               ->orLike('autor', $buscar, 'both')
-                               ->groupEnd(); // Cerrar grupo OR
+            $builder = $builder->groupStart()
+                ->like('titulo', $buscar, 'both')
+                ->orLike('autor', $buscar, 'both')
+                ->groupEnd();
         }
 
-        // Filtrar por estado
+        // Aplicar filtros (estado, cantidad)
         if ($estado) {
             $builder = $builder->where('estado', $estado);
         }
-
-        // Filtrar por cantidad disponible
         if ($cantidad_disponible !== '' && $cantidad_disponible !== null) {
             if ($cantidad_disponible == '0') {
                 $builder = $builder->where('cantidad_disponibles', 0);
@@ -72,103 +88,69 @@ class Libros extends Controller
             }
         }
 
-        // Ordenar
+        // Aplicar ordenación
         if ($ordenar) {
             switch ($ordenar) {
-                case 'titulo_asc':
-                    $builder = $builder->orderBy('titulo', 'ASC');
-                    break;
-                case 'titulo_desc':
-                    $builder = $builder->orderBy('titulo', 'DESC');
-                    break;
-                case 'autor_asc':
-                    $builder = $builder->orderBy('autor', 'ASC');
-                    break;
-                case 'autor_desc':
-                    $builder = $builder->orderBy('autor', 'DESC');
-                    break;
-                case 'reciente':
-                    $builder = $builder->orderBy('libro_id', 'DESC'); // más reciente primero
-                    break;
-                case 'viejo':
-                    $builder = $builder->orderBy('libro_id', 'ASC'); // más viejo primero
-                    break;
+                case 'titulo_asc': $builder = $builder->orderBy('titulo', 'ASC'); break;
+                case 'titulo_desc': $builder = $builder->orderBy('titulo', 'DESC'); break;
+                case 'autor_asc': $builder = $builder->orderBy('autor', 'ASC'); break;
+                case 'autor_desc': $builder = $builder->orderBy('autor', 'DESC'); break;
+                case 'reciente': $builder = $builder->orderBy('libro_id', 'DESC'); break;
+                case 'viejo': $builder = $builder->orderBy('libro_id', 'ASC'); break;
+                case 'ano_asc': $builder = $builder->orderBy('ano', 'ASC'); break;
+                case 'ano_desc': $builder = $builder->orderBy('ano', 'DESC'); break;
             }
         }
         
-        // GEMINI: 1. Usamos paginate() para limitar los resultados. $perPage está garantizado como entero >= 1
+        // Paginación y datos de vista
         $data['libros'] = $builder->paginate($perPage, 'default');
-        
-        // GEMINI: 2. Obtenemos el objeto Pager y el valor perPage y el término de búsqueda
         $data['pager'] = $this->libroModel->pager;
         $data['perPage'] = $perPage;
-        $data['buscar'] = $buscar; // Pasamos el término de búsqueda para rellenar el input
+        $data['buscar'] = $buscar; 
 
-        // Mostramos la vista
         return view('Administrador/libros', $data);
     }
-    // ... (Método new() - Sin cambios) ...
+    
+    // ----------------------------------------------------
+    // C.R.U.D.
+    // ----------------------------------------------------
+
+    /**
+     * Muestra el formulario para crear un nuevo libro. (CREATE - Formulario)
+     * RUTA: /libros/new
+     */
     public function new()
     {
-        // Ya no se pasan categorías, se cargan por AJAX
+        // Esto resuelve el error 404
         return view('Administrador/Libros/nuevo'); 
     }
 
-    // ... (Método get_categorias_json() - Sin cambios) ...
-    public function get_categorias_json()
-    {
-        $term = $this->request->getGet('term'); // Término de búsqueda enviado por Select2
-        $id = $this->request->getGet('id'); // ID de categoría para precargar (si existe)
-        $categorias = [];
-
-        $builder = $this->categoriaModel;
-
-        if ($id) {
-            // Caso para precargar una categoría por ID (después de un error de validación)
-            $categorias = $builder->where('categoria_id', $id)->findAll();
-        } elseif ($term) {
-            // Búsqueda por término
-            $categorias = $builder->like('nombre', $term, 'both')
-                                 ->findAll(10); // Limitar a 10 resultados para no sobrecargar
-        } else {
-            // Cargar los primeros 5 por defecto si no hay búsqueda
-            $categorias = $builder->findAll(5); 
-        }
-
-        $results = [];
-        foreach ($categorias as $cat) {
-            $results[] = [
-                'id' => $cat['categoria_id'],
-                'text' => $cat['nombre']
-            ];
-        }
-
-        // Retornar la respuesta en formato JSON
-        return $this->response->setJSON(['results' => $results]);
-    }
-
-
-    // Guardar libro en la base de datos
+    /**
+     * Guardar libro en la base de datos (CREATE - Proceso)
+     * RUTA: /libros/create (POST)
+     */
     public function create()
     {
-        // 1. Recoger datos del POST
+        // 1. Recoger datos del POST - CAMPOS ACTUALIZADOS
         $dataLibro = [
+            'codigo' => $this->request->getPost('codigo'), // NUEVO CAMPO
             'titulo' => $this->request->getPost('titulo'),
             'autor'=> $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
+            'paginas' => (int)$this->request->getPost('paginas'), // NUEVO CAMPO
+            'ano' => (int)$this->request->getPost('ano'), // NUEVO CAMPO
+            'subcategoria_id' => $this->request->getPost('subcategoria_id'), // CAMBIO CLAVE
             'cantidad_total' => (int)$this->request->getPost('cantidad_total'),
             'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
             'estado' => $this->request->getPost('estado'),
-            'categoria_id' => $this->request->getPost('categoria_id')
         ];
 
         // Validación simple para asegurar consistencia
         $dataLibro['cantidad_disponibles'] = min($dataLibro['cantidad_disponibles'], $dataLibro['cantidad_total']);
 
-
         // 2. Guardar el nuevo libro e obtener su ID
         $this->libroModel->insert($dataLibro);
-        $nuevoLibroId = $this->libroModel->getInsertID(); // 👈 Obtenemos el ID del libro recién insertado
+        $nuevoLibroId = $this->libroModel->getInsertID(); 
         $cantidadTotal = $dataLibro['cantidad_total'];
         $cantidadDisponibles = $dataLibro['cantidad_disponibles'];
         
@@ -176,22 +158,14 @@ class Libros extends Controller
         if ($nuevoLibroId && $cantidadTotal > 0) {
             $ejemplares = [];
             
-            // Los primeros N ejemplares serán 'Disponible'
             for ($i = 0; $i < $cantidadTotal; $i++) {
-                
                 // Si el índice es menor que la cantidad disponible, el ejemplar está 'Disponible'
-                if ($i < $cantidadDisponibles) {
-                    $estado_ejemplar = 'Disponible';
-                } else {
-                    $estado_ejemplar = 'Dañado'; 
-                }
+                $estado_ejemplar = ($i < $cantidadDisponibles) ? 'Disponible' : 'Dañado';
 
                 $ejemplares[] = [
                     'libro_id' => $nuevoLibroId,
                     'estado' => $estado_ejemplar,
-                    // 🌟 SOLUCIÓN: Asignar el número de copia de forma secuencial
-                    // Sumamos 1 a $i porque los índices empiezan en 0, y las copias en 1.
-                    'no_copia' => $i + 1
+                    'no_copia' => $i + 1 // Asignar el número de copia de forma secuencial
                 ];
             }
             
@@ -203,59 +177,217 @@ class Libros extends Controller
         return redirect()->to(base_url('libros'))->with('msg', 'Libro y sus ejemplares iniciales creados correctamente.');
     }
 
-    // ... (Métodos edit(), update() - Sin cambios) ...
-
-    // Mostrar formulario de edición de un libro
+    /**
+     * Muestra el formulario de edición con los datos del libro. (UPDATE - Formulario)
+     * RUTA: /libros/edit/id
+     */
     public function edit($id)
     {
-        $data['libro'] = $this->libroModel->find($id); // libro actual
-        $data['categorias'] = $this->categoriaModel->findAll(); // todas las categorías
-        return view('Administrador/Libros/edit', $data);
+        // 🌟 Realizamos el JOIN para obtener el subcategoria_nombre y precargar el Select2
+        $data['libro'] = $this->libroModel
+            ->select('libros.*, subcategorias.nombre as subcategoria_nombre')
+            ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
+            ->find($id);
+
+        if (empty($data['libro'])) {
+            return redirect()->to(base_url('libros'))->with('msg_error', 'Libro no encontrado.');
+        }
+
+        // 🌟 Obtener los IDs y nombres de Colección y Subgénero para precargar
+        if (!empty($data['libro']['subcategoria_id'])) {
+            $subcategoria = $this->subcategoriaModel->find($data['libro']['subcategoria_id']);
+            if ($subcategoria) {
+                $subgenero = $this->subgeneroModel->find($subcategoria['subgenero_id']);
+                if ($subgenero) {
+                    $coleccion = $this->coleccionModel->find($subgenero['coleccion_id']);
+                    
+                    $data['subgenero_id'] = $subgenero['subgenero_id'];
+                    $data['subgenero_nombre'] = $subgenero['nombre'];
+                    $data['coleccion_id'] = $coleccion['coleccion_id'] ?? null;
+                    $data['coleccion_nombre'] = $coleccion['nombre'] ?? null;
+                }
+            }
+        }
+        
+        return view('Administrador/Libros/editar', $data);
     }
 
-    // Actualizar un libro
+    /**
+     * Actualizar un libro (UPDATE - Proceso)
+     * RUTA: /libros/update/id (POST)
+     */
     public function update($id)
     {
+        // CAMPOS ACTUALIZADOS
         $this->libroModel->update($id, [
+            'codigo' => $this->request->getPost('codigo'),
             'titulo' => $this->request->getPost('titulo'),
             'autor' => $this->request->getPost('autor'),
             'editorial' => $this->request->getPost('editorial'),
+            'paginas' => (int)$this->request->getPost('paginas'),
+            'ano' => (int)$this->request->getPost('ano'),
+            'subcategoria_id' => $this->request->getPost('subcategoria_id'), // CAMBIO CLAVE
             'cantidad_total' => $this->request->getPost('cantidad_total'),
             'cantidad_disponibles' => $this->request->getPost('cantidad_disponibles'),
             'estado' => $this->request->getPost('estado'),
-            'categoria_id' => $this->request->getPost('categoria_id')
         ]);
+        
+        // Nota: La actualización de Ejemplares (aumentar/disminuir copias)
+        // se manejará en una etapa posterior para simplificar el UPDATE inicial.
+
         return redirect()->to(base_url('libros'))->with('msg', 'Libro actualizado correctamente.');
     }
 
-    public function delete($id = null)
+    /**
+     * Elimina un libro y todos sus ejemplares y préstamos asociados. (DELETE)
+     * RUTA: /libros/delete/id
+     */
+    public function delete($id)
     {
-        $libroModel = new LibroModel();
-
-        // Verifica que el libro existe
-        $libro = $libroModel->find($id);
+        // 1. Verificar que el libro existe
+        $libro = $this->libroModel->find($id);
         if (!$libro) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("El libro con ID $id no existe");
+            return redirect()->to(base_url('libros'))->with('msg_error', "El libro con ID $id no existe");
         }
 
-        // 1. Obtener los IDs de todos los ejemplares (hijos) ligados a este libro (padre).
+        // 2. Obtener los IDs de todos los ejemplares (hijos) ligados a este libro.
         $ejemplares = $this->ejemplarModel->where('libro_id', $id)->findAll();
         $ejemplar_ids = array_column($ejemplares, 'ejemplar_id');
 
         if (!empty($ejemplar_ids)) {
-            // 2. ELIMINAR PRÉSTAMOS (Nietos): Elimina todos los préstamos asociados a estos ejemplares.
-            // ESTO RESUELVE EL ERROR #1451.
+            // 3. ELIMINAR PRÉSTAMOS (Nietos): Elimina todos los préstamos asociados a estos ejemplares.
             $this->prestamoModel->whereIn('ejemplar_id', $ejemplar_ids)->delete();
         }
         
-        // 3. ELIMINAR EJEMPLARES (Hijos): Elimina todos los ejemplares ligados al libro.
-        // Ahora es seguro porque los préstamos ya fueron eliminados.
+        // 4. ELIMINAR EJEMPLARES (Hijos): Elimina todos los ejemplares ligados al libro.
         $this->ejemplarModel->where('libro_id', $id)->delete();
         
-        // 4. ELIMINAR LIBRO (Padre)
-        $libroModel->delete($id);
+        // 5. ELIMINAR LIBRO (Padre)
+        $this->libroModel->delete($id);
 
-        // Redirige con mensaje de éxito
         return redirect()->to(base_url('libros'))->with('msg', 'Libro y todos sus ejemplares/préstamos relacionados eliminados correctamente.');
+    }
+    
+    // ----------------------------------------------------
+    // MÉTODOS AJAX (Select2 en cascada)
+    // ----------------------------------------------------
+
+    /**
+     * Devuelve colecciones en formato JSON para Select2
+     * RUTA: /libros/get_colecciones_json
+     */
+    public function get_colecciones_json()
+    {
+        $term = $this->request->getGet('term');
+        $builder = $this->coleccionModel;
+
+        if ($term) {
+            $colecciones = $builder->like('nombre', $term, 'both')->findAll(10);
+        } else {
+            $colecciones = $builder->findAll(5); 
+        }
+
+        $results = [];
+        foreach ($colecciones as $col) {
+            $results[] = [
+                'id' => $col['coleccion_id'],
+                'text' => $col['nombre']
+            ];
+        }
+
+        return $this->response->setJSON(['results' => $results]);
+    }
+
+    /**
+     * Devuelve subgéneros en formato JSON, filtrados por coleccion_id
+     * RUTA: /libros/get_subgeneros_json
+     */
+    public function get_subgeneros_json()
+    {
+        $coleccionId = $this->request->getGet('coleccion_id');
+        $term = $this->request->getGet('term');
+        
+        $builder = $this->subgeneroModel;
+
+        if ($coleccionId) {
+            $builder = $builder->where('coleccion_id', $coleccionId);
+        }
+        
+        if ($term) {
+            $builder = $builder->like('nombre', $term, 'both');
+        }
+
+        $subgeneros = $builder->findAll(10); 
+
+        $results = [];
+        foreach ($subgeneros as $sg) {
+            $results[] = [
+                'id' => $sg['subgenero_id'],
+                'text' => $sg['nombre']
+            ];
+        }
+
+        return $this->response->setJSON(['results' => $results]);
+    }
+
+    /**
+     * Devuelve subcategorías en formato JSON, filtradas por subgenero_id
+     * RUTA: /libros/get_subcategorias_json
+     */
+    public function get_subcategorias_json()
+    {
+        $subgeneroId = $this->request->getGet('subgenero_id');
+        $term = $this->request->getGet('term');
+        
+        $builder = $this->subcategoriaModel;
+
+        if ($subgeneroId) {
+            $builder = $builder->where('subgenero_id', $subgeneroId);
+        }
+        
+        if ($term) {
+            $builder = $builder->like('nombre', $term, 'both');
+        }
+
+        $subcategorias = $builder->findAll(10); 
+
+        $results = [];
+        foreach ($subcategorias as $sc) {
+            $results[] = [
+                'id' => $sc['subcategoria_id'],
+                'text' => $sc['nombre']
+            ];
+        }
+
+        return $this->response->setJSON(['results' => $results]);
+    }
+    
+    // Método anterior de get_categorias_json (mantenido por compatibilidad si es necesario)
+    public function get_categorias_json()
+    {
+        $term = $this->request->getGet('term');
+        $id = $this->request->getGet('id');
+        $categorias = [];
+
+        $builder = $this->categoriaModel;
+
+        if ($id) {
+            $categorias = $builder->where('categoria_id', $id)->findAll();
+        } elseif ($term) {
+            $categorias = $builder->like('nombre', $term, 'both')
+                                 ->findAll(10);
+        } else {
+            $categorias = $builder->findAll(5); 
+        }
+
+        $results = [];
+        foreach ($categorias as $cat) {
+            $results[] = [
+                'id' => $cat['categoria_id'],
+                'text' => $cat['nombre']
+            ];
+        }
+
+        return $this->response->setJSON(['results' => $results]);
     }
 }
