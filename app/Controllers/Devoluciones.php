@@ -77,7 +77,7 @@ class Devoluciones extends Controller
             'perPage'   => $perPage
         ];
 
-        return view('Bibliotecario/Gestion/devoluciones', $data);
+        return view('Administrador/Gestion/devoluciones', $data);
     }
     
     /**

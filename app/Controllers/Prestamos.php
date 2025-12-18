@@ -14,7 +14,7 @@ class Prestamos extends Controller
      */
     public function create()
     {
-        return view('Bibliotecario/Gestion/prestamos', ['libros' => []]);
+        return view('Administrador/Gestion/prestamos', ['libros' => []]);
     }
 
     /**

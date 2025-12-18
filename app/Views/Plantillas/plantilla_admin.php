@@ -371,6 +371,13 @@
                     </li>
 
                     <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'gestion_libros') ? 'active' : '' ?>" 
+                            href="<?= base_url('gestion_libros'); ?>">
+                            <i class="bi bi-book-half"></i> Gestión de Libros
+                        </a>
+                    </li>
+
+                    <li class="nav-item mb-3">
                         <a class="nav-link <?= (uri_string() == 'transacciones') ? 'active' : '' ?>" 
                             href="<?= base_url('transacciones'); ?>">
                             <i class="bi bi-cash-stack"></i> Transacciones

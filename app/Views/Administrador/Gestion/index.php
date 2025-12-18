@@ -1,5 +1,5 @@
 <!-- Esta vista extiende la plantilla principal del bibliotecario -->
-<?= $this->extend('Plantillas/plantilla_biblio'); ?>
+<?= $this->extend('Plantillas/plantilla_admin'); ?>
 
 <!-- Sección del título de la página -->
 <?= $this->section('titulo'); ?>
