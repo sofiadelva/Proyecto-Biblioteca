@@ -364,9 +364,9 @@
                     </li>
 
                     <li class="nav-item mb-3">
-                        <a class="nav-link <?= (uri_string() == 'categorias') ? 'active' : '' ?>" 
-                            href="<?= base_url('categorias'); ?>">
-                            <i class="bi bi-card-list"></i> Categorías
+                        <a class="nav-link <?= (uri_string() == 'colecciones') ? 'active' : '' ?>" 
+                            href="<?= base_url('colecciones'); ?>">
+                            <i class="bi bi-card-list"></i> Colecciones
                         </a>
                     </li>
 

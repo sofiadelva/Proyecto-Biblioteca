@@ -34,13 +34,15 @@ $routes->get('ejemplares/edit/(:num)', 'Ejemplares::edit/$1');
 $routes->post('ejemplares/update/(:num)', 'Ejemplares::update/$1'); 
 $routes->get('ejemplares/delete/(:num)', 'Ejemplares::delete/$1');
 
-/**Rutas para CRUD de categorías (administrador) */
-$routes->get('categorias', 'Categorias::index');
-$routes->get('categorias/create', 'Categorias::create');
-$routes->post('categorias/store', 'Categorias::store');
-$routes->get('categorias/edit/(:num)', 'Categorias::edit/$1');
-$routes->post('categorias/update/(:num)', 'Categorias::update/$1');
-$routes->get('categorias/delete/(:num)', 'Categorias::delete/$1');
+/** Rutas para CRUD de Colecciones (administrador) */
+$routes->group('colecciones', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('/', 'Colecciones::index');
+    $routes->get('create', 'Colecciones::create');
+    $routes->post('store', 'Colecciones::store');
+    $routes->get('edit/(:num)', 'Colecciones::edit/$1');
+    $routes->post('update/(:num)', 'Colecciones::update/$1');
+    $routes->get('delete/(:num)', 'Colecciones::delete/$1');
+});
 
 /**Rutas para gestión de libros, préstamos y devoluciones */
 $routes->get('gestion_libros', 'GestionLibros::index');
