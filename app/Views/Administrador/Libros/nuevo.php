@@ -83,8 +83,8 @@ $this->section('contenido');
         </div>
         
         <div class="col-md-4">
-            <label for="select-subcategoria" class="form-label fw-bold">Subcategoría <span class="text-danger">*</span></label>
-            <select class="form-control" name="subcategoria_id" id="select-subcategoria" disabled required> 
+            <label for="select-subcategoria" class="form-label fw-bold">Subcategoría </label>
+            <select class="form-control" name="subcategoria_id" id="select-subcategoria" disabled> 
                 <option value="">Seleccionar Subcategoría</option>
             </select>
         </div>
@@ -155,148 +155,102 @@ $this->endSection();
 $this->section('scripts'); 
 ?>
 <script>
-    $(document).ready(function() {
-        var selectColeccion = $('#select-coleccion');
-        var selectSubgenero = $('#select-subgenero');
-        var selectSubcategoria = $('#select-subcategoria');
-        
-        // 1. Inicializar Select2 para Colecciones
-        selectColeccion.select2({
-            placeholder: "Buscar o seleccionar una Colección",
-            allowClear: true,
-            theme: "bootstrap4", 
-            ajax: {
-                url: '<?= base_url('libros/get_colecciones_json'); ?>', 
-                dataType: 'json',
-                delay: 250, 
-                data: function (params) { return { term: params.term }; },
-                processResults: function (data) { return { results: data.results }; },
-                cache: true
-            }
-        });
+$(document).ready(function() {
+    const selectCol = $('#select-coleccion');
+    const selectSubG = $('#select-subgenero');
+    const selectSubC = $('#select-subcategoria');
 
-        // 2. Lógica de Cascada: Colección -> Subgénero
-        selectColeccion.on('change', function () {
-            var coleccionId = $(this).val();
-            
-            // Limpiar y deshabilitar/habilitar selectores dependientes
-            selectSubgenero.val(null).trigger('change');
-            selectSubcategoria.val(null).trigger('change');
-            selectSubcategoria.prop('disabled', true); // La subcategoría siempre se deshabilita hasta que haya subgénero
+    // Configuración común de Select2
+    const commonOptions = {
+        theme: "bootstrap4",
+        width: '100%',
+        allowClear: true,
+        delay: 250
+    };
 
-            if (coleccionId) {
-                // Habilitar Subgénero
-                selectSubgenero.prop('disabled', false);
-                
-                // Inicializar Subgénero con filtro
-                selectSubgenero.select2({
-                    placeholder: "Seleccionar Subgénero",
-                    allowClear: true,
-                    theme: "bootstrap4", 
-                    ajax: {
-                        url: '<?= base_url('libros/get_subgeneros_json'); ?>',
-                        dataType: 'json',
-                        delay: 250, 
-                        data: function (params) {
-                            return {
-                                term: params.term,
-                                coleccion_id: coleccionId 
-                            };
-                        },
-                        processResults: function (data) {
-                            // 🌟 Lógica de obligatoriedad condicional del Subgénero
-                            // Revisamos si solo existe una opción y el nombre de esa opción es vacío (o NULL en la BD)
-                            var hasOnlyNull = data.results.length === 1 && (data.results[0].text === '' || data.results[0].text.toUpperCase() === 'NULL');
+    // 1. Inicializar Colección
+    selectCol.select2({
+        ...commonOptions,
+        placeholder: "Buscar Colección...",
+        ajax: {
+            url: '<?= site_url('libros/get_colecciones_json'); ?>',
+            dataType: 'json',
+            data: params => ({ term: params.term }),
+            processResults: data => ({ results: data.results })
+        }
+    });
 
-                            var requiredSpan = $('.required-subgenero');
-                            if (hasOnlyNull) {
-                                requiredSpan.hide();
-                                selectSubgenero.prop('required', false);
-                            } else {
-                                requiredSpan.show();
-                                selectSubgenero.prop('required', true);
-                            }
+    // 2. Evento Cambio Colección -> Carga Subgénero
+    selectCol.on('change', function() {
+        const colId = $(this).val();
+        selectSubG.val(null).trigger('change').prop('disabled', !colId);
+        selectSubC.val(null).trigger('change').prop('disabled', true);
 
-                            return { results: data.results };
-                        },
-                        cache: true
-                    }
-                });
-            } else {
-                // Deshabilitar Subgénero si no hay Colección
-                selectSubgenero.prop('disabled', true);
-                selectSubgenero.prop('required', true); // Vuelve a ser requerido si no hay colección
-                $('.required-subgenero').show(); 
-            }
-        }).trigger('change'); // Llamar al change al cargar la página para inicializar estados
-
-        // 3. Lógica de Cascada: Subgénero -> Subcategoría
-        selectSubgenero.on('change', function () {
-            var subgeneroId = $(this).val();
-            
-            selectSubcategoria.val(null).trigger('change');
-
-            if (subgeneroId) {
-                // Habilitar Subcategoría
-                selectSubcategoria.prop('disabled', false);
-
-                // Inicializar Subcategoría con filtro
-                selectSubcategoria.select2({
-                    placeholder: "Seleccionar Subcategoría",
-                    allowClear: true,
-                    theme: "bootstrap4", 
-                    ajax: {
-                        url: '<?= base_url('libros/get_subcategorias_json'); ?>',
-                        dataType: 'json',
-                        delay: 250, 
-                        data: function (params) {
-                            return {
-                                term: params.term,
-                                subgenero_id: subgeneroId 
-                            };
-                        },
-                        processResults: function (data) { return { results: data.results }; },
-                        cache: true
-                    }
-                });
-            } else {
-                // Deshabilitar Subcategoría si no hay Subgénero
-                selectSubcategoria.prop('disabled', true);
-            }
-        });
-
-
-        // 4. Manejo de Old Values (Restauración de formulario después de error de validación)
-        var old_coleccion_id = '<?= old('coleccion_id_dummy') ?>';
-        if (old_coleccion_id) {
-            $.ajax({
-                dataType: 'json',
-                url: '<?= base_url('libros/get_colecciones_json'); ?>',
-                data: { id: old_coleccion_id } 
-            }).then(function (data) {
-                var coleccion = data.results[0]; 
-                if (coleccion) {
-                    var newOption = new Option(coleccion.text, coleccion.id, true, true);
-                    selectColeccion.append(newOption).trigger('change');
-                    
-                    // Trigger de Subgénero (para cargar su old value)
-                    var old_subgenero_id = '<?= old('subgenero_id_dummy') ?>';
-                    if (old_subgenero_id) {
-                        // Creamos una opción temporal para que Select2 se inicialice correctamente con el valor
-                        var newSubgeneroOption = new Option("Cargando Subgénero...", old_subgenero_id, true, true);
-                        selectSubgenero.append(newSubgeneroOption).trigger('change');
-                        
-                        // Trigger de Subcategoría (para cargar su old value)
-                        var old_subcategoria_id = '<?= old('subcategoria_id') ?>';
-                        if (old_subcategoria_id) {
-                             var newSubcategoriaOption = new Option("Cargando Subcategoría...", old_subcategoria_id, true, true);
-                             selectSubcategoria.append(newSubcategoriaOption).trigger('change');
-                        }
-                    }
+        if (colId) {
+            selectSubG.select2({
+                ...commonOptions,
+                placeholder: "Seleccionar Subgénero",
+                ajax: {
+                    url: '<?= site_url('libros/get_subgeneros_json'); ?>',
+                    dataType: 'json',
+                    data: params => ({ term: params.term, coleccion_id: colId }),
+                    processResults: data => ({ results: data.results })
                 }
             });
         }
     });
+
+    // 3. Evento Cambio Subgénero -> Carga Subcategoría
+    selectSubG.on('change', function() {
+        const subGId = $(this).val();
+        selectSubC.val(null).trigger('change').prop('disabled', !subGId);
+
+        if (subGId) {
+            selectSubC.select2({
+                ...commonOptions,
+                placeholder: "Seleccionar Subcategoría",
+                ajax: {
+                    url: '<?= site_url('libros/get_subcategorias_json'); ?>',
+                    dataType: 'json',
+                    data: params => ({ term: params.term, subgenero_id: subGId }),
+                    processResults: data => ({ results: data.results })
+                }
+            });
+        }
+    });
+
+    // 4. Restauración de valores previos (Old values)
+    const oldCol = '<?= old('coleccion_id_dummy') ?>';
+    const oldSubG = '<?= old('subgenero_id_dummy') ?>';
+    const oldSubC = '<?= old('subcategoria_id') ?>';
+
+    if (oldCol) {
+        $.get('<?= site_url('libros/get_colecciones_json'); ?>', { id: oldCol }, function(data) {
+            if (data.results.length) {
+                const opt = new Option(data.results[0].text, data.results[0].id, true, true);
+                selectCol.append(opt).trigger('change');
+                
+                if (oldSubG) {
+                    $.get('<?= site_url('libros/get_subgeneros_json'); ?>', { id: oldSubG }, function(dataG) {
+                        if (dataG.results.length) {
+                            const optG = new Option(dataG.results[0].text, dataG.results[0].id, true, true);
+                            selectSubG.append(optG).trigger('change');
+                            
+                            if (oldSubC) {
+                                $.get('<?= site_url('libros/get_subcategorias_json'); ?>', { id: oldSubC }, function(dataC) {
+                                    if (dataC.results.length) {
+                                        const optC = new Option(dataC.results[0].text, dataC.results[0].id, true, true);
+                                        selectSubC.append(optC).trigger('change');
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+});
 </script>
 <?php 
 $this->endSection(); 

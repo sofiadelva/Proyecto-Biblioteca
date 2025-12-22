@@ -68,11 +68,12 @@ class Libros extends Controller
             // 3. JOIN a colecciones
             ->join('colecciones', 'colecciones.coleccion_id = subgeneros.coleccion_id', 'left');
         
-        // Aplicar la búsqueda por título o autor
+        // Aplicar la búsqueda por título, autor o código
         if ($buscar) {
             $builder = $builder->groupStart()
-                ->like('titulo', $buscar, 'both')
-                ->orLike('autor', $buscar, 'both')
+                ->like('libros.titulo', $buscar, 'both')
+                ->orLike('libros.autor', $buscar, 'both')
+                ->orLike('libros.codigo', $buscar, 'both') 
                 ->groupEnd();
         }
 
@@ -131,6 +132,11 @@ class Libros extends Controller
      */
     public function create()
     {
+        $subcategoriaId = $this->request->getPost('subcategoria_id');
+
+    // IMPORTANTE: Si viene vacío, convertirlo a NULL real
+    // Esto evita el error de llave foránea
+    $subcategoriaId = (!empty($subcategoriaId)) ? $subcategoriaId : null;
         // 1. Recoger datos del POST - CAMPOS ACTUALIZADOS
         $dataLibro = [
             'codigo' => $this->request->getPost('codigo'), // NUEVO CAMPO
@@ -139,7 +145,7 @@ class Libros extends Controller
             'editorial' => $this->request->getPost('editorial'),
             'paginas' => (int)$this->request->getPost('paginas'), // NUEVO CAMPO
             'ano' => (int)$this->request->getPost('ano'), // NUEVO CAMPO
-            'subcategoria_id' => $this->request->getPost('subcategoria_id'), // CAMBIO CLAVE
+            'subcategoria_id' => $subcategoriaId,
             'cantidad_total' => (int)$this->request->getPost('cantidad_total'),
             'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
             'estado' => $this->request->getPost('estado'),
@@ -177,71 +183,102 @@ class Libros extends Controller
         return redirect()->to(base_url('libros'))->with('msg', 'Libro y sus ejemplares iniciales creados correctamente.');
     }
 
-    /**
-     * Muestra el formulario de edición con los datos del libro. (UPDATE - Formulario)
-     * RUTA: /libros/edit/id
-     */
     public function edit($id)
     {
-        // 🌟 Realizamos el JOIN para obtener el subcategoria_nombre y precargar el Select2
-        $data['libro'] = $this->libroModel
+        // 1. Buscamos el libro con un JOIN simple para la subcategoría
+        $libro = $this->libroModel
             ->select('libros.*, subcategorias.nombre as subcategoria_nombre')
             ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
             ->find($id);
 
-        if (empty($data['libro'])) {
+        // Si no existe el libro, redirigimos de inmediato
+        if (!$libro) {
             return redirect()->to(base_url('libros'))->with('msg_error', 'Libro no encontrado.');
         }
 
-        // 🌟 Obtener los IDs y nombres de Colección y Subgénero para precargar
-        if (!empty($data['libro']['subcategoria_id'])) {
-            $subcategoria = $this->subcategoriaModel->find($data['libro']['subcategoria_id']);
-            if ($subcategoria) {
-                $subgenero = $this->subgeneroModel->find($subcategoria['subgenero_id']);
-                if ($subgenero) {
-                    $coleccion = $this->coleccionModel->find($subgenero['coleccion_id']);
+        // 2. Preparamos los datos base para la vista
+        $data = [
+            'libro'             => $libro,
+            'coleccion_id'      => null,
+            'coleccion_nombre'  => null,
+            'subgenero_id'      => null,
+            'subgenero_nombre'  => null
+        ];
+
+        // 3. Obtener jerarquía hacia arriba solo si existe subcategoria_id
+        if (!empty($libro['subcategoria_id'])) {
+            $subcat = $this->subcategoriaModel->find($libro['subcategoria_id']);
+            
+            if ($subcat && !empty($subcat['subgenero_id'])) {
+                $subgen = $this->subgeneroModel->find($subcat['subgenero_id']);
+                
+                if ($subgen) {
+                    $data['subgenero_id']     = $subgen['subgenero_id'];
+                    $data['subgenero_nombre'] = $subgen['nombre'];
                     
-                    $data['subgenero_id'] = $subgenero['subgenero_id'];
-                    $data['subgenero_nombre'] = $subgenero['nombre'];
-                    $data['coleccion_id'] = $coleccion['coleccion_id'] ?? null;
-                    $data['coleccion_nombre'] = $coleccion['nombre'] ?? null;
+                    if (!empty($subgen['coleccion_id'])) {
+                        $col = $this->coleccionModel->find($subgen['coleccion_id']);
+                        if ($col) {
+                            $data['coleccion_id']     = $col['coleccion_id'];
+                            $data['coleccion_nombre'] = $col['nombre'];
+                        }
+                    }
                 }
             }
         }
         
-        return view('Administrador/Libros/editar', $data);
+        return view('Administrador/Libros/edit', $data);
     }
 
-    /**
-     * Actualizar un libro (UPDATE - Proceso)
-     * RUTA: /libros/update/id (POST)
-     */
-    public function update($id)
-    {
-        // CAMPOS ACTUALIZADOS
-        $this->libroModel->update($id, [
-            'codigo' => $this->request->getPost('codigo'),
-            'titulo' => $this->request->getPost('titulo'),
-            'autor' => $this->request->getPost('autor'),
-            'editorial' => $this->request->getPost('editorial'),
-            'paginas' => (int)$this->request->getPost('paginas'),
-            'ano' => (int)$this->request->getPost('ano'),
-            'subcategoria_id' => $this->request->getPost('subcategoria_id'), // CAMBIO CLAVE
-            'cantidad_total' => $this->request->getPost('cantidad_total'),
-            'cantidad_disponibles' => $this->request->getPost('cantidad_disponibles'),
-            'estado' => $this->request->getPost('estado'),
-        ]);
-        
-        // Nota: La actualización de Ejemplares (aumentar/disminuir copias)
-        // se manejará en una etapa posterior para simplificar el UPDATE inicial.
+  public function update($id)
+{
+    // 1. Capturamos los IDs del formulario
+    // IMPORTANTE: 'subgenero_id_dummy' debe existir en el HTML
+    $subcategoriaId = $this->request->getPost('subcategoria_id');
+    $subgeneroId    = $this->request->getPost('subgenero_id_dummy');
 
+    // 2. Lógica del Comodín: Si no eligieron subcategoría pero sí hay subgénero
+    if (empty($subcategoriaId) && !empty($subgeneroId)) {
+        $comodin = $this->subcategoriaModel
+            ->where('subgenero_id', $subgeneroId)
+            ->groupStart()
+                ->where('nombre', null)
+                ->orWhere('nombre', '')
+                ->orWhere('nombre', 'NULL')
+            ->groupEnd()
+            ->first();
+
+        if ($comodin) {
+            $subcategoriaId = $comodin['subcategoria_id'];
+        } else {
+            $subcategoriaId = null;
+        }
+    } else {
+        // Si el usuario seleccionó una subcategoría manualmente, usamos esa.
+        // Si todo está vacío, lo dejamos null.
+        $subcategoriaId = (!empty($subcategoriaId)) ? $subcategoriaId : null;
+    }
+
+    // 3. Preparación de datos
+    $dataUpdate = [
+        'codigo'               => $this->request->getPost('codigo'),
+        'titulo'               => $this->request->getPost('titulo'),
+        'autor'                => $this->request->getPost('autor'),
+        'editorial'            => $this->request->getPost('editorial'),
+        'paginas'              => (int)$this->request->getPost('paginas'),
+        'ano'                  => (int)$this->request->getPost('ano'),
+        'subcategoria_id'      => $subcategoriaId,
+        'cantidad_total'       => (int)$this->request->getPost('cantidad_total'),
+        'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
+        'estado'               => $this->request->getPost('estado'),
+    ];
+
+    if ($this->libroModel->update($id, $dataUpdate)) {
         return redirect()->to(base_url('libros'))->with('msg', 'Libro actualizado correctamente.');
+    } else {
+        return redirect()->back()->withInput()->with('msg_error', 'No se pudo actualizar.');
     }
-
-    /**
-     * Elimina un libro y todos sus ejemplares y préstamos asociados. (DELETE)
-     * RUTA: /libros/delete/id
-     */
+}
     public function delete($id)
     {
         // 1. Verificar que el libro existe
@@ -272,121 +309,74 @@ class Libros extends Controller
     // MÉTODOS AJAX (Select2 en cascada)
     // ----------------------------------------------------
 
-    /**
-     * Devuelve colecciones en formato JSON para Select2
-     * RUTA: /libros/get_colecciones_json
-     */
     public function get_colecciones_json()
     {
         $term = $this->request->getGet('term');
-        $builder = $this->coleccionModel;
+        $id = $this->request->getGet('id');
 
-        if ($term) {
-            $colecciones = $builder->like('nombre', $term, 'both')->findAll(10);
+        if ($id) {
+            $data = $this->coleccionModel->where('coleccion_id', $id)->findAll();
+        } elseif (!empty($term)) {
+            $data = $this->coleccionModel->like('nombre', $term)->findAll(10);
         } else {
-            $colecciones = $builder->findAll(5); 
+            $data = $this->coleccionModel->findAll(10);
         }
 
-        $results = [];
-        foreach ($colecciones as $col) {
-            $results[] = [
-                'id' => $col['coleccion_id'],
-                'text' => $col['nombre']
-            ];
-        }
+        $results = array_map(function($item) {
+            return ['id' => $item['coleccion_id'], 'text' => $item['nombre']];
+        }, $data);
 
         return $this->response->setJSON(['results' => $results]);
     }
 
     /**
-     * Devuelve subgéneros en formato JSON, filtrados por coleccion_id
-     * RUTA: /libros/get_subgeneros_json
+     * Devuelve subgéneros filtrados por colección
      */
     public function get_subgeneros_json()
     {
         $coleccionId = $this->request->getGet('coleccion_id');
         $term = $this->request->getGet('term');
-        
+        $id = $this->request->getGet('id');
+
         $builder = $this->subgeneroModel;
 
-        if ($coleccionId) {
-            $builder = $builder->where('coleccion_id', $coleccionId);
-        }
-        
-        if ($term) {
-            $builder = $builder->like('nombre', $term, 'both');
+        if ($id) {
+            $builder->where('subgenero_id', $id);
+        } else {
+            if ($coleccionId) $builder->where('coleccion_id', $coleccionId);
+            if (!empty($term)) $builder->like('nombre', $term);
         }
 
-        $subgeneros = $builder->findAll(10); 
-
-        $results = [];
-        foreach ($subgeneros as $sg) {
-            $results[] = [
-                'id' => $sg['subgenero_id'],
-                'text' => $sg['nombre']
-            ];
-        }
+        $data = $builder->findAll(15);
+        $results = array_map(function($item) {
+            return ['id' => $item['subgenero_id'], 'text' => $item['nombre']];
+        }, $data);
 
         return $this->response->setJSON(['results' => $results]);
     }
 
     /**
-     * Devuelve subcategorías en formato JSON, filtradas por subgenero_id
-     * RUTA: /libros/get_subcategorias_json
+     * Devuelve subcategorías filtradas por subgénero
      */
     public function get_subcategorias_json()
     {
         $subgeneroId = $this->request->getGet('subgenero_id');
         $term = $this->request->getGet('term');
-        
+        $id = $this->request->getGet('id');
+
         $builder = $this->subcategoriaModel;
 
-        if ($subgeneroId) {
-            $builder = $builder->where('subgenero_id', $subgeneroId);
-        }
-        
-        if ($term) {
-            $builder = $builder->like('nombre', $term, 'both');
-        }
-
-        $subcategorias = $builder->findAll(10); 
-
-        $results = [];
-        foreach ($subcategorias as $sc) {
-            $results[] = [
-                'id' => $sc['subcategoria_id'],
-                'text' => $sc['nombre']
-            ];
-        }
-
-        return $this->response->setJSON(['results' => $results]);
-    }
-    
-    // Método anterior de get_categorias_json (mantenido por compatibilidad si es necesario)
-    public function get_categorias_json()
-    {
-        $term = $this->request->getGet('term');
-        $id = $this->request->getGet('id');
-        $categorias = [];
-
-        $builder = $this->categoriaModel;
-
         if ($id) {
-            $categorias = $builder->where('categoria_id', $id)->findAll();
-        } elseif ($term) {
-            $categorias = $builder->like('nombre', $term, 'both')
-                                 ->findAll(10);
+            $builder->where('subcategoria_id', $id);
         } else {
-            $categorias = $builder->findAll(5); 
+            if ($subgeneroId) $builder->where('subgenero_id', $subgeneroId);
+            if (!empty($term)) $builder->like('nombre', $term);
         }
 
-        $results = [];
-        foreach ($categorias as $cat) {
-            $results[] = [
-                'id' => $cat['categoria_id'],
-                'text' => $cat['nombre']
-            ];
-        }
+        $data = $builder->findAll(15);
+        $results = array_map(function($item) {
+            return ['id' => $item['subcategoria_id'], 'text' => $item['nombre']];
+        }, $data);
 
         return $this->response->setJSON(['results' => $results]);
     }

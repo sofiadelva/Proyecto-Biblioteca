@@ -17,14 +17,17 @@ $routes->get('login/salir', 'Login::salir');
 $routes->get('administrador/panel', 'Administrador::panel');
 $routes->get('alumno/panel', 'Alumno::panel');
 
-/**Rutas para CRUD de libros (administrador). */
-$routes->get('libros','Libros::index' );
-$routes->get('libros/new','Libros::new' );
-$routes->post('libros/create', 'Libros::create');
+$routes->group('libros', function($routes) {
+    $routes->get('/', 'Libros::index');
+    $routes->get('new', 'Libros::new');
+    $routes->post('create', 'Libros::create');
+    $routes->get('get_colecciones_json', 'Libros::get_colecciones_json');
+    $routes->get('get_subgeneros_json', 'Libros::get_subgeneros_json');
+    $routes->get('get_subcategorias_json', 'Libros::get_subcategorias_json');
+});
 $routes->get('libros/edit/(:num)', 'Libros::edit/$1');
 $routes->post('libros/update/(:num)', 'Libros::update/$1');
 $routes->get('libros/delete/(:num)', 'Libros::delete/$1');
-$routes->get('libros/get_categorias_json', 'Libros::get_categorias_json');
 
 /**Rutas para CRUD de ejemplares de libros (administrador) */
 $routes->get('ejemplares/listar/(:num)', 'Ejemplares::listar/$1'); 

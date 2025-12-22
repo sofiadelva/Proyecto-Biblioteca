@@ -32,7 +32,7 @@ $this->section('contenido');
         <input 
             type="text" 
             name="buscar" 
-            placeholder="Buscar por Título o Autor..." 
+            placeholder="Buscar por Código, Título o Autor..." 
             value="<?= esc($buscar ?? '') ?>" 
         />
         <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
