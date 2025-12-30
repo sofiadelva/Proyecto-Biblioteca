@@ -111,32 +111,37 @@ class Ejemplares extends Controller
      * @param int $ejemplar_id ID del ejemplar a actualizar.
      */
     public function update($ejemplar_id)
-    {
-        $ejemplar = $this->ejemplarModel->find($ejemplar_id);
-        $nuevoEstado = $this->request->getPost('estado');
+{
+    $ejemplar = $this->ejemplarModel->find($ejemplar_id);
+    $nuevoEstado = $this->request->getPost('estado');
 
-        $this->ejemplarModel->update($ejemplar_id, ['estado' => $nuevoEstado]);
-
-        // Actualizar cantidad disponibles si cambió el estado
-        if ($ejemplar['estado'] !== $nuevoEstado) {
-            $libro = $this->libroModel->find($ejemplar['libro_id']);
-
-            if ($nuevoEstado === 'Disponible') {
-                // Estado cambió a Disponible: Aumentar disponibles
-                $this->libroModel->update($libro['libro_id'], [
-                    'cantidad_disponibles' => $libro['cantidad_disponibles'] + 1
-                ]);
-            } elseif ($ejemplar['estado'] === 'Disponible' && $nuevoEstado !== 'Disponible') {
-                // Estado cambió de Disponible a otro: Disminuir disponibles
-                $this->libroModel->update($libro['libro_id'], [
-                    'cantidad_disponibles' => max(0, $libro['cantidad_disponibles'] - 1)
-                ]);
-            }
-        }
-
-        return redirect()->to(base_url('ejemplares/listar/'.$ejemplar['libro_id']))
-                         ->with('msg', 'Ejemplar actualizado correctamente.');
+    // Si el libro está PRESTADO, bloqueamos el cambio de estado manual
+    if ($ejemplar['estado'] === 'Prestado') {
+        return redirect()->back()->with('msg_error', 'No puedes cambiar el estado de un libro que está prestado actualmente.');
     }
+
+    $this->ejemplarModel->update($ejemplar_id, ['estado' => $nuevoEstado]);
+
+    // Lógica de conteo de disponibles
+    if ($ejemplar['estado'] !== $nuevoEstado) {
+        $libro = $this->libroModel->find($ejemplar['libro_id']);
+
+        if ($nuevoEstado === 'Disponible') {
+            // Si pasa de Dañado -> Disponible
+            $this->libroModel->update($libro['libro_id'], [
+                'cantidad_disponibles' => $libro['cantidad_disponibles'] + 1
+            ]);
+        } elseif ($ejemplar['estado'] === 'Disponible' && $nuevoEstado === 'Dañado') {
+            // Si pasa de Disponible -> Dañado
+            $this->libroModel->update($libro['libro_id'], [
+                'cantidad_disponibles' => max(0, $libro['cantidad_disponibles'] - 1)
+            ]);
+        }
+    }
+
+    return redirect()->to(base_url('ejemplares/listar/'.$ejemplar['libro_id']))
+                     ->with('msg', 'Estado actualizado correctamente.');
+}
 
     /**
      * Elimina un ejemplar y actualiza las cantidades del libro.

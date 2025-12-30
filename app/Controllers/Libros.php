@@ -132,57 +132,66 @@ class Libros extends Controller
      */
     public function create()
     {
+        // 1. Capturar IDs de clasificación
         $subcategoriaId = $this->request->getPost('subcategoria_id');
+        $subgeneroId    = $this->request->getPost('subgenero_id_dummy');
 
-    // IMPORTANTE: Si viene vacío, convertirlo a NULL real
-    // Esto evita el error de llave foránea
-    $subcategoriaId = (!empty($subcategoriaId)) ? $subcategoriaId : null;
-        // 1. Recoger datos del POST - CAMPOS ACTUALIZADOS
-        $dataLibro = [
-            'codigo' => $this->request->getPost('codigo'), // NUEVO CAMPO
-            'titulo' => $this->request->getPost('titulo'),
-            'autor'=> $this->request->getPost('autor'),
-            'editorial' => $this->request->getPost('editorial'),
-            'paginas' => (int)$this->request->getPost('paginas'), // NUEVO CAMPO
-            'ano' => (int)$this->request->getPost('ano'), // NUEVO CAMPO
-            'subcategoria_id' => $subcategoriaId,
-            'cantidad_total' => (int)$this->request->getPost('cantidad_total'),
-            'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
-            'estado' => $this->request->getPost('estado'),
-        ];
+        // 2. Lógica del Comodín (Igual que en Update)
+        if (empty($subcategoriaId) && !empty($subgeneroId)) {
+            $comodin = $this->subcategoriaModel
+                ->where('subgenero_id', $subgeneroId)
+                ->groupStart()
+                    ->where('nombre', null)
+                    ->orWhere('nombre', '')
+                    ->orWhere('nombre', 'NULL')
+                ->groupEnd()
+                ->first();
 
-        // Validación simple para asegurar consistencia
-        $dataLibro['cantidad_disponibles'] = min($dataLibro['cantidad_disponibles'], $dataLibro['cantidad_total']);
-
-        // 2. Guardar el nuevo libro e obtener su ID
-        $this->libroModel->insert($dataLibro);
-        $nuevoLibroId = $this->libroModel->getInsertID(); 
-        $cantidadTotal = $dataLibro['cantidad_total'];
-        $cantidadDisponibles = $dataLibro['cantidad_disponibles'];
-        
-        // 3. Crear los ejemplares según la cantidad total y diferenciar los disponibles
-        if ($nuevoLibroId && $cantidadTotal > 0) {
-            $ejemplares = [];
-            
-            for ($i = 0; $i < $cantidadTotal; $i++) {
-                // Si el índice es menor que la cantidad disponible, el ejemplar está 'Disponible'
-                $estado_ejemplar = ($i < $cantidadDisponibles) ? 'Disponible' : 'Dañado';
-
-                $ejemplares[] = [
-                    'libro_id' => $nuevoLibroId,
-                    'estado' => $estado_ejemplar,
-                    'no_copia' => $i + 1 // Asignar el número de copia de forma secuencial
-                ];
-            }
-            
-            // Inserción masiva de ejemplares
-            $this->ejemplarModel->insertBatch($ejemplares);
+            $subcategoriaId = ($comodin) ? $comodin['subcategoria_id'] : null;
+        } else {
+            $subcategoriaId = (!empty($subcategoriaId)) ? $subcategoriaId : null;
         }
 
-        // 4. Redirigir y mostrar mensaje de éxito
-        return redirect()->to(base_url('libros'))->with('msg', 'Libro y sus ejemplares iniciales creados correctamente.');
-    }
+        // 3. Recoger datos del POST
+        $dataLibro = [
+            'codigo'               => $this->request->getPost('codigo'),
+            'titulo'               => $this->request->getPost('titulo'),
+            'autor'                => $this->request->getPost('autor'),
+            'editorial'            => $this->request->getPost('editorial'),
+            'paginas'              => (int)$this->request->getPost('paginas'),
+            'ano'                  => (int)$this->request->getPost('ano'),
+            'subcategoria_id'      => $subcategoriaId,
+            'cantidad_total'       => (int)$this->request->getPost('cantidad_total'),
+            'cantidad_disponibles' => (int)$this->request->getPost('cantidad_disponibles'),
+            'estado'               => $this->request->getPost('estado'),
+        ];
 
+        // Validación de seguridad para disponibles
+        $dataLibro['cantidad_disponibles'] = min($dataLibro['cantidad_disponibles'], $dataLibro['cantidad_total']);
+
+        // 4. Guardar Libro y crear Ejemplares
+        if ($this->libroModel->insert($dataLibro)) {
+            $nuevoLibroId = $this->libroModel->getInsertID();
+            $cantidadTotal = $dataLibro['cantidad_total'];
+            $cantidadDisponibles = $dataLibro['cantidad_disponibles'];
+            
+            if ($nuevoLibroId && $cantidadTotal > 0) {
+                $ejemplares = [];
+                for ($i = 0; $i < $cantidadTotal; $i++) {
+                    $estado_ejemplar = ($i < $cantidadDisponibles) ? 'Disponible' : 'Dañado';
+                    $ejemplares[] = [
+                        'libro_id' => $nuevoLibroId,
+                        'estado'   => $estado_ejemplar,
+                        'no_copia' => $i + 1
+                    ];
+                }
+                $this->ejemplarModel->insertBatch($ejemplares);
+            }
+            return redirect()->to(base_url('libros'))->with('msg', 'Libro creado correctamente.');
+        } else {
+            return redirect()->back()->withInput()->with('errors', $this->libroModel->errors());
+        }
+    }
     public function edit($id)
     {
         // 1. Buscamos el libro con un JOIN simple para la subcategoría

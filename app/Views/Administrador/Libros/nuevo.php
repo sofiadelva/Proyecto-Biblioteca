@@ -69,24 +69,18 @@ $this->section('contenido');
         <h5 class="mt-4 pt-3 border-top w-100">Clasificación</h5>
 
         <div class="col-md-4">
-            <label for="select-coleccion" class="form-label fw-bold">Colección <span class="text-danger">*</span></label>
-            <select class="form-control" name="coleccion_id_dummy" id="select-coleccion" required> 
-                <option value="">Seleccionar Colección</option>
-            </select>
+            <label class="form-label fw-bold">1. Colección <span class="text-danger">*</span></label>
+            <select id="coleccion_id" name="coleccion_id_dummy" class="form-select select2-ajax" required></select>
         </div>
-        
+
         <div class="col-md-4">
-            <label for="select-subgenero" class="form-label fw-bold">Subgénero <span class="text-danger required-subgenero">*</span></label>
-            <select class="form-control" name="subgenero_id_dummy" id="select-subgenero" disabled required> 
-                <option value="">Seleccionar Subgénero</option>
-            </select>
+            <label class="form-label fw-bold">2. Subgénero <span class="text-danger">*</span></label>
+            <select id="subgenero_id" name="subgenero_id_dummy" class="form-select select2-ajax" required></select>
         </div>
-        
+
         <div class="col-md-4">
-            <label for="select-subcategoria" class="form-label fw-bold">Subcategoría </label>
-            <select class="form-control" name="subcategoria_id" id="select-subcategoria" disabled> 
-                <option value="">Seleccionar Subcategoría</option>
-            </select>
+            <label class="form-label fw-bold">3. Subcategoría</label>
+            <select name="subcategoria_id" id="subcategoria_id" class="form-select select2-ajax"></select>
         </div>
 
 
@@ -124,134 +118,52 @@ $this->section('contenido');
 </div>
 
 <style>
-    .section-title {
-        color: #0C1E44;
-        font-weight: 700;
-        font-size: 1.75rem;
-    }
-    .form-control, .form-select {
-        border-radius: 8px;
-        padding: 10px 15px;
-        box-shadow: none !important;
-        border: 1px solid #ced4da;
-    }
-    .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        transition: background-color 0.2s;
-    }
-    .btn-secondary:hover {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
+    .section-title { color: #0C1E44; font-weight: 700; font-size: 1.75rem; }
+    .form-control, .form-select { border-radius: 8px; padding: 10px 15px; border: 1px solid #ced4da; }
 </style>
 
-<?php 
-$this->endSection(); 
-?>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<?php 
-// ⭐️ SECCIÓN DE SCRIPTS: Inicialización de Select2 con búsqueda dinámica y cascada
-$this->section('scripts'); 
-?>
 <script>
 $(document).ready(function() {
-    const selectCol = $('#select-coleccion');
-    const selectSubG = $('#select-subgenero');
-    const selectSubC = $('#select-subcategoria');
-
-    // Configuración común de Select2
-    const commonOptions = {
-        theme: "bootstrap4",
+    const s2Options = {
         width: '100%',
         allowClear: true,
-        delay: 250
+        placeholder: "Seleccionar opción"
     };
 
-    // 1. Inicializar Colección
-    selectCol.select2({
-        ...commonOptions,
-        placeholder: "Buscar Colección...",
-        ajax: {
-            url: '<?= site_url('libros/get_colecciones_json'); ?>',
-            dataType: 'json',
-            data: params => ({ term: params.term }),
-            processResults: data => ({ results: data.results })
-        }
-    });
-
-    // 2. Evento Cambio Colección -> Carga Subgénero
-    selectCol.on('change', function() {
-        const colId = $(this).val();
-        selectSubG.val(null).trigger('change').prop('disabled', !colId);
-        selectSubC.val(null).trigger('change').prop('disabled', true);
-
-        if (colId) {
-            selectSubG.select2({
-                ...commonOptions,
-                placeholder: "Seleccionar Subgénero",
-                ajax: {
-                    url: '<?= site_url('libros/get_subgeneros_json'); ?>',
-                    dataType: 'json',
-                    data: params => ({ term: params.term, coleccion_id: colId }),
-                    processResults: data => ({ results: data.results })
-                }
-            });
-        }
-    });
-
-    // 3. Evento Cambio Subgénero -> Carga Subcategoría
-    selectSubG.on('change', function() {
-        const subGId = $(this).val();
-        selectSubC.val(null).trigger('change').prop('disabled', !subGId);
-
-        if (subGId) {
-            selectSubC.select2({
-                ...commonOptions,
-                placeholder: "Seleccionar Subcategoría",
-                ajax: {
-                    url: '<?= site_url('libros/get_subcategorias_json'); ?>',
-                    dataType: 'json',
-                    data: params => ({ term: params.term, subgenero_id: subGId }),
-                    processResults: data => ({ results: data.results })
-                }
-            });
-        }
-    });
-
-    // 4. Restauración de valores previos (Old values)
-    const oldCol = '<?= old('coleccion_id_dummy') ?>';
-    const oldSubG = '<?= old('subgenero_id_dummy') ?>';
-    const oldSubC = '<?= old('subcategoria_id') ?>';
-
-    if (oldCol) {
-        $.get('<?= site_url('libros/get_colecciones_json'); ?>', { id: oldCol }, function(data) {
-            if (data.results.length) {
-                const opt = new Option(data.results[0].text, data.results[0].id, true, true);
-                selectCol.append(opt).trigger('change');
-                
-                if (oldSubG) {
-                    $.get('<?= site_url('libros/get_subgeneros_json'); ?>', { id: oldSubG }, function(dataG) {
-                        if (dataG.results.length) {
-                            const optG = new Option(dataG.results[0].text, dataG.results[0].id, true, true);
-                            selectSubG.append(optG).trigger('change');
-                            
-                            if (oldSubC) {
-                                $.get('<?= site_url('libros/get_subcategorias_json'); ?>', { id: oldSubC }, function(dataC) {
-                                    if (dataC.results.length) {
-                                        const optC = new Option(dataC.results[0].text, dataC.results[0].id, true, true);
-                                        selectSubC.append(optC).trigger('change');
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
+    function initSelect2(selector, url, parentSelector = null, parentParam = '') {
+        $(selector).select2({
+            ...s2Options,
+            ajax: {
+                url: '<?= base_url() ?>/' + url,
+                dataType: 'json',
+                delay: 250,
+                data: function (params) {
+                    let query = { term: params.term };
+                    if(parentSelector) query[parentParam] = $(parentSelector).val();
+                    return query;
+                },
+                processResults: data => ({ results: data.results })
             }
         });
     }
+
+    initSelect2('#coleccion_id', 'libros/get_colecciones_json');
+    initSelect2('#subgenero_id', 'libros/get_subgeneros_json', '#coleccion_id', 'coleccion_id');
+    initSelect2('#subcategoria_id', 'libros/get_subcategorias_json', '#subgenero_id', 'subgenero_id');
+
+    $('#coleccion_id').on('change', function() {
+        $('#subgenero_id').val(null).trigger('change');
+        $('#subcategoria_id').val(null).trigger('change');
+    });
+
+    $('#subgenero_id').on('change', function() {
+        $('#subcategoria_id').val(null).trigger('change');
+    });
 });
 </script>
-<?php 
-$this->endSection(); 
-?>
+
+<?= $this->endSection(); ?>

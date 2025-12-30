@@ -64,8 +64,8 @@ Editar Libro
         </div>
 
         <div class="col-md-4">
-            <label class="form-label fw-bold text-primary">1. Colección</label>
-            <select id="coleccion_id" name="coleccion_id_dummy" class="form-select select2-ajax">
+            <label class="form-label fw-bold">1. Colección <span class="text-danger">*</span></label>
+            <select id="coleccion_id" name="coleccion_id_dummy" class="form-select select2-ajax" required>
                 <?php if(isset($coleccion_id)): ?>
                     <option value="<?= $coleccion_id ?>" selected><?= $coleccion_nombre ?></option>
                 <?php endif; ?>
@@ -73,8 +73,8 @@ Editar Libro
         </div>
 
         <div class="col-md-4">
-            <label class="form-label fw-bold text-primary">2. Subgénero</label>
-            <select id="subgenero_id" name="subgenero_id_dummy" class="form-select select2-ajax">
+            <label class="form-label fw-bold">2. Subgénero <span class="text-danger">*</span></label>
+            <select id="subgenero_id" name="subgenero_id_dummy" class="form-select select2-ajax" required>
                 <?php if(isset($subgenero_id)): ?>
                     <option value="<?= $subgenero_id ?>" selected><?= $subgenero_nombre ?></option>
                 <?php endif; ?>
@@ -82,7 +82,7 @@ Editar Libro
         </div>
 
         <div class="col-md-4">
-            <label class="form-label fw-bold text-primary">3. Subcategoría</label>
+            <label class="form-label fw-bold">3. Subcategoría</label>
             <select name="subcategoria_id" id="subcategoria_id" class="form-select select2-ajax">
                 <?php if(!empty($libro['subcategoria_id'])): ?>
                     <option value="<?= $libro['subcategoria_id'] ?>" selected><?= $libro['subcategoria_nombre'] ?></option>
@@ -91,15 +91,18 @@ Editar Libro
         </div>
 
         <div class="col-md-6">
-            <label for="cantidad_total" class="form-label fw-bold">Cantidad Total <span class="text-danger">*</span></label>
+            <label for="cantidad_total" class="form-label fw-bold">Cantidad Total </label>
             <input type="number" class="form-control bg-light" id="cantidad_total" name="cantidad_total" value="<?= old('cantidad_total', $libro['cantidad_total']) ?>" readonly>
             <small class="text-muted italic">Para cambiar el stock total, use el módulo de ejemplares.</small>
         </div>
 
         <div class="col-md-6">
-            <label for="cantidad_disponibles" class="form-label fw-bold">Disponibles <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" name="cantidad_disponibles" value="<?= old('cantidad_disponibles', $libro['cantidad_disponibles']) ?>" required min="0" max="<?= $libro['cantidad_total'] ?>">
+            <label class="form-label fw-bold text-muted">Disponibles ahora</label>
+            <input type="text" class="form-control bg-light" value="<?= $libro['cantidad_disponibles'] ?>" readonly>
+            <small class="text-muted italic">El stock se gestiona desde el módulo de Ejemplares.</small>
         </div>
+
+
 
         <div class="col-12 mt-5 d-flex justify-content-start gap-3">
             <a href="<?= base_url('libros'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
