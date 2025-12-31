@@ -8,6 +8,7 @@ Agregar Ejemplar
     <h2 class="section-title mb-4 pb-2 border-bottom">
         <i class="bi bi-plus-circle-fill me-2" style="color: #0C1E44;"></i>
         Agregar Nuevo Ejemplar al Libro: <span style="font-weight: 500;"><?= esc($libro['titulo']) ?></span>
+        <small class="text-muted ms-2">(<?= esc($libro['codigo']) ?>)</small>
     </h2>
 
     <form action="<?= base_url('ejemplares/create') ?>" method="post" class="row g-4" autocomplete="off">

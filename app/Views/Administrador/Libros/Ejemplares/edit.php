@@ -8,14 +8,19 @@ Editar Ejemplar
     <h2 class="section-title mb-4 pb-2 border-bottom">
         <i class="bi bi-pencil-square me-2" style="color: #0C1E44;"></i>
         Editar Ejemplar de: <span style="font-weight: 500;"><?= esc($libro['titulo']) ?></span>
+        <small class="text-muted ms-2">(<?= esc($libro['codigo']) ?>)</small>
     </h2>
 
     <form action="<?= base_url('ejemplares/update/'.$ejemplar['ejemplar_id']) ?>" method="post" class="row g-4" autocomplete="off">
         
         <input type="hidden" name="libro_id" value="<?= $libro['libro_id'] ?>">
         <div class="col-md-6">
-            <label for="ejemplar_id" class="form-label fw-bold text-muted">ID de Ejemplar:</label>
-            <input type="text" class="form-control" value="<?= esc($ejemplar['ejemplar_id']) ?>" readonly disabled>
+            <label for="no_copia" class="form-label fw-bold text-muted">Número de Copia:</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light text-muted">#</span>
+                <input type="text" class="form-control" value="<?= esc($ejemplar['no_copia']) ?>" readonly disabled>
+            </div>
+            <small class="text-muted">Este número es correlativo y no se puede modificar.</small>
         </div>
 
         <div class="col-md-6">

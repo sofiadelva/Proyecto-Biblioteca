@@ -8,6 +8,7 @@ Ejemplares de <?= esc($libro['titulo']) ?>
     <h2 class="section-title mb-4 pb-2 border-bottom">
         <i class="bi bi-list-columns-reverse me-2" style="color: #0C1E44;"></i>
         Ejemplares de: <span style="font-weight: 500;"><?= esc($libro['titulo']) ?></span>
+        <small class="text-muted ms-2">(<?= esc($libro['codigo']) ?>)</small>
     </h2>
     
     <?php if(session()->getFlashdata('msg')): ?>
