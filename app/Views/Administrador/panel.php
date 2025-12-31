@@ -434,14 +434,14 @@
                             <p class="kpi-title">Usuarios Activos</p>
                         </a>
 
-                        <a href="<?= base_url('transacciones') ?>" class="kpi-card color-primary"> 
+                        <a href="<?= base_url('gestion_libros') ?>" class="kpi-card color-primary"> 
                             <i class="bi bi-box-arrow-in-up-right kpi-icon"></i>
-                            <p class="kpi-title">Préstamos Activos</p>
+                            <p class="kpi-title">Gestión de Libros</p>
                         </a>
                                                 
-                        <a href="<?= base_url('categorias') ?>" class="kpi-card color-secondary">
+                        <a href="<?= base_url('reportes') ?>" class="kpi-card color-secondary">
                             <i class="bi bi-tags-fill kpi-icon"></i>
-                            <p class="kpi-title">Total de Categorías</p>
+                            <p class="kpi-title">Reportes</p>
                         </a>
                         
                     </div>

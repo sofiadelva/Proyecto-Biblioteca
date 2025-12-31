@@ -1,21 +1,10 @@
-<?php 
-// Extiende de la plantilla principal llamada "plantilla_admin"
-echo $this->extend('Plantillas/plantilla_admin'); 
-?>
+<?= $this->extend('Plantillas/plantilla_admin') ?>
 
-<?php 
-// Define la sección "titulo" de la plantilla
-$this->section('titulo'); 
-?>
-Colecciones de Biblioteca
-<?php 
-$this->endSection(); 
-?>
+<?= $this->section('titulo') ?> 
+Colecciones de Biblioteca 
+<?= $this->endSection() ?>
 
-<?php 
-// Abre la sección "contenido" que se mostrará en el layout
-$this->section('contenido'); 
-?>
+<?= $this->section('contenido') ?>
 
 <?php if(session()->getFlashdata('msg')): ?>
     <div class="alert alert-success shadow-sm"><?= session()->getFlashdata('msg') ?></div>
@@ -25,6 +14,15 @@ $this->section('contenido');
     <a href="<?= base_url('colecciones/create'); ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44;">
         <i class="bi bi-plus-circle-fill me-2"></i>Agregar Nueva Colección
     </a>
+
+    <a href="<?= base_url('colecciones/nuevo_subgenero'); ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44;">
+        <i class="bi bi-plus-circle-fill me-2"></i>Agregar Subgéneros
+    </a>
+
+    <a href="<?= base_url('colecciones/nueva_subcategoria'); ?>" class="btn btn-lg text-white shadow" style="background-color:#0C1E44;">
+        <i class="bi bi-plus-circle-fill me-2"></i>Agregar Subcategorías
+    </a>
+
     
     <form method="get" action="<?= base_url('colecciones'); ?>" class="search-bar-container">
         <input 
@@ -33,99 +31,131 @@ $this->section('contenido');
             placeholder="Buscar colección, subgénero..." 
             value="<?= esc($buscar ?? '') ?>" 
         />
-        <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
-        <input type="hidden" name="per_page" value="<?= esc($_GET['per_page'] ?? '') ?>">
-
         <button type="submit" class="search-icon">
             <i class="bi bi-search"></i>
         </button>
     </form>
 </div>
 
-<div class="row mb-3">
-    <div class="col-md-6 mb-3">
-        <div class="card shadow-sm border-secondary border-opacity-25">
-            <div class="card-body py-3">
-                <h6 class="card-title text-muted mb-3"><i class="bi bi-sort-alpha-down me-2"></i>Opciones de Visualización</h6>
-                
-                <form class="d-flex align-items-center mb-3" method="get" action="<?= base_url('colecciones'); ?>">
-                    <input type="number" name="per_page" value="<?= $perPage ?? 10 ?>" min="1" class="form-control w-auto me-2" style="max-width: 100px;" placeholder="Filas">
-                    
-                    <select name="ordenar" class="form-select w-auto me-2">
-                        <option value="">Ordenar por...</option>
-                        <option value="nombre_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'nombre_asc') ? 'selected' : '' ?>>Nombre A → Z</option>
-                        <option value="nombre_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'nombre_desc') ? 'selected' : '' ?>>Nombre Z → A</option>
-                        <option value="reciente" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'reciente') ? 'selected' : '' ?>>Más reciente</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
+<div class="hierarchy-container shadow-sm bg-white p-4" style="border-radius: 12px;">
+   
 
-                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
-                </form>
-            </div>
+    <?php if (empty($jerarquia)): ?>
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-info-circle me-2"></i>No se encontraron colecciones registradas.
         </div>
-    </div>
-</div>
+    <?php else: ?>
+        <div class="accordion accordion-flush" id="accordionColecciones">
+            <?php foreach ($jerarquia as $cID => $coleccion): ?>
+                <div class="accordion-item border mb-3 rounded shadow-sm">
+                    
+                    <div class="accordion-header d-flex align-items-center  rounded-top p-2">
+                        <button class="accordion-button collapsed bg-transparent shadow-none text-dark p-0 ps-3" 
+                                type="button" data-bs-toggle="collapse" 
+                                data-bs-target="#collapseC<?= $cID ?>"
+                                style="font-family: inherit;"> <span style="font-weight: 700; font-size: 1.1rem; color: #0C1E44;">
+                                <?= esc($coleccion['nombre']) ?>
+                            </span>
 
-<table class="table clean-table my-3 shadow-sm">
-    <thead>
-        <tr>
-            <th>No.</th>
-            <th>Colección Principal</th>
-            <th>Subgénero</th>
-            <th>Subcategoría</th>
-            <th>Opciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php 
-        if (!empty($colecciones)):
-            foreach($colecciones as $i => $fila): 
-        ?>
-        <tr>
-            <td><span><?= (isset($pager) && $pager->getCurrentPage() > 1) ? ($pager->getPerPage() * ($pager->getCurrentPage() - 1)) + ($i + 1) : ($i + 1) ?></span></td>
-            <td><strong><?= esc($fila['coleccion']) ?></strong></td>
-            <td>
-                <?= !empty($fila['subgenero']) ? '<span>'.$fila['subgenero'].'</span>' : '<small class="text-muted">Sin subgénero</small>' ?>
-            </td>
-            <td>
-                <?= !empty($fila['subcategoria']) ? '<span class="text-secondary">'.$fila['subcategoria'].'</span>' : '<small class="text-muted">—</small>' ?>
-            </td>
-            <td>
-                <div class="d-flex gap-2">
-                    <a href="<?= base_url('colecciones/edit/'.$fila['coleccion_id']); ?>" 
-                       class="btn-sm btn-accion-editar text-decoration-none">
-                       <i class="bi bi-pencil-square"></i> Editar
-                    </a>
+                            <span class="badge ms-3 rounded-pill text-white" style="background-color: #6c757d; font-size: 0.7rem; font-weight: 400;">
+                                <?= count($coleccion['subgeneros']) ?> subgéneros
+                            </span>
+                        </button>
+                        
+                        <div class="px-3 d-flex gap-2">
+                            <a href="<?= base_url('colecciones/edit/'.$cID); ?>" class="btn-sm btn-accion-editar text-decoration-none">
+                                <i class="bi"></i> Editar
+                            </a>
+                            <a href="<?= base_url('colecciones/delete/'.$cID); ?>" class="btn-sm btn-accion-eliminar text-decoration-none"
+                               onclick="return confirm('¿Seguro que quieres eliminar esta colección?')">
+                                <i class="bi"></i> Eliminar
+                            </a>
+                        </div>
+                    </div>
 
-                    <a href="<?= base_url('colecciones/delete/'.$fila['coleccion_id']); ?>" 
-                       class="btn-sm btn-accion-eliminar text-decoration-none"
-                       onclick="return confirm('¿Seguro que quieres eliminar esta colección?')">
-                       <i class="bi bi-trash"></i> Eliminar
-                    </a>
+                    <div id="collapseC<?= $cID ?>" class="accordion-collapse collapse" data-bs-parent="#accordionColecciones">
+                        <div class="accordion-body bg-white">
+                            <?php if (empty($coleccion['subgeneros'])): ?>
+                                <small class="text-muted italic px-4">Sin subgéneros registrados.</small>
+                            <?php else: ?>
+                                <div class="accordion accordion-flush ms-4 border-start border-2" id="accordionSubg<?= $cID ?>">
+                                    <?php foreach ($coleccion['subgeneros'] as $sGID => $subgenero): ?>
+                                        <div class="accordion-item border-0">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button collapsed py-2  shadow-none bg-transparent ps-3" 
+                                                        type="button" data-bs-toggle="collapse" 
+                                                        data-bs-target="#collapseSG<?= $sGID ?>">
+                                                    <i class="bi bi-bookmark-fill me-2 text-info"></i>
+                                                    <?= esc($subgenero['nombre']) ?>
+                                                </button>
+                                            </h2>
+                                            
+                                            <div id="collapseSG<?= $sGID ?>" class="accordion-collapse collapse" data-bs-parent="#accordionSubg<?= $cID ?>">
+                                                <div class="accordion-body py-1 ms-4 border-start">
+                                                    <?php if (empty($subgenero['subcategorias'])): ?>
+                                                        <span class="text-muted small">Sin subcategorías.</span>
+                                                    <?php else: ?>
+                                                        <?php foreach ($subgenero['subcategorias'] as $subcat): ?>
+                                                            <div class="py-1" style="font-size: 0.9rem;">
+                                                                <i class="bi bi-dot me-1"></i> <?= esc($subcat['nombre']) ?>
+                                                            </div>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
                 </div>
-            </td>
-        </tr>
-        <?php 
-            endforeach; 
-        else:
-        ?>
-        <tr>
-            <td colspan="5" class="text-center py-4 text-muted">
-                <i class="bi bi-info-circle me-2"></i>No se encontraron colecciones registradas.
-            </td>
-        </tr>
-        <?php 
-        endif; 
-        ?>
-    </tbody>
-</table>
-
-<div class="mt-4">
-    <?php if (isset($pager)): ?>
-        <?= $pager->links('default', 'bootstrap_full') ?>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 </div>
 
-<?php 
-$this->endSection(); 
-?>
+<style>
+    .accordion-button:not(.collapsed) {
+        background-color: #f8f9fa;
+        color: #0C1E44;
+    }
+    
+   .btn-accion-editar {
+            background-color: #FBB800 !important; 
+            border-color: #FBB800 !important;
+            color: #000000 !important;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+         .btn-accion-editar:hover {
+            background-color: #d8a200 !important; 
+            border-color: #d8a200 !important;
+        }
+
+        /* 2. Botón Eliminar: color #A01E53 (Borgoña Oscuro) */
+        .btn-accion-eliminar {
+            background-color: #A01E53 !important; 
+            border-color: #A01E53 !important;
+            color: #ffffff !important;
+            padding: 6px 12px;
+            border-radius: 5px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        .btn-accion-eliminar:hover {
+            background-color: #841843 !important; 
+            border-color: #841843 !important;
+        }
+
+    /* Ajuste para que la línea de nivel 2 y 3 no sea tan larga */
+    .border-start {
+        border-color: #dee2e6 !important;
+    }
+</style>
+
+<?php $this->endSection(); ?>

@@ -37,15 +37,33 @@ $routes->get('ejemplares/edit/(:num)', 'Ejemplares::edit/$1');
 $routes->post('ejemplares/update/(:num)', 'Ejemplares::update/$1'); 
 $routes->get('ejemplares/delete/(:num)', 'Ejemplares::delete/$1');
 
-/** Rutas para CRUD de Colecciones (administrador) */
 $routes->group('colecciones', ['namespace' => 'App\Controllers'], function($routes) {
+    // Rutas principales
     $routes->get('/', 'Colecciones::index');
     $routes->get('create', 'Colecciones::create');
     $routes->post('store', 'Colecciones::store');
+    
+    // Rutas de Edición de Colección
     $routes->get('edit/(:num)', 'Colecciones::edit/$1');
     $routes->post('update/(:num)', 'Colecciones::update/$1');
     $routes->get('delete/(:num)', 'Colecciones::delete/$1');
+
+    // Rutas para Subgéneros (Nuevos y Edición)
+    $routes->get('nuevo_subgenero', 'Colecciones::nuevoSubgenero');
+    $routes->post('guardar_subgenero', 'Colecciones::guardarSubgenero');
+    $routes->post('update_subgen/(:num)', 'Colecciones::update_subgen/$1'); // <--- Para el Modal
+    $routes->get('delete_subgen/(:num)', 'Colecciones::delete_subgen/$1'); // <--- Para borrar individual
+
+    // Rutas para Subcategorías (Nuevas y Edición)
+    $routes->get('nueva_subcategoria', 'Colecciones::nuevaSubcategoria');
+    $routes->post('guardar_subcategoria', 'Colecciones::guardarSubcategoria');
+    $routes->post('update_subcat/(:num)', 'Colecciones::update_subcat/$1'); // <--- Para el Modal
+    $routes->get('delete_subcat/(:num)', 'Colecciones::delete_subcat/$1'); // <--- Para borrar individual
+    
+    // Utilidades
+    $routes->get('get_subgeneros/(:num)', 'Colecciones::getSubgeneros/$1'); // AJAX
 });
+
 
 /**Rutas para gestión de libros, préstamos y devoluciones */
 $routes->get('gestion_libros', 'GestionLibros::index');
