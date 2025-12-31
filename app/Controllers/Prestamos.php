@@ -100,7 +100,7 @@ class Prestamos extends Controller
             // Cambiar estado del ejemplar a "No disponible"
             $ejemplarModel->update(
                 $this->request->getPost('ejemplar_id'),
-                ['estado' => 'No disponible']
+                ['estado' => 'Prestado']
             );
             return redirect()->to(base_url('prestamos'))->with('msg', 'Préstamo agregado correctamente.');
         } else {
@@ -112,33 +112,48 @@ class Prestamos extends Controller
      * Obtener libros para la búsqueda dinámica (Select2)
      * @return \CodeIgniter\HTTP\Response
      */
-    public function getLibrosJson()
-    {
-        $libroModel = new LibroModel();
-        $term = $this->request->getGet('term');
-        $id = $this->request->getGet('id'); 
+public function getLibrosJson()
+{
+    try {
+        $request = \Config\Services::request();
+        $term = $request->getGet('term');
+        $id   = $request->getGet('id');
 
-        $query = $libroModel->select('libro_id as id, titulo, autor, cantidad_disponibles');
-        
-        $query->where('estado', 'Disponible');
+        $libroModel = new \App\Models\LibroModel();
+
+        // Filtramos solo los que tengan stock para prestar
+        $builder = $libroModel->where('cantidad_disponibles >', 0);
 
         if (!empty($term)) {
-            $query->groupStart()
-                  ->like('titulo', $term)
-                  ->orLike('autor', $term)
-                  ->groupEnd();
-        } elseif (!empty($id)) {
-            $query->where('libro_id', $id);
+            $builder->groupStart()
+                    ->like('titulo', $term)
+                    ->orLike('autor', $term)
+                    ->orLike('codigo', $term)
+                    ->groupEnd();
         }
 
-        $libros = $query->findAll();
+        if (!empty($id)) {
+            $builder->where('libro_id', $id);
+        }
 
-        // Formatear resultados para Select2
-        $results = array_map(function($libro) {
-            $text = "{$libro['titulo']} (Autor: {$libro['autor']}) - Disp: {$libro['cantidad_disponibles']}";
-            return ['id' => $libro['id'], 'text' => $text, 'cantidad_disponibles' => $libro['cantidad_disponibles']];
-        }, $libros);
-        
+        $libros = $builder->findAll(20); // Limitamos a 20 resultados
+
+        $results = [];
+        foreach ($libros as $libro) {
+            $results[] = [
+                'id'   => $libro['libro_id'],
+                // Mostramos: [CÓDIGO] Título - Autor (Disponibles: X)
+                'text' => "[" . $libro['codigo'] . "] " . $libro['titulo'] . " - " . $libro['autor'] . " (Disponibles: " . $libro['cantidad_disponibles'] . ")"
+            ];
+        }
+
         return $this->response->setJSON(['results' => $results]);
+
+    } catch (\Exception $e) {
+        // En caso de error, devolvemos el mensaje real para debug
+        return $this->response->setStatusCode(500)->setJSON([
+            'error' => $e->getMessage()
+        ]);
     }
+}
 }

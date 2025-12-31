@@ -69,9 +69,10 @@ $routes->group('colecciones', ['namespace' => 'App\Controllers'], function($rout
 $routes->get('gestion_libros', 'GestionLibros::index');
 $routes->group('prestamos', function($routes) {
     $routes->get('/', 'Prestamos::create'); 
-    $routes->post('store', 'Prestamos::store');
-    $routes->get('getEjemplares/(:num)', 'Prestamos::getEjemplares/$1');
+    // LA RUTA DEL JSON DEBE IR ANTES QUE LA DEL NÚMERO
     $routes->get('getLibrosJson', 'Prestamos::getLibrosJson'); 
+    $routes->get('getEjemplares/(:num)', 'Prestamos::getEjemplares/$1');
+    $routes->post('store', 'Prestamos::store');
 });
 $routes->get('devoluciones', 'Devoluciones::index');
 $routes->post('devoluciones/store', 'Devoluciones::store');

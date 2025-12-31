@@ -70,7 +70,7 @@ $this->section('contenido');
         </div>
 
         <div class="col-md-6">
-            <label for="ejemplar_id" class="form-label fw-bold">Ejemplar (ID de Inventario) <span class="text-danger">*</span></label>
+            <label for="ejemplar_id" class="form-label fw-bold">Ejemplar (No. de Copia) <span class="text-danger">*</span></label>
             <select class="form-select" name="ejemplar_id" id="ejemplar_id" required disabled>
                 <option value="">Seleccione un libro primero</option>
                 <?php if(old('ejemplar_id')): ?>
@@ -177,7 +177,7 @@ $this->section('scripts');
                             option.value = ejemplar.ejemplar_id;
                             
                             // *** CAMBIO: Mostrar no_copia ***
-                            option.textContent = `ID Inventario: ${ejemplar.ejemplar_id} (No. Copia: ${ejemplar.no_copia ?? 'N/A'})`;
+                            option.textContent = ` (No. Copia: ${ejemplar.no_copia ?? 'N/A'})`;
                             
                             if (oldEjemplarId && ejemplar.ejemplar_id == oldEjemplarId) {
                                 option.selected = true;
@@ -225,12 +225,14 @@ $this->section('scripts');
         });
         
         // --- 2. Inicialización de Select2 para Libro (ID) ---
+        // --- 2. Inicialización de Select2 para Libro ---
         libroSelect.select2({
-            placeholder: "Buscar libro por título o autor",
+            placeholder: "Escriba código o título del libro...",
             allowClear: true,
             theme: "bootstrap4", 
-            minimumInputLength: 2,
+            minimumInputLength: 1, // Cambiado a 1 para que busque apenas pongas una letra/número
             ajax: {
+                // IMPORTANTE: Asegúrate de que apunte a la ruta dentro del grupo
                 url: '<?= base_url('prestamos/getLibrosJson'); ?>', 
                 dataType: 'json',
                 delay: 250, 

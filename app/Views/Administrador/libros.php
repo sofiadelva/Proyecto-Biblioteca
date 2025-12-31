@@ -130,6 +130,7 @@ $this->section('contenido');
 <table class="table clean-table my-3">
     <thead>
     <tr>
+        <th>#</th>
         <th>Código</th> 
         <th>Título</th>
         <th>Autor</th>
@@ -146,10 +147,16 @@ $this->section('contenido');
     </thead>
     <tbody>
     <?php 
-    // Usamos ?? 'N/A' para manejar el caso en que el LEFT JOIN no encuentre un registro
-    foreach($libros as $libro): 
-    ?>
+    // Intentamos obtener 'page_default', si no existe probamos con 'page', y si no, es la 1
+     $request = \Config\Services::request();
+    $paginaActual = $request->getVar('page_default') ?? $request->getVar('page') ?? 1;
+    $paginaActual = (int)$paginaActual;
+    $porPagina = $perPage ?? 10; 
+ $contador = ($paginaActual - 1) * $porPagina + 1;
+foreach($libros as $libro): 
+?>
         <tr>
+            <td class="fw-bold text-muted"><?= $contador++ ?></td>
             <td><?= esc($libro['codigo']) ?></td> 
             <td><?= esc($libro['titulo']) ?></td>
             <td><?= esc($libro['autor']) ?></td>

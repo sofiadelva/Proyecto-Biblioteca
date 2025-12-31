@@ -15,71 +15,76 @@ class Devoluciones extends Controller
      * Muestra lista de préstamos en proceso con opción de búsqueda y ordenamiento.
      */
     public function index()
-    {
-        $prestamoModel = new PrestamoModel();
-        $usuarioModel  = new UsuarioModel();
-        $libroModel    = new LibroModel();
-        $ejemplarModel = new EjemplarModel();
+{
+    $prestamoModel = new PrestamoModel();
+    $usuarioModel  = new UsuarioModel();
+    $libroModel    = new LibroModel();
+    $ejemplarModel = new EjemplarModel();
 
-        // Obtener parámetros de URL
-        $buscar = $this->request->getGet('buscar');
-        $page = $this->request->getGet('page') ?? 1;
-        $perPage = $this->request->getGet('per_page') ?? 10;
-        
-        // 1. Obtener todos los préstamos en proceso
-        $prestamos = $prestamoModel->where('estado', 'En proceso')->findAll();
-        
-        // 2. Eager Loading (Carga anticipada) y enriquecimiento de datos
-        foreach ($prestamos as $key => &$prestamo) {
-            $usuario   = $usuarioModel->find($prestamo['usuario_id']);
-            $libro     = $libroModel->find($prestamo['libro_id']);
-            $ejemplar  = $ejemplarModel->find($prestamo['ejemplar_id']);
+    // Obtener parámetros de URL
+    $buscar = $this->request->getGet('buscar');
+    $page = $this->request->getGet('page') ?? 1;
+    $perPage = $this->request->getGet('per_page') ?? 10;
+    
+    // 1. Obtener todos los préstamos en proceso
+    $prestamos = $prestamoModel->where('estado', 'En proceso')->findAll();
+    
+    // 2. Eager Loading (Carga anticipada) y enriquecimiento de datos
+    foreach ($prestamos as $key => &$prestamo) {
+        $usuario   = $usuarioModel->find($prestamo['usuario_id']);
+        $libro     = $libroModel->find($prestamo['libro_id']);
+        $ejemplar  = $ejemplarModel->find($prestamo['ejemplar_id']);
 
-            // Añadir campos necesarios para la vista
-            $prestamo['carne']          = $usuario['carne'] ?? '';
-            $prestamo['nombre_usuario'] = $usuario['nombre'] ?? 'Desconocido';
-            $prestamo['titulo']         = $libro['titulo'] ?? 'Libro Eliminado';
-            $prestamo['no_copia']       = $ejemplar['no_copia'] ?? 'N/A';
-        }
-
-        // 3. Filtrar por búsqueda (Funcional)
-        if (!empty($buscar)) {
-            $prestamos = array_filter($prestamos, function ($p) use ($buscar) {
-                $buscarLower = strtolower($buscar);
-                // Búsqueda en nombre, carné o título del libro
-                return stripos($p['carne'], $buscarLower) !== false
-                    || stripos($p['nombre_usuario'], $buscarLower) !== false
-                    || stripos($p['titulo'], $buscarLower) !== false;
-            });
-        }
+        // Añadir campos necesarios para la vista
+        $prestamo['carne']          = $usuario['carne'] ?? '';
+        $prestamo['nombre_usuario'] = $usuario['nombre'] ?? 'Desconocido';
+        $prestamo['titulo']         = $libro['titulo'] ?? 'Libro Eliminado';
         
-        // 4. Ordenamiento Manual: Límite más cercano/atrasado primero
-        usort($prestamos, function ($a, $b) {
-            $aTime = strtotime($a['fecha_de_devolucion']);
-            $bTime = strtotime($b['fecha_de_devolucion']);
-            return $aTime <=> $bTime;
+        // --- AQUÍ ESTÁ LA SOLUCIÓN AL ERROR ---
+        $prestamo['codigo']         = $libro['codigo'] ?? 'S/C'; 
+        // ---------------------------------------
+
+        $prestamo['no_copia']       = $ejemplar['no_copia'] ?? 'N/A';
+    }
+
+    // 3. Filtrar por búsqueda (Funcional)
+    if (!empty($buscar)) {
+        $prestamos = array_filter($prestamos, function ($p) use ($buscar) {
+            $buscarLower = strtolower($buscar);
+            // Añadimos 'codigo' a la lógica de búsqueda también
+            return stripos($p['carne'], $buscarLower) !== false
+                || stripos($p['nombre_usuario'], $buscarLower) !== false
+                || stripos($p['titulo'], $buscarLower) !== false
+                || stripos($p['codigo'], $buscarLower) !== false;
         });
-
-
-        // 5. Paginación Manual
-        $total = count($prestamos);
-        $offset = ($page - 1) * $perPage;
-        $prestamosPaginados = array_slice($prestamos, $offset, $perPage);
-
-        // Crear Paginador Manual
-        $pager = \Config\Services::pager();
-        $pager->makeLinks($page, $perPage, $total, 'bootstrap_full');
-        
-        $data = [
-            'prestamos' => $prestamosPaginados,
-            'pager'     => $pager,
-            'buscar'    => $buscar,
-            'perPage'   => $perPage
-        ];
-
-        return view('Administrador/Gestion/devoluciones', $data);
     }
     
+    // 4. Ordenamiento Manual: Límite más cercano/atrasado primero
+    usort($prestamos, function ($a, $b) {
+        $aTime = strtotime($a['fecha_de_devolucion']);
+        $bTime = strtotime($b['fecha_de_devolucion']);
+        return $aTime <=> $bTime;
+    });
+
+
+    // 5. Paginación Manual
+    $total = count($prestamos);
+    $offset = ($page - 1) * $perPage;
+    $prestamosPaginados = array_slice($prestamos, $offset, $perPage);
+
+    // Crear Paginador Manual
+    $pager = \Config\Services::pager();
+    $pager->makeLinks($page, $perPage, $total, 'bootstrap_full');
+    
+    $data = [
+        'prestamos' => $prestamosPaginados,
+        'pager'     => $pager,
+        'buscar'    => $buscar,
+        'perPage'   => $perPage
+    ];
+
+    return view('Administrador/Gestion/devoluciones', $data);
+}
     /**
      * Confirma la devolución de un libro, guarda la fecha de hoy y actualiza los estados.
      * @param int $prestamo_id ID del préstamo a confirmar.

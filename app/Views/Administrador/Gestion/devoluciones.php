@@ -67,6 +67,8 @@ $this->section('contenido');
     <table class="table clean-table my-3">
         <thead>
         <tr>
+            <th>#</th>
+            <th>Código</th>
             <th>Libro</th>
             <th>Copia</th>
             <th>Usuario (Carné)</th>
@@ -77,56 +79,75 @@ $this->section('contenido');
         </tr>
         </thead>
         <tbody>
-        <?php 
-        if (empty($prestamos)): ?>
-            <tr>
-                <td colspan="7" class="text-center py-4">
-                    <i class="bi bi-info-circle me-2"></i> No hay préstamos pendientes de devolución que coincidan con los criterios.
-                </td>
-            </tr>
-        <?php 
-        else:
-            foreach($prestamos as $prestamo): 
-                $hoy = new DateTime();
-                $limite = new DateTime($prestamo['fecha_de_devolucion']);
-                $intervalo = $hoy->diff($limite);
-                $esAtrasado = $hoy > $limite;
-                $claseFila = $esAtrasado ? 'table-danger-light' : ''; // Resalta la fila si está atrasado
-        ?>
-            <tr class="<?= $claseFila ?>">
-                <td><?= esc($prestamo['titulo']) ?></td>
-                <td>N° <?= esc($prestamo['no_copia']) ?></td>
-                <td>
-                    <?= esc($prestamo['nombre_usuario']) ?> 
-                    <small class="text-muted d-block">(<?= esc($prestamo['carne']) ?>)</small>
-                </td>
-                <td><?= esc($prestamo['fecha_prestamo']) ?></td>
-                <td>
-                    <strong><?= esc($prestamo['fecha_de_devolucion']) ?></strong>
-                </td>
-                <td>
-                    <?php if ($esAtrasado): ?>
-                        <span class="badge bg-danger">
-                            ATRASADO por <?= esc($intervalo->days) ?> días
+            <?php 
+            if (empty($prestamos)): ?>
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <i class="bi bi-info-circle me-2"></i> No hay préstamos pendientes de devolución que coincidan con los criterios.
+                    </td>
+                </tr>
+            <?php 
+            else:
+                // Inicializamos el contador basado en la paginación
+                $i = 1 + (($pager->getCurrentPage() - 1) * ($perPage ?? 10));
+                
+                foreach($prestamos as $prestamo): 
+                    $hoy = new DateTime();
+                    $limite = new DateTime($prestamo['fecha_de_devolucion']);
+                    $intervalo = $hoy->diff($limite);
+                    $esAtrasado = $hoy > $limite;
+                    $claseFila = $esAtrasado ? 'table-danger-light' : ''; 
+            ?>
+                <tr class="<?= $claseFila ?>">
+                    <td class="fw-bold"><?= $i++ ?></td>
+
+                    <td>
+                        <span>
+                            <i class="bi bi-hash me-1"></i><?= esc($prestamo['codigo']) ?>
                         </span>
-                    <?php else: ?>
-                        <span class="badge bg-success">
-                            VIGENTE (<?= esc($intervalo->days) ?> días restantes)
+                    </td>
+
+                    <td><strong><?= esc($prestamo['titulo']) ?></strong></td>
+
+                    <td><span class="text-secondary">Copia <?= esc($prestamo['no_copia']) ?></span></td>
+
+                    <td>
+                        <div class="fw-bold"><?= esc($prestamo['nombre_usuario']) ?></div>
+                        <small class="text-muted"><?= esc($prestamo['carne']) ?></small>
+                    </td>
+
+                    <td><?= date('d/m/Y', strtotime($prestamo['fecha_prestamo'])) ?></td>
+
+                    <td>
+                        <span class="<?= $esAtrasado ? 'text-danger fw-bold' : '' ?>">
+                            <?= date('d/m/Y', strtotime($prestamo['fecha_de_devolucion'])) ?>
                         </span>
-                    <?php endif; ?>
-                </td>
-                <td>
-                     <a href="<?= base_url('devoluciones/confirmar/'.$prestamo['prestamo_id']); ?>" 
-                    class="btn btn-sm text-white shadow-sm"
-                    style="background-color:#00ADC6;"
-                     onclick="return confirm('¿Confirmar la devolución del libro [<?= esc($prestamo['titulo']) ?>] por parte de [<?= esc($prestamo['nombre_usuario']) ?>]?')">
-                    <i class="bi bi-box-arrow-in-down-right me-1"></i> Devolver
-                    </a>
-                </td>
-            </tr>
-        <?php endforeach; 
-        endif; ?>
-        </tbody>
+                    </td>
+
+                    <td>
+                        <?php if ($esAtrasado): ?>
+                            <span class="badge bg-danger">
+                                <i class="bi bi-exclamation-triangle me-1"></i> ATRASADO (<?= $intervalo->days ?> días)
+                            </span>
+                        <?php else: ?>
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle me-1"></i> VIGENTE (<?= $intervalo->days ?> días)
+                            </span>
+                        <?php endif; ?>
+                    </td>
+
+                    <td>
+                        <a href="<?= base_url('devoluciones/confirmar/'.$prestamo['prestamo_id']); ?>" 
+                        class="btn btn-sm text-white shadow-sm"
+                        style="background-color:#00ADC6;"
+                        onclick="return confirm('¿Confirmar la devolución del libro [<?= esc($prestamo['titulo']) ?>]?')">
+                            <i class="bi bi-box-arrow-in-down-right me-1"></i> Devolver
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; 
+            endif; ?>
+            </tbody>
     </table>
 </div>
 
