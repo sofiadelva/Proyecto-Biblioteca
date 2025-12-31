@@ -36,7 +36,6 @@ $this->section('contenido');
             value="<?= esc($buscar ?? '') ?>" 
         />
         <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
-        <input type="hidden" name="estado" value="<?= esc($_GET['estado'] ?? '') ?>">
         <input type="hidden" name="cantidad_disponible" value="<?= esc($_GET['cantidad_disponible'] ?? '') ?>">
         <input type="hidden" name="per_page" value="<?= esc($_GET['per_page'] ?? '') ?>">
 
@@ -55,6 +54,7 @@ $this->section('contenido');
                 <form class="d-flex align-items-center mb-3" method="get" action="<?= base_url('libros'); ?>">
                     <input type="number" name="per_page" value="<?= $perPage ?? 10 ?>" min="1" class="form-control w-auto me-2" style="max-width: 150px;" placeholder="Filas">
                     
+                    
                     <select name="ordenar" class="form-select w-auto me-2">
                         <option value="">Ordenar por...</option>
                         <option value="titulo_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'titulo_asc') ? 'selected' : '' ?>>Título A → Z</option>
@@ -64,11 +64,15 @@ $this->section('contenido');
                         <option value="reciente" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'reciente') ? 'selected' : '' ?>>Más reciente</option>
                         <option value="viejo" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'viejo') ? 'selected' : '' ?>>Más antiguo</option>
                     </select>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('libros') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
+                    </div>
 
                     <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
                     <input type="hidden" name="estado" value="<?= esc($_GET['estado'] ?? '') ?>">
                     <input type="hidden" name="cantidad_disponible" value="<?= esc($_GET['cantidad_disponible'] ?? '') ?>">
+                    
                 </form>
             </div>
         </div>
@@ -78,19 +82,42 @@ $this->section('contenido');
         <div class="card shadow-sm border-secondary border-opacity-25">
             <div class="card-body py-3">
                 <h6 class="card-title text-muted mb-3"><i class="bi bi-funnel-fill me-2"></i>Opciones de Filtrado</h6>
-                <form class="d-flex align-items-center" method="get" action="<?= base_url('libros'); ?>">
-                    <select name="estado" class="form-select w-auto me-2">
-                        <option value="">Estado...</option>
-                        <option value="Disponible" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Disponible') ? 'selected' : '' ?>>Disponible</option>
-                        <option value="Dañado" <?= (isset($_GET['estado']) && $_GET['estado'] == 'Dañado') ? 'selected' : '' ?>>Dañado</option>
-                    </select>
-                    <select name="cantidad_disponible" class="form-select w-auto me-2">
-                        <option value="">Cantidad...</option>
-                        <option value="0" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '0') ? 'selected' : '' ?>>0 disponibles</option>
-                        <option value="1" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '1') ? 'selected' : '' ?>>1 o más</option>
-                    </select>
-                    <button type="submit" class="btn btn-secondary"><i class="bi bi-search"></i> Aplicar Filtro</button>
-                    
+                <form id="filterForm" method="get" action="<?= base_url('libros'); ?>">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <select name="cantidad_disponible" class="form-select">
+                                <option value="">Cantidad...</option>
+                                <option value="0" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '0') ? 'selected' : '' ?>>0 disp.</option>
+                                <option value="1" <?= (isset($_GET['cantidad_disponible']) && $_GET['cantidad_disponible'] == '1') ? 'selected' : '' ?>>1 o más</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-4">
+                            <select name="coleccion_id" id="filter_coleccion" class="form-select select2-ajax" style="width: 100% !important;">
+                                <?php if(!empty($coleccion_id_sel)): ?>
+                                    <option value="<?= $coleccion_id_sel ?>" selected>Cargando...</option>
+                                <?php else: ?>
+                                    <option value="">Colección...</option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+
+                        <div class="col-4">
+                            <select name="subgenero_id" id="filter_subgenero" class="form-select select2-ajax" style="width: 100%;" <?= empty($coleccion_id_sel) ? 'disabled' : '' ?>>
+                                <?php if(!empty($subgenero_id_sel)): ?>
+                                    <option value="<?= $subgenero_id_sel ?>" selected>Cargando...</option>
+                                <?php else: ?>
+                                    <option value="">Subgénero...</option>
+                                <?php endif; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('libros') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
+                    </div>
+
                     <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
                     <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
                     <input type="hidden" name="per_page" value="<?= esc($_GET['per_page'] ?? '') ?>">
@@ -114,7 +141,6 @@ $this->section('contenido');
         <th>Subcategoría</th>
         <th>Cantidad Total</th>
         <th>Cantidad Disponibles</th>
-        <th>Estado</th>
         <th>Opciones</th>
     </tr>
     </thead>
@@ -137,7 +163,6 @@ $this->section('contenido');
             
             <td><?= esc($libro['cantidad_total']) ?></td>
             <td><?= esc($libro['cantidad_disponibles']) ?></td>
-            <td><?= esc($libro['estado']) ?></td>
             <td>
                 <div class="d-flex gap-2">
                     <a href="<?= base_url('libros/edit/'.$libro['libro_id']); ?>" 
@@ -164,6 +189,82 @@ $this->section('contenido');
     <?= $pager->links('default', 'bootstrap_full') ?>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+    // 1. Inicializar Select2 para Colección
+    $('#filter_coleccion').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Colección...',
+        allowClear: true,
+        ajax: {
+            url: '<?= base_url("libros/get_colecciones_json") ?>',
+            dataType: 'json',
+            delay: 250,
+            processResults: function(data) { return { results: data.results }; }
+        }
+    });
+
+    // 2. Inicializar Select2 para Subgénero
+    $('#filter_subgenero').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Subgénero...',
+        allowClear: true,
+        ajax: {
+            url: '<?= base_url("libros/get_subgeneros_json") ?>',
+            dataType: 'json',
+            delay: 250,
+            data: function(params) {
+                return {
+                    term: params.term,
+                    coleccion_id: $('#filter_coleccion').val() // Filtra por la colección elegida
+                };
+            },
+            processResults: function(data) { return { results: data.results }; }
+        }
+    });
+
+    // Lógica de cascada: Si cambia colección, resetear subgénero
+    $('#filter_coleccion').on('change', function() {
+        if ($(this).val()) {
+            $('#filter_subgenero').prop('disabled', false).val(null).trigger('change');
+        } else {
+            $('#filter_subgenero').prop('disabled', true).val(null).trigger('change');
+        }
+    });
+
+    // Lógica para precargar nombres si hay filtros activos (opcional pero recomendado)
+    <?php if(!empty($coleccion_id_sel)): ?>
+        $.ajax({
+            url: '<?= base_url("libros/get_colecciones_json") ?>',
+            data: { id: '<?= $coleccion_id_sel ?>' }
+        }).then(function(data) {
+            if(data.results.length > 0) {
+                var option = new Option(data.results[0].text, data.results[0].id, true, true);
+                $('#filter_coleccion').append(option).trigger('change.select2'); // Usamos change.select2 para no disparar el reset
+            }
+        });
+    <?php endif; ?>
+
+    // 🌟 NUEVO: Lógica para precargar el nombre del Subgénero seleccionado
+    <?php if(!empty($subgenero_id_sel)): ?>
+        $.ajax({
+            url: '<?= base_url("libros/get_subgeneros_json") ?>',
+            data: { id: '<?= $subgenero_id_sel ?>' }
+        }).then(function(data) {
+            if(data.results.length > 0) {
+                var option = new Option(data.results[0].text, data.results[0].id, true, true);
+                $('#filter_subgenero').append(option).trigger('change.select2');
+            }
+        });
+    <?php endif; ?>
+});
+</script>
 <?php 
 $this->endSection(); 
 ?>

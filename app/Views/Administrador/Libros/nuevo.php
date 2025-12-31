@@ -86,23 +86,15 @@ $this->section('contenido');
 
         <h5 class="mt-4 pt-3 border-top w-100">Inventario</h5>
 
-        <div class="col-md-3">
+        <div class="col-md-6">
             <label for="cantidad_total" class="form-label fw-bold">Cantidad Total <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="cantidad_total" name="cantidad_total" value="<?= old('cantidad_total') ?? 1 ?>" required min="1">
         </div>
 
-        <div class="col-md-3">
+        <div class="col-md-6">
             <label for="cantidad_disponibles" class="form-label fw-bold">Disponibles <span class="text-danger">*</span></label>
             <input type="number" class="form-control" name="cantidad_disponibles" value="<?= old('cantidad_disponibles') ?? 1 ?>" required min="0">
             <small class="form-text text-muted">Debe ser igual o menor que la Cantidad Total.</small>
-        </div>
-
-        <div class="col-md-6">
-            <label for="estado" class="form-label fw-bold">Estado <span class="text-danger">*</span></label>
-            <select class="form-select" name="estado" required>
-                <option value="Disponible" <?= old('estado') == "Disponible" || old('estado') === null ? 'selected':''; ?>>Disponible</option>
-                <option value="Dañado" <?= old('estado') == "Dañado" ? 'selected':''; ?>>Dañado</option>
-            </select>
         </div>
 
         <div class="col-12 mt-5 d-flex justify-content-start gap-3">
@@ -120,6 +112,10 @@ $this->section('contenido');
 <style>
     .section-title { color: #0C1E44; font-weight: 700; font-size: 1.75rem; }
     .form-control, .form-select { border-radius: 8px; padding: 10px 15px; border: 1px solid #ced4da; }
+    .select2-container--default.select2-container--disabled .select2-selection--single {
+        background-color: #e9ecef !important;
+        cursor: not-allowed;
+    }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -138,7 +134,8 @@ $(document).ready(function() {
         $(selector).select2({
             ...s2Options,
             ajax: {
-                url: '<?= base_url() ?>/' + url,
+                // rtrim evita errores si la base_url ya trae una barra
+                url: '<?= rtrim(base_url(), "/") ?>/' + url,
                 dataType: 'json',
                 delay: 250,
                 data: function (params) {
@@ -151,19 +148,45 @@ $(document).ready(function() {
         });
     }
 
+    // 1. Inicializamos los tres selects (sin disabled en el HTML)
     initSelect2('#coleccion_id', 'libros/get_colecciones_json');
     initSelect2('#subgenero_id', 'libros/get_subgeneros_json', '#coleccion_id', 'coleccion_id');
     initSelect2('#subcategoria_id', 'libros/get_subcategorias_json', '#subgenero_id', 'subgenero_id');
 
+    // 2. Estado inicial: Bloqueamos los hijos
+    $('#subgenero_id, #subcategoria_id').prop('disabled', true).trigger('change');
+
+    // 3. Al cambiar Colección
     $('#coleccion_id').on('change', function() {
-        $('#subgenero_id').val(null).trigger('change');
-        $('#subcategoria_id').val(null).trigger('change');
+        const val = $(this).val();
+        if (val) {
+            $('#subgenero_id').prop('disabled', false);
+        } else {
+            $('#subgenero_id').prop('disabled', true).val(null).trigger('change');
+            $('#subcategoria_id').prop('disabled', true).val(null).trigger('change');
+        }
     });
 
+    // 4. Al cambiar Subgénero
     $('#subgenero_id').on('change', function() {
-        $('#subcategoria_id').val(null).trigger('change');
+        const val = $(this).val();
+        if (val) {
+            $('#subcategoria_id').prop('disabled', false);
+        } else {
+            $('#subcategoria_id').prop('disabled', true).val(null).trigger('change');
+        }
+    });
+
+    // Extra: Validación de cantidades
+    $('form').on('submit', function(e) {
+        const total = parseInt($('#cantidad_total').val());
+        const disponibles = parseInt($('input[name="cantidad_disponibles"]').val());
+        
+        if (disponibles > total) {
+            alert('Error: La cantidad disponible no puede ser mayor al total.');
+            e.preventDefault();
+        }
     });
 });
 </script>
-
 <?= $this->endSection(); ?>

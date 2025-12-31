@@ -25,22 +25,23 @@ Editar Libro
 
     <form action="<?= base_url('libros/update/'.$libro['libro_id']); ?>" method="post" class="row g-4" autocomplete="off">
         
+
+        <div class="col-md-4">
+            <label for="titulo" class="form-label fw-bold">Título <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="titulo" value="<?= old('titulo', $libro['titulo']) ?>" required>
+        </div>
+
+        <div class="col-md-4">
+            <label for="autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="autor" value="<?= old('autor', $libro['autor']) ?>" required>
+        </div>
+
         <div class="col-md-4">
             <label for="codigo" class="form-label fw-bold">Código (ISBN/Interno) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" name="codigo" value="<?= old('codigo', $libro['codigo']) ?>" required>
         </div>
 
-        <div class="col-md-8">
-            <label for="titulo" class="form-label fw-bold">Título <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="titulo" value="<?= old('titulo', $libro['titulo']) ?>" required>
-        </div>
-
-        <div class="col-md-6">
-            <label for="autor" class="form-label fw-bold">Autor <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="autor" value="<?= old('autor', $libro['autor']) ?>" required>
-        </div>
-
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="editorial" class="form-label fw-bold">Editorial</label>
             <input type="text" class="form-control" name="editorial" value="<?= old('editorial', $libro['editorial']) ?>">
         </div>
@@ -54,14 +55,8 @@ Editar Libro
             <label for="paginas" class="form-label fw-bold">Nº de Páginas</label>
             <input type="number" class="form-control" name="paginas" value="<?= old('paginas', $libro['paginas']) ?>">
         </div>
-
-        <div class="col-md-4">
-            <label for="estado" class="form-label fw-bold">Estado General <span class="text-danger">*</span></label>
-            <select class="form-select" name="estado" required>
-                <option value="Disponible" <?= old('estado', $libro['estado']) == "Disponible" ? 'selected':''; ?>>Disponible</option>
-                <option value="Dañado" <?= old('estado', $libro['estado']) == "Dañado" ? 'selected':''; ?>>Dañado</option>
-            </select>
-        </div>
+        
+        <h5 class="mt-4 pt-3 border-top w-100">Clasificación</h5>
 
         <div class="col-md-4">
             <label class="form-label fw-bold">1. Colección <span class="text-danger">*</span></label>
@@ -89,6 +84,8 @@ Editar Libro
                 <?php endif; ?>
             </select>
         </div>
+
+        <h5 class="mt-4 pt-3 border-top w-100">Inventario</h5>
 
         <div class="col-md-6">
             <label for="cantidad_total" class="form-label fw-bold">Cantidad Total </label>
@@ -166,6 +163,24 @@ $(document).ready(function() {
     $('#subgenero_id').on('change', function() {
         $('#subcategoria_id').val(null).trigger('change');
     });
+
+    // Dentro del ready, después de initSelect2:
+
+// 1. Estado inicial de bloqueo al cargar si no hay valores
+if (!$('#coleccion_id').val()) $('#subgenero_id').prop('disabled', true);
+if (!$('#subgenero_id').val()) $('#subcategoria_id').prop('disabled', true);
+
+// 2. Lógica de habilitación/deshabilitación al cambiar
+$('#coleccion_id').on('change', function() {
+    const val = $(this).val();
+    $('#subgenero_id').val(null).trigger('change').prop('disabled', !val);
+    $('#subcategoria_id').val(null).trigger('change').prop('disabled', true);
+});
+
+$('#subgenero_id').on('change', function() {
+    const val = $(this).val();
+    $('#subcategoria_id').val(null).trigger('change').prop('disabled', !val);
+});
 });
 </script>
 
