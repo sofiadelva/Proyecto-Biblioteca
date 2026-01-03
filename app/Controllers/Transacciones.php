@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\TransaccionModel;
 use App\Models\UsuarioModel; 
 use App\Models\EjemplarModel; 
+use App\Models\LibroModel; // Añadido para consistencia
 use CodeIgniter\Controller;
 
 class Transacciones extends BaseController
@@ -19,68 +20,47 @@ class Transacciones extends BaseController
     }
 
     /**
-     * Muestra la tabla de listado de transacciones (préstamos) con paginación, filtros y ordenación.
+     * Listado histórico de transacciones
      */
     public function index()
     {
         $defaultPerPage = 10;
-        
-        // Obtener parámetros GET y validarlos
         $ordenar = $this->request->getGet('ordenar');
         $buscar = $this->request->getGet('buscar'); 
         $estadoFiltro = $this->request->getGet('estado');
-        
-        // Obtener y validar $perPage (filas por página)
         $perPage = (int)($this->request->getGet('per_page') ?? $defaultPerPage); 
 
-        if ($perPage < 1) {
-            $perPage = $defaultPerPage; 
-        }
+        if ($perPage < 1) $perPage = $defaultPerPage; 
 
-        // --- Configuración del Constructor de Consultas ---
         $builder = $this->db->table('prestamos p');
-        $builder->select('p.*, l.titulo, e.no_copia, u.nombre as usuario_nombre');
+        $builder->select('p.*, l.titulo, l.codigo, e.no_copia, u.nombre as usuario_nombre, u.carne as carne');
         $builder->join('libros l', 'l.libro_id = p.libro_id');
         $builder->join('ejemplares e', 'e.ejemplar_id = p.ejemplar_id');
         $builder->join('usuarios u', 'u.usuario_id = p.usuario_id');
 
-        // Aplicar BÚSQUEDA por título o usuario
         if ($buscar) {
-            $builder = $builder->groupStart()
-                             ->like('l.titulo', $buscar, 'both')
-                             ->orLike('u.nombre', $buscar, 'both')
-                             ->groupEnd();
+            $builder->groupStart()
+                    ->like('l.titulo', $buscar, 'both')
+                    ->orLike('u.nombre', $buscar, 'both')
+                    ->orLike('l.codigo', $buscar, 'both')
+                    ->orLike('u.carne', $buscar, 'both')
+                    ->groupEnd();
         }
 
-        // Aplicar FILTRO por estado
         if ($estadoFiltro) {
-            $builder = $builder->where('p.estado', $estadoFiltro);
+            $builder->where('p.estado', $estadoFiltro);
         }
 
-        // Aplicar ORDENACIÓN
-        if ($ordenar) {
-            switch ($ordenar) {
-                case 'fecha_asc':
-                    $builder = $builder->orderBy('p.fecha_prestamo', 'ASC');
-                    break;
-                case 'fecha_desc':
-                    $builder = $builder->orderBy('p.fecha_prestamo', 'DESC');
-                    break;
-                case 'titulo_asc':
-                    $builder = $builder->orderBy('l.titulo', 'ASC');
-                    break;
-                case 'usuario_asc':
-                    $builder = $builder->orderBy('u.nombre', 'ASC');
-                    break;
-            }
-        } else {
-             $builder = $builder->orderBy('p.prestamo_id', 'DESC');
+        // Ordenación
+        switch ($ordenar) {
+            case 'fecha_asc':   $builder->orderBy('p.fecha_prestamo', 'ASC'); break;
+            case 'fecha_desc':  $builder->orderBy('p.fecha_prestamo', 'DESC'); break;
+            case 'titulo_asc':  $builder->orderBy('l.titulo', 'ASC'); break;
+            case 'usuario_asc': $builder->orderBy('u.nombre', 'ASC'); break;
+            default:            $builder->orderBy('p.prestamo_id', 'DESC'); break;
         }
 
-        // --- Implementación de Paginación Manual ---
-        $page = $this->request->getGet('page') ?? 1;
-        $page = (int)$page;
-
+        $page = (int)($this->request->getGet('page') ?? 1);
         $total = $builder->countAllResults(false); 
 
         $pager = \Config\Services::pager();
@@ -89,176 +69,130 @@ class Transacciones extends BaseController
         $offset = ($page - 1) * $perPage;
         $builder->limit($perPage, $offset);
 
-        $data['transacciones'] = $builder->get()->getResultArray();
-        
-        // --- Pasar datos a la vista ---
-        $data['pager'] = $pager;
-        $data['perPage'] = $perPage;
-        $data['buscar'] = $buscar;
-        $data['estadoFiltro'] = $estadoFiltro; 
+        $data = [
+            'transacciones' => $builder->get()->getResultArray(),
+            'pager'         => $pager,
+            'perPage'       => $perPage,
+            'buscar'        => $buscar,
+            'estadoFiltro'  => $estadoFiltro,
+            'ordenar'       => $ordenar // <--- AGREGA ESTA LÍNEA
+        ];
 
         return view('Administrador/transacciones', $data);
     }
 
     /**
-     * Muestra el formulario para registrar un nuevo préstamo.
-     */
-    public function create()
-    {
-        return view('Administrador/Transacciones/nuevo');
-    }
-
-    /**
-     * Guarda un nuevo préstamo (transacción) en la base de datos.
-     * @return \CodeIgniter\HTTP\RedirectResponse
-     */
-    public function store()
-    {
-        $prestamoModel = $this->transaccionModel;
-        $usuarioModel  = new UsuarioModel();
-        $ejemplarModel = new EjemplarModel();
-
-        $carne = $this->request->getPost('carne');
-        $fecha_prestamo = $this->request->getPost('fecha_prestamo');
-        $fecha_devolucion = $this->request->getPost('fecha_de_devolucion');
-        
-        $usuario = $usuarioModel->where('carne', $carne)->first();
-
-        // 1. Validación clave del usuario
-        $validation = \Config\Services::validation();
-        if (!$usuario) {
-            $validation->setError('carne', 'El usuario con carné ' . esc($carne) . ' no existe.');
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
-        // 2. Validación de campos obligatorios
-        $rules = [
-            'carne'                 => 'required',
-            'libro_id'              => 'required|is_natural_no_zero',
-            'ejemplar_id'           => 'required|is_natural_no_zero',
-            'fecha_prestamo'        => 'required|valid_date',
-            'fecha_de_devolucion'   => 'required|valid_date'
-        ];
-
-        if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-        
-        // 3. Validación manual de fechas (Fecha Devolución debe ser > Fecha Préstamo)
-        try {
-            $fechaPrestamoObj = new \DateTime($fecha_prestamo);
-            $fechaDevolucionObj = new \DateTime($fecha_devolucion);
-
-            if ($fechaDevolucionObj <= $fechaPrestamoObj) {
-                $validation->setError('fecha_de_devolucion', 'La fecha límite de devolución debe ser posterior a la fecha de préstamo.');
-                return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-            }
-        } catch (\Exception $e) {
-            $validation->setError('fecha_de_devolucion', 'Formato de fecha inválido.');
-            return redirect()->back()->withInput()->with('errors', $validation->getErrors());
-        }
-
-        // 4. Guardar el préstamo (transacción)
-        $data = [
-            'libro_id'              => $this->request->getPost('libro_id'),
-            'ejemplar_id'           => $this->request->getPost('ejemplar_id'),
-            'usuario_id'            => $usuario['usuario_id'], 
-            'fecha_prestamo'        => $fecha_prestamo,
-            'fecha_de_devolucion'   => $fecha_devolucion,
-            'fecha_devuelto'        => null, 
-            'estado'                => 'En proceso' // Estado inicial
-        ];
-
-        if ($prestamoModel->insert($data)) {
-            // Cambiar estado del ejemplar a "No disponible"
-            $ejemplarModel->update(
-                $this->request->getPost('ejemplar_id'),
-                ['estado' => 'No disponible']
-            );
-            return redirect()->to(base_url('transacciones'))->with('msg', 'Préstamo (Transacción) agregado correctamente.');
-        } else {
-             return redirect()->back()->withInput()->with('msg', 'Error al guardar el préstamo en la base de datos.');
-        }
-    }
-
-    /**
-     * Muestra el formulario para editar una transacción existente.
+     * Solo para editar datos erróneos de una transacción existente
      */
     public function edit($id)
     {
-        $data['transaccion'] = $this->transaccionModel->find($id);
+        $builder = $this->db->table('prestamos p');
+        $builder->select('p.*, l.titulo, l.codigo, e.no_copia, u.nombre as usuario_nombre');
+        $builder->join('libros l', 'l.libro_id = p.libro_id');
+        $builder->join('ejemplares e', 'e.ejemplar_id = p.ejemplar_id');
+        $builder->join('usuarios u', 'u.usuario_id = p.usuario_id');
+        $builder->where('p.prestamo_id', $id);
+        
+        $data['transaccion'] = $builder->get()->getRowArray();
+
+        if (!$data['transaccion']) return redirect()->to('/transacciones')->with('msg', 'No existe.');
         
         return view('Administrador/Transacciones/edit', $data);
     }
 
-    /**
-     * Actualiza una transacción existente en la base de datos.
-     */
-    public function update($id)
+   public function update($id)
     {
-        $ejemplarModel = new EjemplarModel();
-        
-        $oldTransaccion = $this->transaccionModel->find($id);
-
-        $data = [
-            'libro_id' => $this->request->getPost('libro_id'),
-            'ejemplar_id' => $this->request->getPost('ejemplar_id'),
-            'usuario_id' => $this->request->getPost('usuario_id'),
-            'fecha_prestamo' => $this->request->getPost('fecha_prestamo'),
-            'fecha_de_devolucion' => $this->request->getPost('fecha_de_devolucion'),
-            'fecha_devuelto' => $this->request->getPost('fecha_devuelto') ?? null, 
-            'estado' => $this->request->getPost('estado') // Solo 'En proceso' o 'Devuelto'
-        ];
-
-        // 1. Control del ejemplar si el ID cambia
-        if ($oldTransaccion['ejemplar_id'] != $data['ejemplar_id']) {
-            // Liberar el viejo ejemplar
-            if ($oldTransaccion['ejemplar_id']) {
-                $ejemplarModel->update($oldTransaccion['ejemplar_id'], ['estado' => 'Disponible']);
-            }
-            // Ocupar el nuevo ejemplar (si la transacción está activa)
-            if ($data['estado'] === 'En proceso') {
-                 $ejemplarModel->update($data['ejemplar_id'], ['estado' => 'No disponible']);
-            }
-        }
-        
-        // 2. Control del ejemplar basado en el cambio de estado de la transacción
-        if ($data['estado'] === 'Devuelto' && $oldTransaccion['estado'] !== 'Devuelto') {
-            // Si se marca como Devuelto, el ejemplar se marca como Disponible
-            $ejemplarModel->update($data['ejemplar_id'], ['estado' => 'Disponible']);
-        } elseif ($data['estado'] === 'En proceso' && $oldTransaccion['estado'] === 'Devuelto') {
-            // Si estaba devuelto y ahora vuelve a estar activo, el ejemplar se marca No disponible
-             $ejemplarModel->update($data['ejemplar_id'], ['estado' => 'No disponible']);
+        // 1. Buscamos la transacción actual
+        $transaccionActual = $this->transaccionModel->find($id);
+        if (!$transaccionActual) {
+            return redirect()->back()->with('msg', 'Registro no encontrado.');
         }
 
+        $data = $this->request->getPost();
+        $usuarioEnviado = $this->request->getPost('usuario_id'); // Aquí viene el carné (20200150)
 
-        // 3. Guardar la actualización de la transacción
-        if ($this->transaccionModel->update($id, $data)) {
-            session()->setFlashdata('msg', 'Transacción actualizada correctamente.');
+        // 2. TRADUCCIÓN: Carné -> usuario_id
+        // Solo buscamos si el carné enviado es distinto al que ya tenía (para ahorrar recursos)
+        // O si simplemente queremos asegurar que siempre sea el ID correcto.
+        
+        $usuarioModel = new \App\Models\UsuarioModel();
+        $usuarioRow = $usuarioModel->where('carne', $usuarioEnviado)->first();
+
+        if ($usuarioRow) {
+            // Si encontramos al usuario por su carné, usamos su ID real para la DB
+            $data['usuario_id'] = $usuarioRow['usuario_id'];
         } else {
-            session()->setFlashdata('msg', 'Error al actualizar la transacción.');
+            // Si por alguna razón no lo encuentra, dejamos el que ya tenía para que no truene
+            $data['usuario_id'] = $transaccionActual['usuario_id'];
         }
-        
-        return redirect()->to('/transacciones');
+
+        // 3. Lógica de limpieza y stock (la que ya teníamos)
+        $estadoAnterior = trim($transaccionActual['estado']);
+        $nuevoEstado    = trim($data['estado']);
+
+        if ($estadoAnterior === 'Devuelto' && $nuevoEstado === 'En proceso') {
+            $this->db->transStart();
+            $this->db->table('ejemplares')
+                    ->where('ejemplar_id', $transaccionActual['ejemplar_id'])
+                    ->update(['estado' => 'Prestado']); 
+            
+            $this->db->table('libros')
+                    ->where('libro_id', $transaccionActual['libro_id'])
+                    ->set('cantidad_disponibles', 'cantidad_disponibles - 1', false)
+                    ->update();
+            $this->db->transComplete();
+            $data['fecha_devuelto'] = null;
+        }
+
+        if ($nuevoEstado === 'En proceso') {
+            $data['fecha_devuelto'] = null;
+        }
+
+        // 4. Guardar cambios
+        if ($this->db->table('prestamos')->where('prestamo_id', $id)->update($data)) {
+            return redirect()->to('/transacciones')->with('msg', 'Actualizado correctamente.');
+        }
+
+        return redirect()->back()->with('msg', 'Error al procesar la actualización.');
     }
 
-    /**
-     * Elimina una transacción (préstamo) de la base de datos.
-     */
     public function delete($id)
     {
-        $ejemplarModel = new EjemplarModel();
+        // 1. Buscamos la transacción ANTES de eliminarla para obtener los IDs
         $transaccion = $this->transaccionModel->find($id);
-        
-        // 1. Liberar el ejemplar si el préstamo estaba activo ('En proceso')
-        if ($transaccion && $transaccion['estado'] === 'En proceso') {
-            $ejemplarModel->update($transaccion['ejemplar_id'], ['estado' => 'Disponible']);
+
+        if (!$transaccion) {
+            return redirect()->to('/transacciones')->with('msg', 'El registro ya no existe.');
         }
-        
-        // 2. Eliminar la transacción
+
+        // 2. Iniciamos transacción de DB para que todo sea atómico
+        $this->db->transStart();
+
+        // 3. SOLO si la transacción estaba "En proceso", devolvemos el stock.
+        // (Si ya estaba 'Devuelto', el stock ya se sumó en su momento, así que no hacemos nada)
+        if (trim($transaccion['estado']) === 'En proceso') {
+            
+            // A. Cambiar ejemplar a 'Disponible'
+            $this->db->table('ejemplares')
+                ->where('ejemplar_id', $transaccion['ejemplar_id'])
+                ->update(['estado' => 'Disponible']);
+
+            // B. Sumar 1 a cantidad_disponibles
+            $this->db->table('libros')
+                ->where('libro_id', $transaccion['libro_id'])
+                ->set('cantidad_disponibles', 'cantidad_disponibles + 1', false)
+                ->update();
+        }
+
+        // 4. Ahora sí, eliminamos el préstamo
         $this->transaccionModel->delete($id);
-        
-        session()->setFlashdata('msg', 'Transacción eliminada correctamente. El ejemplar ha sido liberado.');
-        return redirect()->to('/transacciones');
+
+        $this->db->transComplete();
+
+        if ($this->db->transStatus() === FALSE) {
+            return redirect()->to('/transacciones')->with('msg', 'Error al intentar eliminar y actualizar stock.');
+        }
+
+        return redirect()->to('/transacciones')->with('msg', 'Registro eliminado. El inventario se ha ajustado correctamente.');
     }
 }

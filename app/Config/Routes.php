@@ -81,8 +81,6 @@ $routes->get('devoluciones/confirmar/(:num)', 'Devoluciones::confirmar/$1');
 /**Rutas para CRUD de transacciones (administrador) */
 $routes->group('transacciones', ['namespace' => 'App\Controllers'], function($routes) {
     $routes->get('/', 'Transacciones::index');
-    $routes->get('create', 'Transacciones::create');
-    $routes->post('store', 'Transacciones::store');
     $routes->get('edit/(:num)', 'Transacciones::edit/$1');
     $routes->post('update/(:num)', 'Transacciones::update/$1');
     $routes->get('delete/(:num)', 'Transacciones::delete/$1');

@@ -1,13 +1,13 @@
 <?php echo $this->extend('Plantillas/plantilla_admin'); ?> 
 <?php $this->section('titulo'); ?>
-Editar Transacción #<?= esc($transaccion['prestamo_id']) ?>
+Editar Transacción
 <?php $this->endSection(); ?> 
 <?php $this->section('contenido'); ?> 
 <div class="card shadow-sm border-0 mb-4 p-4" style="border-radius: 12px;">
     
     <h2 class="section-title mb-4 pb-2 border-bottom">
         <i class="bi bi-pencil-square me-2" style="color: #0C1E44;"></i>
-        Editar Préstamo #<?= esc($transaccion['prestamo_id']) ?>
+        Editar Préstamo 
     </h2>
     
     <?php if(session()->getFlashdata('errors')): ?>
@@ -26,93 +26,82 @@ Editar Transacción #<?= esc($transaccion['prestamo_id']) ?>
         </div>
     <?php endif; ?>
 
-    <form action="<?= base_url('transacciones/update/'.$transaccion['prestamo_id']); ?>" method="post" class="row g-4" autocomplete="off">
-        
+    <form action="<?= base_url('transacciones/update/'.$transaccion['prestamo_id']); ?>" method="post" class="row g-4" id="form-editar-transaccion">
+    
         <input type="hidden" name="prestamo_id" value="<?= esc($transaccion['prestamo_id']) ?>">
         
-        <div class="col-12 mt-4">
-            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Datos del Prestatario</h5>
+        <div class="col-md-12">
+            <label class="form-label fw-bold text-muted">Libro y Ejemplar (No Editable)</label>
+            <input type="text" class="form-control input-bloqueado" value="<?= esc($transaccion['codigo']) ?> - <?= esc($transaccion['titulo']) ?> (Copia: <?= esc($transaccion['no_copia']) ?>)" readonly>
+            <input type="hidden" name="libro_id" value="<?= $transaccion['libro_id'] ?>">
+            <input type="hidden" name="ejemplar_id" value="<?= $transaccion['ejemplar_id'] ?>">
         </div>
 
         <div class="col-md-6">
-            <label for="usuario_select" class="form-label fw-bold">Usuario <span class="text-danger">*</span></label>
-            <select class="form-select" name="usuario_id" id="usuario_select" required>
-                <option value="<?= esc($transaccion['usuario_id']) ?>" selected>
-                    Cargando Usuario...
-                </option>
-            </select>
-            <small class="form-text text-muted">Busque al usuario por carné o nombre.</small>
-        </div>
-
-        <div class="col-12 mt-5">
-            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Datos del Libro y Ejemplar</h5>
+            <label for="usuario_select" class="form-label fw-bold">Usuario / Prestatario <span class="text-danger">*</span></label>
+                <select class="form-select" name="usuario_id" id="usuario_select" required>
+                    <option value="<?= $transaccion['usuario_id'] ?>" selected>
+                        <?= esc($transaccion['usuario_nombre']) ?>
+                    </option>
+                </select>
         </div>
 
         <div class="col-md-6">
-            <label for="libro_select" class="form-label fw-bold">Libro <span class="text-danger">*</span></label>
-            <select class="form-select" name="libro_id" id="libro_select" required>
-                 <option value="<?= esc($transaccion['libro_id']) ?>" selected>
-                    Cargando Libro...
-                </option>
-            </select>
-        </div>
-
-        <div class="col-md-6">
-            <label for="ejemplar_id" class="form-label fw-bold">Ejemplar (ID Inventario) <span class="text-danger">*</span></label>
-            <select class="form-select" name="ejemplar_id" id="ejemplar_id" required disabled>
-                <option value="<?= esc($transaccion['ejemplar_id']) ?>" selected>
-                    Cargando Ejemplar Actual...
-                </option>
-            </select>
-            <small class="form-text text-muted">Se listarán los ejemplares disponibles y el actualmente prestado.</small>
-        </div>
-        
-        <div class="col-12 mt-5">
-            <h5 class="fw-bold text-secondary pb-1 border-bottom border-light">Fechas y Estado</h5>
+            <label class="form-label fw-bold">Estado</label>
+            <?php if ($transaccion['estado'] == 'Devuelto'): ?>
+                <select name="estado" id="estado_select" class="form-select border-warning">
+                    <option value="Devuelto" <?= ($transaccion['estado'] == 'Devuelto') ? 'selected' : '' ?>>Devuelto</option>
+                    <option value="En proceso" <?= ($transaccion['estado'] == 'En proceso') ? 'selected' : '' ?>>Revertir a: En proceso</option>
+                </select>
+            <?php else: ?>
+                <input type="text" class="form-control input-bloqueado" value="En proceso" readonly>
+                <input type="hidden" name="estado" value="En proceso">
+            <?php endif; ?>
         </div>
 
         <div class="col-md-4">
-            <label for="fecha_prestamo" class="form-label fw-bold">Fecha de Préstamo <span class="text-danger">*</span></label>
+            <label class="form-label fw-bold">Fecha Préstamo</label>
             <input type="date" class="form-control" name="fecha_prestamo" value="<?= esc($transaccion['fecha_prestamo']) ?>" required>
         </div>
-
         <div class="col-md-4">
-            <label for="fecha_de_devolucion" class="form-label fw-bold">Fecha Límite Devolución <span class="text-danger">*</span></label>
+            <label class="form-label fw-bold">Fecha Límite</label>
             <input type="date" class="form-control" name="fecha_de_devolucion" value="<?= esc($transaccion['fecha_de_devolucion']) ?>" required>
         </div>
-
         <div class="col-md-4">
-            <label for="fecha_devuelto" class="form-label fw-bold">Fecha Devuelto (Real)</label>
-            <input type="date" class="form-control" name="fecha_devuelto" value="<?= esc($transaccion['fecha_devuelto']) ?>">
-            <small class="form-text text-muted">Dejar en blanco si no se ha devuelto aún.</small>
+            <label class="form-label fw-bold">Fecha Real Devuelto</label>
+            <input type="date" class="form-control" name="fecha_devuelto" id="fecha_devuelto_input" 
+                value="<?= esc($transaccion['fecha_devuelto']) ?>" 
+                <?= ($transaccion['estado'] != 'Devuelto') ? 'readonly' : '' ?>>
+            <small id="aviso_fecha" class="text-muted" style="<?= ($transaccion['estado'] != 'Devuelto') ? '' : 'display:none;' ?>">
+                No editable en proceso.
+            </small>
         </div>
 
-        <div class="col-md-6">
-            <label for="estado" class="form-label fw-bold">Estado del Préstamo <span class="text-danger">*</span></label>
-            <select name="estado" id="estado" class="form-select" required>
-                <?php $estados = ['En proceso', 'Devuelto']; // ¡VENCIDO ELIMINADO! ?>
-                <?php foreach($estados as $e): ?>
-                    <option value="<?= $e ?>" <?= $e == $transaccion['estado'] ? 'selected' : '' ?>>
-                        <?= $e ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <small class="form-text text-muted">Cambiar a **Devuelto** para liberar el ejemplar y marcar la transacción como completada.</small>
+        <div class="col-12 mt-4 d-flex gap-3">
+            <a href="<?= base_url('transacciones'); ?>" class="btn btn-secondary px-4">Cancelar</a>
+            <button type="submit" class="btn text-white px-4" style="background-color:#A01E53;">Guardar Cambios</button>
         </div>
-
-        <div class="col-12 mt-5 d-flex justify-content-start gap-3">
-            <a href="<?= base_url('transacciones'); ?>" class="btn btn-secondary px-4 py-2 shadow-sm">
-                <i class="bi bi-arrow-left-short"></i> Regresar
-            </a>
-            <button type="submit" class="btn text-white px-4 py-2 shadow" style="background-color:#A01E53;">
-                <i class="bi bi-save-fill me-2"></i> Guardar Cambios
-            </button>
-        </div>
-
     </form>
+
+
 </div>
 
 <style>
+
+    /* Forzar color gris en bloqueados y quitar el amarillo de Chrome */
+    .input-bloqueado, 
+    .form-control[readonly] {
+        background-color: #e9ecef !important; /* Gris claro de Bootstrap */
+        color: #6c757d !important;
+        cursor: not-allowed;
+    }
+
+    /* Quita el fondo amarillo de autocompletado */
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0px 1000px #e9ecef inset !important;
+        -webkit-text-fill-color: #6c757d !important;
+    }
+
     .section-title {
         color: #0C1E44;
         font-weight: 700;
@@ -149,161 +138,99 @@ Editar Transacción #<?= esc($transaccion['prestamo_id']) ?>
 
 <?php $this->endSection(); ?> 
 
-<?php 
-// SECCIÓN DE SCRIPTS: Lógica AJAX para Select2 y ejemplares
-$this->section('scripts'); 
-?>
+<?php $this->section('scripts'); ?>
 <script>
     $(document).ready(function() {
-        const libroSelect = $('#libro_select');
-        const ejemplarSelect = document.getElementById('ejemplar_id');
         const usuarioSelect = $('#usuario_select');
-        
-        const currentEjemplarId = '<?= esc($transaccion['ejemplar_id']) ?>';
-        const currentLibroId = '<?= esc($transaccion['libro_id']) ?>';
+        const estadoSelect = $('#estado_select'); 
+        const fechaDevueltoInput = $('#fecha_devuelto_input');
+        const avisoFecha = $('#aviso_fecha');
         const currentUsuarioId = '<?= esc($transaccion['usuario_id']) ?>';
 
-        // Función para cargar ejemplares
-        function cargarEjemplares(libroId, selectedEjemplarId = null) {
-            ejemplarSelect.innerHTML = '<option value="">Cargando ejemplares...</option>';
-            ejemplarSelect.disabled = true;
-
-            if (!libroId) {
-                ejemplarSelect.innerHTML = '<option value="">Seleccione un libro primero</option>';
-                return;
+        // 1. Inicialización de Select2 para búsqueda de usuarios
+        usuarioSelect.select2({
+            placeholder: "Buscar usuario...",
+            theme: "bootstrap4",
+            minimumInputLength: 2,
+            allowClear: true,
+            ajax: {
+                url: '<?= base_url('usuarios/getUsuariosJson'); ?>',
+                dataType: 'json',
+                delay: 250,
+                data: function (params) { 
+                    return { term: params.term }; 
+                },
+                processResults: function (data) { 
+                    return { results: data.results }; 
+                },
+                cache: true
             }
+        });
 
-            // Usamos la ruta de préstamos que obtiene ejemplares disponibles + el ejemplar actual si es el caso
-            fetch(`<?= base_url('prestamos/getEjemplares') ?>/${libroId}`) 
-                .then(response => response.json())
-                .then(data => {
-                    ejemplarSelect.innerHTML = '';
-                    if (data.length > 0) {
-                        ejemplarSelect.disabled = false;
-                        ejemplarSelect.innerHTML += '<option value="">Seleccione un ejemplar</option>';
-                        
-                        let ejemplarFound = false;
-
-                        data.forEach(ejemplar => {
-                            const option = document.createElement('option');
-                            option.value = ejemplar.ejemplar_id;
-                            
-                            // Mostrar no_copia
-                            option.textContent = `ID Inventario: ${ejemplar.ejemplar_id} (No. Copia: ${ejemplar.no_copia ?? 'N/A'})`;
-                            
-                            // Seleccionar el ejemplar actual si coincide
-                            if (selectedEjemplarId && ejemplar.ejemplar_id == selectedEjemplarId) {
-                                option.selected = true;
-                                ejemplarFound = true;
-                            }
-
-                            ejemplarSelect.appendChild(option);
-                        });
-                        
-                        // Si el ejemplar actual NO estaba en la lista de disponibles (ej. está prestado)
-                        // Aseguramos que se añada la opción para que se muestre como seleccionado.
-                        if (selectedEjemplarId && !ejemplarFound) {
-                             // Simulamos la carga del ejemplar actual (solo para display)
-                             const option = document.createElement('option');
-                             option.value = selectedEjemplarId;
-                             option.textContent = `ID Inventario: ${selectedEjemplarId} (Actualmente prestado - Debe liberarse)`;
-                             option.selected = true;
-                             ejemplarSelect.prepend(option);
-                        }
-
-
-                    } else {
-                        ejemplarSelect.innerHTML = '<option value="">No hay ejemplares disponibles</option>';
-                        // Si solo está el ejemplar actual, lo ponemos como única opción
-                        if (selectedEjemplarId) {
-                            const option = document.createElement('option');
-                            option.value = selectedEjemplarId;
-                            option.textContent = `ID Inventario: ${selectedEjemplarId} (Ejemplar en uso)`;
-                            option.selected = true;
-                            ejemplarSelect.appendChild(option);
-                            ejemplarSelect.disabled = false;
-                        } else {
-                            ejemplarSelect.disabled = true;
-                        }
-                    }
-                })
-                .catch(error => {
-                    console.error('Error al obtener ejemplares:', error);
-                    ejemplarSelect.innerHTML = '<option value="">Error al cargar ejemplares</option>';
-                    ejemplarSelect.disabled = true;
-                });
+        // Cargar los datos del usuario actual en el Select2 (Pre-selección)
+        if (currentUsuarioId && currentUsuarioId !== '0') {
+            $.ajax({
+                dataType: 'json',
+                url: '<?= base_url('usuarios/getUsuariosJson'); ?>',
+                data: { id: currentUsuarioId }
+            }).then(function (data) {
+                if (data.results && data.results.length > 0) {
+                    var usuario = data.results[0];
+                    var newOption = new Option(usuario.text, usuario.id, true, true);
+                    usuarioSelect.append(newOption).trigger('change');
+                }
+            });
         }
 
-        // Event listener para el cambio de libro (Select2)
-        libroSelect.on('change', function() {
-            // Cuando cambia el libro, reseteamos el ejemplar a NULL
-            cargarEjemplares(this.value, null); 
-        });
+        // 2. Lógica de control de interfaz (Estado y Fecha)
+        function aplicarLogicaProceso() {
+            // trim() para evitar errores por espacios o mayúsculas
+            const estadoActual = estadoSelect.val() ? estadoSelect.val().trim() : '';
+            
+            if (estadoActual === 'En proceso') {
+                // Bloqueamos la fecha de devolución real porque el libro vuelve a estar prestado
+                fechaDevueltoInput.val(''); 
+                fechaDevueltoInput.attr('readonly', true);
+                fechaDevueltoInput.addClass('input-bloqueado');
+                fechaDevueltoInput.attr('placeholder', 'N/A'); 
+                
+                // Mensaje informativo dinámico
+                avisoFecha.html('<i class="bi bi-exclamation-triangle-fill"></i> Al revertir a <b>En proceso</b>, se restará 1 unidad del inventario.').fadeIn();
+                avisoFecha.removeClass('text-muted').addClass('text-danger fw-bold');
+            } else {
+                // Si vuelve a "Devuelto", habilitamos la fecha
+                fechaDevueltoInput.attr('readonly', false);
+                fechaDevueltoInput.removeClass('input-bloqueado');
+                fechaDevueltoInput.attr('placeholder', '');
+                avisoFecha.fadeOut();
+            }
+        }
 
+        // Ejecutar la validación al cargar la página y cada vez que cambie el select
+        if (estadoSelect.length) {
+            estadoSelect.on('change', aplicarLogicaProceso);
+            aplicarLogicaProceso();
+        }
 
-        // --- 1. Inicialización de Select2 para Usuario ---
-        usuarioSelect.select2({
-            placeholder: "Buscar usuario por carné o nombre",
-            allowClear: true,
-            theme: "bootstrap4", 
-            minimumInputLength: 2,
-            ajax: {
-                url: '<?= base_url('usuarios/getUsuariosJson'); ?>', 
-                dataType: 'json',
-                delay: 250, 
-                data: function (params) { return { term: params.term }; },
-                processResults: function (data) { return { results: data.results }; },
-                cache: true
+        // 3. VALIDACIÓN FINAL ANTES DE ENVIAR (Previene Error 1452)
+        $('#form-editar-transaccion').on('submit', function(e) {
+            const selectedUsuario = usuarioSelect.val();
+
+            // Si el ID del usuario está vacío o es nulo, detenemos el envío
+            if (!selectedUsuario || selectedUsuario === "" || selectedUsuario === "0") {
+                e.preventDefault();
+                alert("Error: Debes seleccionar un usuario válido para guardar los cambios.");
+                usuarioSelect.select2('open'); // Abre el buscador para que el usuario elija
+                return false;
             }
-        });
-        
-        // --- 2. Inicialización de Select2 para Libro ---
-        libroSelect.select2({
-            placeholder: "Buscar libro por título o autor",
-            allowClear: true,
-            theme: "bootstrap4", 
-            minimumInputLength: 2,
-            ajax: {
-                url: '<?= base_url('prestamos/getLibrosJson'); ?>', 
-                dataType: 'json',
-                delay: 250, 
-                data: function (params) { return { term: params.term }; },
-                processResults: function (data) { return { results: data.results }; },
-                cache: true
+
+            // Si el estado es "En proceso", nos aseguramos de que la fecha viaje vacía
+            if (estadoSelect.val() === 'En proceso') {
+                fechaDevueltoInput.val(''); 
             }
-        });
-        
-        // --- 3. Recarga de valores iniciales (al cargar la página) ---
-        
-        // 3.1. Recargar Usuario 
-        $.ajax({
-            dataType: 'json',
-            url: '<?= base_url('usuarios/getUsuariosJson'); ?>',
-            data: { id: currentUsuarioId } 
-        }).then(function (data) {
-            var usuario = data.results[0]; 
-            if (usuario) {
-                var newOption = new Option(usuario.text, usuario.id, true, true);
-                usuarioSelect.append(newOption).trigger('change.select2');
-            }
-        });
-        
-        // 3.2. Recargar Libro
-         $.ajax({
-            dataType: 'json',
-            url: '<?= base_url('prestamos/getLibrosJson'); ?>',
-            data: { id: currentLibroId } 
-        }).then(function (data) {
-            var libro = data.results[0]; 
-            if (libro) {
-                var newOption = new Option(libro.text, libro.id, true, true);
-                libroSelect.append(newOption).trigger('change.select2');
-            }
-            // Cargar los ejemplares, asegurando que se seleccione el ejemplar actual.
-            cargarEjemplares(currentLibroId, currentEjemplarId);
+            
+            return true;
         });
     });
 </script>
-<?php 
-$this->endSection(); 
-?>
+<?php $this->endSection(); ?>

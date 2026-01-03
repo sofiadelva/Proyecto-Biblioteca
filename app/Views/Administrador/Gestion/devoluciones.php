@@ -103,7 +103,7 @@ $this->section('contenido');
             <th>#</th>
             <th>Código</th>
             <th>Libro</th>
-            <th>Copia</th>
+            <th>Ejemplar</th>
             <th>Usuario (Carné)</th>
             <th>Fecha Préstamo</th>
             <th>Fecha Límite</th>
