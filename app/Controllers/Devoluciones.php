@@ -15,76 +15,90 @@ class Devoluciones extends Controller
      * Muestra lista de préstamos en proceso con opción de búsqueda y ordenamiento.
      */
     public function index()
-{
-    $prestamoModel = new PrestamoModel();
-    $usuarioModel  = new UsuarioModel();
-    $libroModel    = new LibroModel();
-    $ejemplarModel = new EjemplarModel();
+    {
+        $prestamoModel = new PrestamoModel();
+        $usuarioModel  = new UsuarioModel();
+        $libroModel    = new LibroModel();
+        $ejemplarModel = new EjemplarModel();
 
-    // Obtener parámetros de URL
-    $buscar = $this->request->getGet('buscar');
-    $page = $this->request->getGet('page') ?? 1;
-    $perPage = $this->request->getGet('per_page') ?? 10;
-    
-    // 1. Obtener todos los préstamos en proceso
-    $prestamos = $prestamoModel->where('estado', 'En proceso')->findAll();
-    
-    // 2. Eager Loading (Carga anticipada) y enriquecimiento de datos
-    foreach ($prestamos as $key => &$prestamo) {
-        $usuario   = $usuarioModel->find($prestamo['usuario_id']);
-        $libro     = $libroModel->find($prestamo['libro_id']);
-        $ejemplar  = $ejemplarModel->find($prestamo['ejemplar_id']);
-
-        // Añadir campos necesarios para la vista
-        $prestamo['carne']          = $usuario['carne'] ?? '';
-        $prestamo['nombre_usuario'] = $usuario['nombre'] ?? 'Desconocido';
-        $prestamo['titulo']         = $libro['titulo'] ?? 'Libro Eliminado';
+        // 1. Obtener parámetros
+        $buscar = $this->request->getGet('buscar');
+        $filtro_estado = $this->request->getGet('filtro_estado'); // vigente o atrasado
+        $ordenar = $this->request->getGet('ordenar') ?? 'vencimiento_asc';
+        $page = $this->request->getGet('page') ?? 1;
+        $perPage = $this->request->getGet('per_page') ?? 10;
         
-        // --- AQUÍ ESTÁ LA SOLUCIÓN AL ERROR ---
-        $prestamo['codigo']         = $libro['codigo'] ?? 'S/C'; 
-        // ---------------------------------------
+        $hoy = new \DateTime('today');
 
-        $prestamo['no_copia']       = $ejemplar['no_copia'] ?? 'N/A';
-    }
+        // 2. Carga de datos inicial
+        $prestamos = $prestamoModel->where('estado', 'En proceso')->findAll();
+        
+        foreach ($prestamos as &$prestamo) {
+            $usuario   = $usuarioModel->find($prestamo['usuario_id']);
+            $libro     = $libroModel->find($prestamo['libro_id']);
+            $ejemplar  = $ejemplarModel->find($prestamo['ejemplar_id']);
 
-    // 3. Filtrar por búsqueda (Funcional)
-    if (!empty($buscar)) {
-        $prestamos = array_filter($prestamos, function ($p) use ($buscar) {
-            $buscarLower = strtolower($buscar);
-            // Añadimos 'codigo' a la lógica de búsqueda también
-            return stripos($p['carne'], $buscarLower) !== false
-                || stripos($p['nombre_usuario'], $buscarLower) !== false
-                || stripos($p['titulo'], $buscarLower) !== false
-                || stripos($p['codigo'], $buscarLower) !== false;
+            $prestamo['carne']          = $usuario['carne'] ?? '';
+            $prestamo['nombre_usuario'] = $usuario['nombre'] ?? 'Desconocido';
+            $prestamo['titulo']         = $libro['titulo'] ?? 'Libro Eliminado';
+            $prestamo['codigo']         = $libro['codigo'] ?? 'S/C'; 
+            $prestamo['no_copia']       = $ejemplar['no_copia'] ?? 'N/A';
+            
+            // Determinamos el estado para poder filtrar después
+            $limite = new \DateTime($prestamo['fecha_de_devolucion']);
+            $prestamo['es_atrasado'] = $hoy > $limite;
+        }
+
+        // 3. Filtrar por Búsqueda (Actualizado para incluir código)
+        if (!empty($buscar)) {
+            $prestamos = array_filter($prestamos, function ($p) use ($buscar) {
+                $b = strtolower($buscar);
+                return stripos($p['carne'], $b) !== false || 
+                    stripos($p['nombre_usuario'], $b) !== false ||
+                    stripos($p['titulo'], $b) !== false || 
+                    stripos($p['codigo'], $b) !== false; // <--- Esta es la línea clave
+            });
+        }
+
+        // 4. Filtrar por Estado (Vigente / Atrasado)
+        if (!empty($filtro_estado)) {
+            $prestamos = array_filter($prestamos, function ($p) use ($filtro_estado) {
+                if ($filtro_estado === 'atrasado') return $p['es_atrasado'];
+                if ($filtro_estado === 'vigente') return !$p['es_atrasado'];
+                return true;
+            });
+        }
+        
+        // 5. Ordenamiento
+        usort($prestamos, function ($a, $b) use ($ordenar) {
+            $timeA = strtotime($a['fecha_de_devolucion']);
+            $timeB = strtotime($b['fecha_de_devolucion']);
+            
+            switch ($ordenar) {
+                case 'vencimiento_desc': return $timeB <=> $timeA; // Más lejanos primero
+                case 'usuario_asc': return strcmp($a['nombre_usuario'], $b['nombre_usuario']);
+                case 'vencimiento_asc': 
+                default: return $timeA <=> $timeB; // Más próximos/atrasados primero
+            }
         });
+
+        // 6. Paginación
+        $total = count($prestamos);
+        $offset = ($page - 1) * $perPage;
+        $prestamosPaginados = array_slice($prestamos, $offset, $perPage);
+
+        $pager = \Config\Services::pager();
+        $pager->makeLinks($page, $perPage, $total, 'bootstrap_full');
+        
+        return view('Administrador/Gestion/devoluciones', [
+            'prestamos'     => $prestamosPaginados,
+            'pager'         => $pager,
+            'buscar'        => $buscar,
+            'perPage'       => $perPage,
+            'filtro_estado' => $filtro_estado,
+            'ordenar'       => $ordenar
+        ]);
     }
-    
-    // 4. Ordenamiento Manual: Límite más cercano/atrasado primero
-    usort($prestamos, function ($a, $b) {
-        $aTime = strtotime($a['fecha_de_devolucion']);
-        $bTime = strtotime($b['fecha_de_devolucion']);
-        return $aTime <=> $bTime;
-    });
-
-
-    // 5. Paginación Manual
-    $total = count($prestamos);
-    $offset = ($page - 1) * $perPage;
-    $prestamosPaginados = array_slice($prestamos, $offset, $perPage);
-
-    // Crear Paginador Manual
-    $pager = \Config\Services::pager();
-    $pager->makeLinks($page, $perPage, $total, 'bootstrap_full');
-    
-    $data = [
-        'prestamos' => $prestamosPaginados,
-        'pager'     => $pager,
-        'buscar'    => $buscar,
-        'perPage'   => $perPage
-    ];
-
-    return view('Administrador/Gestion/devoluciones', $data);
-}
     /**
      * Confirma la devolución de un libro, guarda la fecha de hoy y actualiza los estados.
      * @param int $prestamo_id ID del préstamo a confirmar.
@@ -93,6 +107,7 @@ class Devoluciones extends Controller
     {
         $prestamoModel = new PrestamoModel();
         $ejemplarModel = new EjemplarModel();
+        $libroModel    = new LibroModel(); // <--- Instanciamos el modelo de libros
         
         $prestamo = $prestamoModel->find($prestamo_id);
 
@@ -101,13 +116,11 @@ class Devoluciones extends Controller
                              ->with('error_msg', 'Préstamo no encontrado o ya fue devuelto.');
         }
         
-        // Obtiene la fecha actual en formato AAAA-MM-DD
         $fecha_actual = date('Y-m-d'); 
 
-        // 1. Actualizar el estado del préstamo y registrar la fecha de devolución real
+        // 1. Actualizar el estado del préstamo
         $prestamoModel->update($prestamo_id, [
             'estado' => 'Devuelto',
-            // ✅ CORRECCIÓN FINAL: Usamos 'fecha_devuelto'
             'fecha_devuelto' => $fecha_actual 
         ]);
 
@@ -116,7 +129,12 @@ class Devoluciones extends Controller
             'estado' => 'Disponible'
         ]);
 
+        // 3. ACTUALIZACIÓN DEL LIBRO MADRE: Sumar 1 al stock disponible
+        $libroModel->where('libro_id', $prestamo['libro_id'])
+                   ->set('cantidad_disponibles', 'cantidad_disponibles + 1', false)
+                   ->update();
+
         return redirect()->to(base_url('devoluciones'))
-                         ->with('msg', 'Devolución confirmada correctamente en la fecha ' . $fecha_actual . '.');
+                         ->with('msg', 'Devolución confirmada correctamente. El stock del libro ha sido actualizado.');
     }
 }

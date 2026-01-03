@@ -36,7 +36,7 @@ $this->section('contenido');
         <input 
             type="text" 
             name="buscar" 
-            placeholder="Buscar por Título, Carné o Usuario..." 
+            placeholder="Buscar por Código, Título, Carné o Usuario..." 
             value="<?= esc($buscar ?? '') ?>" 
         />
         <input type="hidden" name="per_page" value="<?= esc($perPage ?? 10) ?>">
@@ -52,11 +52,44 @@ $this->section('contenido');
             <div class="card-body py-3">
                 <h6 class="card-title text-muted mb-3"><i class="bi bi-sort-alpha-down me-2"></i>Opciones de Visualización</h6>
                 
-                <form class="d-flex align-items-center" method="get" action="<?= base_url('devoluciones'); ?>">
-                    <input type="number" name="per_page" value="<?= $perPage ?? 10 ?>" min="1" class="form-control w-auto me-2" style="max-width: 150px;" placeholder="Filas">
+                <form class="d-flex align-items-center mb-3" method="get" action="<?= base_url('devoluciones'); ?>">
+                    <input type="number" name="per_page" value="<?= $perPage ?? 10 ?>" min="1" class="form-control w-auto me-2" style="max-width: 80px;" placeholder="Filas">
                     
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
-                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('devoluciones') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar</button>
+                    </div>
+
+                    <input type="hidden" name="buscar" value="<?= esc($buscar ?? '') ?>">
+                    <input type="hidden" name="filtro_estado" value="<?= esc($filtro_estado ?? '') ?>">
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-3">
+        <div class="card shadow-sm border-secondary border-opacity-25">
+            <div class="card-body py-3">
+                <h6 class="card-title text-muted mb-3"><i class="bi bi-funnel-fill me-2"></i>Filtrar por Estado</h6>
+                <form method="get" action="<?= base_url('devoluciones'); ?>">
+                    <div class="row g-2">
+                        <div class="col-12">
+                            <select name="filtro_estado" class="form-select">
+                                <option value="">Todos los préstamos</option>
+                                <option value="atrasado" <?= ($filtro_estado == 'atrasado') ? 'selected' : '' ?>>Atrasados</option>
+                                <option value="vigente" <?= ($filtro_estado == 'vigente') ? 'selected' : '' ?>>Vigentes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('devoluciones') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar</button>
+                    </div>
+
+                    <input type="hidden" name="buscar" value="<?= esc($buscar ?? '') ?>">
+                    <input type="hidden" name="ordenar" value="<?= esc($ordenar ?? '') ?>">
+                    <input type="hidden" name="per_page" value="<?= esc($perPage ?? '') ?>">
                 </form>
             </div>
         </div>
@@ -88,14 +121,16 @@ $this->section('contenido');
                 </tr>
             <?php 
             else:
-                // Inicializamos el contador basado en la paginación
+                // 1. DEFINIMOS LA VARIABLE $i (Esto es lo que faltaba)
                 $i = 1 + (($pager->getCurrentPage() - 1) * ($perPage ?? 10));
                 
                 foreach($prestamos as $prestamo): 
-                    $hoy = new DateTime();
+                    // 2. LÓGICA DE FECHAS (Solo día, sin hora)
+                    $hoy = new DateTime('today'); 
                     $limite = new DateTime($prestamo['fecha_de_devolucion']);
-                    $intervalo = $hoy->diff($limite);
+                    
                     $esAtrasado = $hoy > $limite;
+                    $intervalo = $hoy->diff($limite);
                     $claseFila = $esAtrasado ? 'table-danger-light' : ''; 
             ?>
                 <tr class="<?= $claseFila ?>">
@@ -103,7 +138,7 @@ $this->section('contenido');
 
                     <td>
                         <span>
-                            <i class="bi bi-hash me-1"></i><?= esc($prestamo['codigo']) ?>
+                            <i class="bi me-1"></i><?= esc($prestamo['codigo']) ?>
                         </span>
                     </td>
 

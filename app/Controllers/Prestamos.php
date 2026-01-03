@@ -97,14 +97,24 @@ class Prestamos extends Controller
         ];
 
         if ($prestamoModel->insert($data)) {
-            // Cambiar estado del ejemplar a "No disponible"
+            // 1. Cambiar estado del ejemplar a "Prestado"
             $ejemplarModel->update(
                 $this->request->getPost('ejemplar_id'),
                 ['estado' => 'Prestado']
             );
+
+            // 2. Descontar 1 de la cantidad disponible en el Libro
+            $libroModel = new \App\Models\LibroModel();
+            $libroModel->where('libro_id', $this->request->getPost('libro_id'))
+                    ->set('cantidad_disponibles', 'cantidad_disponibles - 1', false)
+                    ->update();
+
+            // 3. Todo salió bien, redirigimos
             return redirect()->to(base_url('prestamos'))->with('msg', 'Préstamo agregado correctamente.');
+
         } else {
-             return redirect()->back()->withInput()->with('msg', 'Error al guardar el préstamo en la base de datos.');
+            // Si el insert() falló por algún motivo de base de datos
+            return redirect()->back()->withInput()->with('errors', ['database' => 'Error al guardar el préstamo en la base de datos.']);
         }
     }
 
