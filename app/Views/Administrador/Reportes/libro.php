@@ -12,12 +12,12 @@
     <form method="get" action="" class="row g-3 align-items-end">
         
         <div class="col-md-6">
-            <label for="inputLibro" class="form-label fw-bold">Libro:</label>
+            <label for="inputLibro" class="form-label fw-bold">Libro (Código o Título):</label>
             <input list="lista_libros" name="libro_titulo" id="inputLibro" 
-                   value="<?= esc($tituloLibro ?? ''); ?>" class="form-control" placeholder="Escribe para buscar un título...">
+                value="<?= esc($tituloLibro ?? ''); ?>" class="form-control" placeholder="Escribe el código o título...">
             <datalist id="lista_libros">
                 <?php foreach($libros as $l): ?>
-                    <option value="<?= esc($l['titulo']) ?>"></option>
+                    <option value="<?= esc($l['codigo']) ?>"><?= esc($l['titulo']) ?></option>
                 <?php endforeach; ?>
             </datalist>
         </div>
@@ -29,7 +29,7 @@
         </div>
         
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100" style="background-color:#095959; border-color:#095959;">
+            <button type="submit" class="btn btn-primary w-100" style="background-color:#0C1E44; border-color:#0C1E44;">
                 <i class="bi bi-search"></i> Filtrar
             </button>
         </div>
@@ -38,13 +38,17 @@
 
 <h3 class="mt-4 mb-3">
     Préstamos Históricos de: 
-    <span class="text-secondary fw-bold"><?= esc($tituloLibro ?? 'Todos los Libros'); ?></span>
+    <span class="text-secondary fw-bold"><?= esc($tituloLibro ?: 'Todos los Libros'); ?></span>
 </h3>
+
 <div class="card shadow-sm border-0" style="border-radius: 12px; overflow-x: auto;">
     <table class="clean-table table-hover"> 
         <thead>
             <tr>
-                <th>Título</th> <th>Alumno</th>
+                <th>#</th>
+                <th>Código</th>
+                <th>Título</th> 
+                <th>Alumno</th>
                 <th>No. Copia</th>
                 <th>Préstamo</th>
                 <th>Devolución Esperada</th>
@@ -54,31 +58,33 @@
         </thead>
         <tbody>
             <?php if (empty($prestamos)): ?> 
-                <tr>
-                    <td colspan="7" class="text-center py-4">No se encontraron préstamos que coincidan con el filtro.</td>
-                </tr>
+                <tr><td colspan="9" class="text-center py-4">No se encontraron préstamos.</td></tr>
             <?php else: ?>
-                <?php foreach($prestamos as $p): ?>
+                <?php 
+                $i = ($pager->getCurrentPage('default') - 1) * $perPage + 1; 
+                foreach($prestamos as $p): 
+                ?>
                 <tr>
+                    <td><?= $i++; ?></td>
+                    <td><span class="badge bg-light text-dark border"><?= esc($p['codigo']) ?></span></td>
                     <td><?= esc($p['titulo']) ?></td> 
                     <td><?= esc($p['alumno']) ?></td>
                     <td><?= esc($p['no_copia']) ?></td>
                     <td><?= esc($p['fecha_prestamo']) ?></td>
                     <td><?= esc($p['fecha_de_devolucion']) ?></td>
-                    <td><?= esc($p['fecha_devuelto'] ?? '-') ?></td>
+                    <td>
+                        <?= esc($p['fecha_devuelto'] ?? '-') ?>
+                        <?php if ($p['fecha_devuelto'] && $p['fecha_devuelto'] > $p['fecha_de_devolucion']): ?>
+                            <i class="bi bi-exclamation-triangle-fill text-danger" title="Devuelto con retraso"></i>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <span class="badge 
                             <?php 
                                 $estado = $p['estado'];
-
-                                // Lógica de colores del estado
-                                if ($estado == 'Devuelto') {
-                                    echo 'bg-success';      // 🟢 Verde
-                                } elseif ($estado == 'Vencido' || $estado == 'Perdido') {
-                                    echo 'bg-danger';       // 🔴 Rojo
-                                } else {
-                                    echo 'bg-warning text-dark'; // 🟡 Amarillo/Naranja (Activo/En Proceso/Prestado)
-                                }
+                                if ($estado == 'Devuelto') echo 'bg-success';
+                                elseif ($estado == 'Vencido' || $estado == 'Perdido') echo 'bg-danger';
+                                else echo 'bg-warning text-dark';
                             ?>">
                             <?= esc($estado) ?>
                         </span>
@@ -89,6 +95,7 @@
         </tbody>
     </table>
 </div>
+
 <div class="d-flex justify-content-between align-items-center mt-3">
     <?= $pager->links('default', 'bootstrap_full') ?>
     
@@ -100,30 +107,4 @@
     </form>
 </div>
 
-<?= $this->endSection(); ?> 
-
-<?php $this->section('head'); ?>
-<style>
-    .section-title {
-        color: #0C1E44;
-        font-weight: 700;
-        font-size: 1.75rem;
-    }
-    .form-control, .form-select {
-        border-radius: 8px;
-        padding: 10px 15px;
-        box-shadow: none !important;
-        border: 1px solid #ced4da;
-    }
-    .btn-primary {
-        background-color: #0C1E44; 
-        border-color: #0C1E44;
-    }
-    .clean-table thead th {
-        background-color: #0C1E44; 
-        color: #ffffff;
-        font-weight: 600;
-        padding: 15px 20px;
-    }
-</style>
-<?php $this->endSection(); ?>
+<?= $this->endSection(); ?>
