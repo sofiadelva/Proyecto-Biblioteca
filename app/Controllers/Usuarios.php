@@ -77,7 +77,7 @@ class Usuarios extends Controller
         $data['perPage'] = $perPage;
         $data['buscar'] = $buscar; 
         $data['rolFiltro'] = $rolFiltro;
-        $data['rolesDisponibles'] = ['Administrador', 'Bibliotecario', 'Alumno', 'Docente']; 
+        $data['rolesDisponibles'] = ['Administrador', 'Alumno', 'Docente']; 
 
         return view('Administrador/usuarios', $data);
     }

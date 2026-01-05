@@ -63,7 +63,7 @@ $this->section('contenido');
                         
                         <?php 
                         // Array de roles lógicos
-                        $roles = ['Administrador', 'Bibliotecario', 'Alumno', 'Maestro'];
+                        $roles = ['Administrador', 'Alumno', 'Docente'];
                         $current_rol = old('rol') ?? $usuario['rol'];
                         
                         foreach ($roles as $rol): ?>

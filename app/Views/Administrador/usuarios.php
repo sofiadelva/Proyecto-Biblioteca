@@ -45,12 +45,13 @@ Gestión de Usuarios
                     <select name="ordenar" class="form-select w-auto me-2">
                         <option value="">Ordenar por...</option>
                         <option value="nombre_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'nombre_asc') ? 'selected' : '' ?>>Nombre A → Z</option>
-                        <option value="nombre_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'nombre_desc') ? 'selected' : '' ?>>Nombre Z → A</option>
-                        <option value="reciente" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'reciente') ? 'selected' : '' ?>>Más reciente</option>
-                        
+                        <option value="nombre_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'nombre_desc') ? 'selected' : '' ?>>Nombre Z → A</option>               
                         <option value="correo_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'correo_asc') ? 'selected' : '' ?>>Email A → Z</option> 
                     </select>
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('usuarios') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
+                    </div>
 
                     <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
                     <input type="hidden" name="rol" value="<?= esc($_GET['rol'] ?? '') ?>">
@@ -77,7 +78,10 @@ Gestión de Usuarios
                         <?php endforeach; ?>
 
                     </select>
-                    <button type="submit" class="btn btn-secondary"><i class="bi bi-filter"></i> Filtrar</button>
+                    <div class="d-flex justify-content-end mt-3">
+                        <a href="<?= base_url('usuarios') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+                        <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
+                    </div>
                     
                     <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
                     <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
@@ -88,10 +92,19 @@ Gestión de Usuarios
     </div>
 </div>
 
+<?php 
+    $request = \Config\Services::request();
+    // Intentamos obtener la página actual, si no existe es la 1
+    $paginaActual = $request->getVar('page') ?? 1;
+    $paginaActual = (int)$paginaActual;
+    $porPagina = $perPage ?? 10; 
+    $contador = ($paginaActual - 1) * $porPagina + 1;
+?>
+
 <table class="table clean-table my-3">
     <thead>
         <tr>
-            <th>ID</th>
+            <th>#</th>
             <th>Nombre Completo</th>
             <th>Email</th>
             <th>Carné</th> 
@@ -103,7 +116,7 @@ Gestión de Usuarios
         <?php if (!empty($usuarios)): ?>
             <?php foreach($usuarios as $u): ?>
             <tr>
-                <td><?= esc($u['usuario_id']) ?></td>
+                <td class="fw-bold text-muted"><?= $contador++ ?></td>
                 <td><?= esc($u['nombre']) ?></td>
                 <td><?= esc($u['correo']) ?></td> 
                 <td><?= esc($u['carne']) ?></td> 

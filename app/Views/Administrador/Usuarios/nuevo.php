@@ -47,10 +47,9 @@ $this->section('contenido');
                     <label for="rol" class="form-label fw-bold">Rol <span class="text-danger">*</span></label>
                     <select class="form-select" name="rol" id="rol" required>
                         <option value="">Seleccionar Rol</option>
-                        <option value="admin" <?= old('rol') == 'admin' ? 'selected' : ''; ?>>Administrador</option>
-                        <option value="bibliotecario" <?= old('rol') == 'bibliotecario' ? 'selected' : ''; ?>>Bibliotecario</option>
-                        <option value="alumno" <?= old('rol') == 'alumno' ? 'selected' : ''; ?>>Alumno</option>
-                        <option value="maestro" <?= old('rol') == 'maestro' ? 'selected' : ''; ?>>Maestro</option>
+                        <option value="Administrador" <?= old('rol') == 'Administrador' ? 'selected' : ''; ?>>Administrador</option>
+                        <option value="Alumno" <?= old('rol') == 'Alumno' ? 'selected' : ''; ?>>Alumno</option>
+                        <option value="Docente" <?= old('rol') == 'Docente' ? 'selected' : ''; ?>>Docente</option>
                     </select>
                 </div>
 

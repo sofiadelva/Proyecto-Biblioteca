@@ -10,63 +10,59 @@ class Login extends BaseController
     }
 
     public function autenticar()
-    {
-        $usuario = $this->request->getPost('usuario');
-        $password = $this->request->getPost('password');
+{
+    $usuario = $this->request->getPost('usuario');
+    $password = $this->request->getPost('password');
 
-        $usuarioModel = new UsuarioModel();
-        $datosUsuario = $usuarioModel->verificarUsuario($usuario, $password);
+    $usuarioModel = new UsuarioModel();
+    $datosUsuario = $usuarioModel->verificarUsuario($usuario, $password);
 
-        if ($datosUsuario) {
-            // Guardamos la sesión con más datos
-            session()->set([
-            'usuario_id'=> $datosUsuario['usuario_id'], // guarda el id real
-            'usuario'   => $datosUsuario['carne'],      
-            'nombre'    => $datosUsuario['nombre'],
-            'rol'       => $datosUsuario['rol'],
-            'logged_in' => true
+    if ($datosUsuario) {
+        session()->set([
+            'usuario_id' => $datosUsuario['usuario_id'],
+            'usuario'    => $datosUsuario['carne'],      
+            'nombre'     => $datosUsuario['nombre'],
+            'rol'        => $datosUsuario['rol'],
+            'logged_in'  => true
         ]);
 
-
-            // Redirigir según rol
-            switch ($datosUsuario['rol']) {
-                case 'Administrador':
-                    return redirect()->to('/administrador/panel');
-                case 'Bibliotecario':
-                    return redirect()->to('/bibliotecario/panel');
-                case 'Alumno':
-                case 'Maestro':
-                    return redirect()->to('/alumno/panel');
-                default:
-                    return redirect()->to('/')->with('error', 'Rol no válido');
-            }
-
-        } else {
-            return redirect()->back()->with('error', 'Usuario o contraseña incorrectos');
-        }
-    }
-
-    // Esta función ya no servirá como "panel único",
-    // pero la dejo por si quieres usarla como fallback
-    public function panel()
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to('/');
-        }
-
-        // Se puede mandar al panel según rol:
-        switch (session()->get('rol')) {
+        // Redirigir según rol
+        switch ($datosUsuario['rol']) {
             case 'Administrador':
-                return view('Administrador/panel');
+                return redirect()->to('/administrador/panel');
+            // Eliminamos Bibliotecario si ya no lo usas, o lo dejamos por si acaso
             case 'Bibliotecario':
-                return view('Bibliotecario/panel');
+                return redirect()->to('/bibliotecario/panel');
+            // UNIFICACIÓN: Ambos roles van al mismo panel
             case 'Alumno':
-            case 'Maestro':
-                return view('Alumno/panel');
+            case 'Docente': // <--- Cambiado de 'Maestro' a 'Docente'
+                return redirect()->to('/alumno/panel');
             default:
-                return redirect()->to('/')->with('error', 'No tienes permiso.');
+                return redirect()->to('/')->with('error', 'Rol no válido en el sistema');
         }
+    } else {
+        return redirect()->back()->with('error', 'Usuario o contraseña incorrectos');
     }
+}
+
+public function panel()
+{
+    if (!session()->get('logged_in')) {
+        return redirect()->to('/');
+    }
+
+    switch (session()->get('rol')) {
+        case 'Administrador':
+            return view('Administrador/panel');
+        case 'Bibliotecario':
+            return view('Bibliotecario/panel');
+        case 'Alumno':
+        case 'Docente': // <--- Cambiado de 'Maestro' a 'Docente'
+            return view('Alumno/panel');
+        default:
+            return redirect()->to('/')->with('error', 'No tienes permiso.');
+    }
+}
 
     public function salir()
     {
