@@ -122,109 +122,134 @@ class Reportes extends BaseController
     // ============================= REPORTE POR ALUMNO (VISTA Y GENERACIÓN) =============================
     
 public function alumnoView()
-{
-    $usuarioModel = new UsuarioModel();
-    $prestamoModel = new PrestamoAlumnoModel();
-    
-    $alumnos = $usuarioModel->select('carne, nombre')->whereIn('rol', ['Alumno', 'Docente'])->findAll();
-
-    $busqueda = $this->request->getGet('usuario_nombre'); 
-    $perPage = (int) ($this->request->getGet('per_page') ?? 10);
-    if ($perPage < 1) $perPage = 10;
-
-    $query = $prestamoModel
-        ->select('libros.codigo, libros.titulo, ejemplares.no_copia, prestamos.fecha_prestamo, prestamos.fecha_de_devolucion, prestamos.fecha_devuelto, prestamos.estado, usuarios.nombre as alumno')
-        ->join('usuarios', 'usuarios.usuario_id = prestamos.usuario_id') 
-        ->join('libros', 'libros.libro_id = prestamos.libro_id')
-        ->join('ejemplares', 'ejemplares.ejemplar_id = prestamos.ejemplar_id');
-
-    // Variable para mostrar en el h3 de la vista
-    $nombreParaMostrar = $busqueda; 
-
-    if ($busqueda) {
-        $usuario = $usuarioModel->groupStart()
-                                ->where('carne', $busqueda)
-                                ->orWhere('nombre', $busqueda)
-                                ->groupEnd()
-                                ->first();
-        if ($usuario) {
-            $query->where('prestamos.usuario_id', $usuario['usuario_id']);
-            // AQUÍ ESTÁ EL TRUCO: 
-            // Si lo encontró, reemplazamos el carné por el nombre real
-            $nombreParaMostrar = $usuario['nombre']; 
-        } else {
-            $query->where('prestamos.usuario_id', 0);
-        }
-    }
-
-    $prestamos = $query->paginate($perPage);
-
-    return view('Administrador/Reportes/alumno', [
-        'alumnos' => $alumnos,
-        'prestamos' => $prestamos,
-        'pager' => $prestamoModel->pager,
-        'perPage' => $perPage,
-        'nombreAlumno' => $nombreParaMostrar // Enviamos el nombre real
-    ]);
-}
-
-    public function alumno()
     {
-        $busqueda = $this->request->getPost('usuario_nombre');
         $usuarioModel = new UsuarioModel();
-        
-        $alumno = $usuarioModel->groupStart()
-                                ->where('carne', $busqueda)
-                                ->orWhere('nombre', $busqueda)
-                                ->groupEnd()
-                                ->first();
-
         $prestamoModel = new PrestamoAlumnoModel();
+        
+        // Cargamos la lista de alumnos/docentes para el datalist (Búsqueda rápida)
+        $alumnos = $usuarioModel->select('carne, nombre')
+                                ->whereIn('rol', ['Alumno', 'Docente'])
+                                ->findAll();
+
+        // 1. Manejo seguro de "Filas por página"
+        $perPageInput = $this->request->getGet('per_page');
+        $perPage = (is_numeric($perPageInput) && $perPageInput > 0) ? (int)$perPageInput : 10;
+
+        // 2. Obtención de la búsqueda
+        $busqueda = trim($this->request->getGet('usuario_nombre') ?? ''); 
+
+        // 3. Query principal con joins necesarios
         $query = $prestamoModel
-            ->select('libros.codigo, libros.titulo, ejemplares.no_copia, prestamos.fecha_prestamo, prestamos.fecha_de_devolucion, prestamos.fecha_devuelto, prestamos.estado')
+            ->select('libros.codigo, libros.titulo, ejemplares.no_copia, prestamos.fecha_prestamo, prestamos.fecha_de_devolucion, prestamos.fecha_devuelto, prestamos.estado, usuarios.nombre as alumno')
+            ->join('usuarios', 'usuarios.usuario_id = prestamos.usuario_id') 
             ->join('libros', 'libros.libro_id = prestamos.libro_id')
             ->join('ejemplares', 'ejemplares.ejemplar_id = prestamos.ejemplar_id');
-        
-        if ($alumno) {
-            $query->where('prestamos.usuario_id', $alumno['usuario_id']);
-            $titulo = 'Reporte de Préstamos: ' . esc($alumno['nombre']) . ' (' . esc($alumno['carne']) . ')';
-        } else {
-            $titulo = 'Reporte General de Usuarios';
-        }
-        
-        $prestamos = $query->findAll();
-        $html = $this->getReporteHeader($titulo);
-        
-        $html .= '<table><thead><tr><th>#</th><th>Código</th><th>Libro</th><th>Copia</th><th>Préstamo</th><th>Devolución</th><th>Devuelto</th><th>Estado</th></tr></thead><tbody>';
-        
-        if (empty($prestamos)) {
-            $html .= '<tr><td colspan="8" class="text-center">No hay registros.</td></tr>';
-        } else {
-            $cont = 1;
-            foreach ($prestamos as $p) {
-                $retraso = ($p['fecha_devuelto'] && $p['fecha_devuelto'] > $p['fecha_de_devolucion']) ? ' <span style="color:red;">[!]</span>' : '';
-                $html .= "<tr>
-                    <td class='text-center'>{$cont}</td>
-                    <td class='text-center'>".esc($p['codigo'])."</td>
-                    <td>".esc($p['titulo'])."</td>
-                    <td class='text-center'>".esc($p['no_copia'])."</td>
-                    <td class='text-center'>".esc($p['fecha_prestamo'])."</td>
-                    <td class='text-center'>".esc($p['fecha_de_devolucion'])."</td>
-                    <td class='text-center'>".($p['fecha_devuelto'] ?? '-')."{$retraso}</td>
-                    <td class='text-center'>".$this->formatEstado($p['estado'])."</td>
-                </tr>";
-                $cont++;
+
+        // Variable que controlará el título <h3> en la vista
+        $nombreParaMostrar = $busqueda; 
+
+        // 4. Lógica de búsqueda inteligente
+        if (!empty($busqueda)) {
+            $usuario = $usuarioModel->groupStart()
+                                    ->where('carne', $busqueda)
+                                    ->orWhere('nombre', $busqueda)
+                                    ->groupEnd()
+                                    ->first();
+
+            if ($usuario) {
+                $query->where('prestamos.usuario_id', $usuario['usuario_id']);
+                // Si lo encuentra, mostramos el nombre real (aunque haya buscado por carné)
+                $nombreParaMostrar = $usuario['nombre']; 
+            } else {
+                // Si no existe el usuario, forzamos que no traiga resultados
+                $query->where('prestamos.usuario_id', 0);
             }
         }
-        $html .= '</tbody></table>';
 
-        $dompdf = new Dompdf();
-        $dompdf->loadHtml($html);
-        $dompdf->setPaper('A4', 'landscape');
-        $dompdf->render();
-        $dompdf->stream('reporte_alumno.pdf', ["Attachment" => false]);
-        exit;
+        // 5. Ejecutar paginación
+        $prestamos = $query->paginate($perPage);
+
+        // 6. Retornar vista con todos los datos necesarios
+        return view('Administrador/Reportes/alumno', [
+            'alumnos'      => $alumnos,
+            'prestamos'    => $prestamos,
+            'pager'        => $prestamoModel->pager,
+            'perPage'      => $perPage,
+            'nombreAlumno' => $nombreParaMostrar,
+            'hoy'          => date('Y-m-d') // Para detectar retrasos en tiempo real
+        ]);
     }
+
+    public function alumno()
+        {
+            $busqueda = $this->request->getPost('usuario_nombre');
+            $usuarioModel = new UsuarioModel();
+            $hoy = date('Y-m-d'); // Fecha actual para comparar retrasos
+            
+            $alumno = $usuarioModel->groupStart()
+                                    ->where('carne', $busqueda)
+                                    ->orWhere('nombre', $busqueda)
+                                    ->groupEnd()
+                                    ->first();
+
+            $prestamoModel = new PrestamoAlumnoModel();
+            $query = $prestamoModel
+                ->select('libros.codigo, libros.titulo, ejemplares.no_copia, prestamos.fecha_prestamo, prestamos.fecha_de_devolucion, prestamos.fecha_devuelto, prestamos.estado')
+                ->join('libros', 'libros.libro_id = prestamos.libro_id')
+                ->join('ejemplares', 'ejemplares.ejemplar_id = prestamos.ejemplar_id');
+            
+            if ($alumno) {
+                $query->where('prestamos.usuario_id', $alumno['usuario_id']);
+                $titulo = 'Reporte de Préstamos: ' . esc($alumno['nombre']) . ' (' . esc($alumno['carne']) . ')';
+            } else {
+                $titulo = 'Reporte General de Usuarios';
+            }
+            
+            $prestamos = $query->findAll();
+            $html = $this->getReporteHeader($titulo);
+            
+            $html .= '<table><thead><tr><th>#</th><th>Código</th><th>Libro</th><th>Copia</th><th>Préstamo</th><th>Devolución</th><th>Devuelto</th><th>Estado</th></tr></thead><tbody>';
+            
+            if (empty($prestamos)) {
+                $html .= '<tr><td colspan="8" class="text-center">No hay registros.</td></tr>';
+            } else {
+                $cont = 1;
+                foreach ($prestamos as $p) {
+                    /** * LÓGICA DE RETRASO PARA EL PDF:
+                     * Caso A: Ya lo devolvió, pero después de la fecha (Retraso histórico).
+                     * Caso B: No lo ha devuelto y ya se pasó la fecha (Retraso activo).
+                     */
+                    $retrasoHistorico = ($p['fecha_devuelto'] && $p['fecha_devuelto'] > $p['fecha_de_devolucion']);
+                    $retrasoActivo = (empty($p['fecha_devuelto']) && $hoy > $p['fecha_de_devolucion']);
+
+                    $marcaRetraso = ($retrasoHistorico || $retrasoActivo) ? ' <span style="color:red; font-weight:bold;">[!]</span>' : '';
+
+                    $html .= "<tr>
+                        <td style='text-align:center;'>{$cont}</td>
+                        <td style='text-align:center;'>".esc($p['codigo'])."</td>
+                        <td>".esc($p['titulo'])."</td>
+                        <td style='text-align:center;'>".esc($p['no_copia'])."</td>
+                        <td style='text-align:center;'>".esc($p['fecha_prestamo'])."</td>
+                        <td style='text-align:center;'>".esc($p['fecha_de_devolucion'])."</td>
+                        <td style='text-align:center;'>".($p['fecha_devuelto'] ?? '-')."{$marcaRetraso}</td>
+                        <td style='text-align:center;'>".$this->formatEstado($p['estado'])."</td>
+                    </tr>";
+                    $cont++;
+                }
+            }
+            $html .= '</tbody></table>';
+
+            $dompdf = new \Dompdf\Dompdf();
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $dompdf->setOptions($options);
+
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
+            $dompdf->stream('reporte_alumno.pdf', ["Attachment" => false]);
+            exit;
+        }
   // ============================= REPORTE POR LIBRO =============================
 
     public function libroView()
@@ -426,63 +451,166 @@ public function alumnoView()
     public function disponiblesView()
     {
         $libroModel = new LibroModel();
-        $perPage = $this->request->getGet('per_page') ?? 5;
+        
+        // 1. Arreglo del filtrado de filas
+        $perPageInput = $this->request->getGet('per_page');
+        $perPage = (is_numeric($perPageInput) && $perPageInput > 0) ? (int)$perPageInput : 10;
 
-        $libros = $libroModel->where('estado', 'Disponible')->paginate($perPage);
+        // 4. Filtrar solo si cantidad_disponibles >= 1
+        $libros = $libroModel->where('cantidad_disponibles >=', 1)
+                            ->paginate($perPage);
+        
         $pager = $libroModel->pager;
 
         return view('Administrador/Reportes/disponibles', [
-            'libros' => $libros,
-            'pager' => $pager,
+            'libros'  => $libros,
+            'pager'   => $pager,
             'perPage' => $perPage
         ]);
     }
 
-    /**
-     * Genera el PDF de libros disponibles usando Dompdf.
-     */
     public function librosDisponibles()
     {
         $libroModel = new LibroModel();
-        $libros = $libroModel->where('estado', 'Disponible')->findAll();
+        // Filtrar solo si cantidad_disponibles >= 1 para el PDF
+        $libros = $libroModel->where('cantidad_disponibles >=', 1)->findAll();
 
         $html = $this->getReporteHeader('Reporte de Libros Disponibles en Inventario');
 
         $html .= '<table>
-                     <thead>
-                     <tr><th>Título</th><th>Autor</th><th>Editorial</th><th>Cantidad Disponible</th></tr>
-                     </thead>
-                     <tbody>';
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Editorial</th>
+                            <th>Disponible</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
 
         if (empty($libros)) {
-             $html .= '<tr><td colspan="4" class="text-center">No hay libros disponibles en el inventario.</td></tr>';
+            $html .= '<tr><td colspan="6" style="text-align:center;">No hay libros disponibles.</td></tr>';
         } else {
+            $cont = 1;
             foreach ($libros as $l) {
-                // Dompdf usa el CSS :nth-child(even), no necesitamos bgcolor ni $i++
                 $html .= "<tr>
-                                <td>" . esc($l['titulo']) . "</td>
-                                <td>" . esc($l['autor']) . "</td>
-                                <td>" . esc($l['editorial']) . "</td>
-                                <td class='text-center'>" . esc($l['cantidad_disponibles']) . "</td>
-                            </tr>";
+                            <td style='text-align:center;'>{$cont}</td>
+                            <td style='text-align:center;'>" . esc($l['codigo']) . "</td>
+                            <td>" . esc($l['titulo']) . "</td>
+                            <td>" . esc($l['autor']) . "</td>
+                            <td>" . esc($l['editorial']) . "</td>
+                            <td style='text-align:center; font-weight:bold; color:green;'>" . esc($l['cantidad_disponibles']) . "</td>
+                        </tr>";
+                $cont++;
             }
         }
         
         $html .= '</tbody></table>';
 
-        // Lógica de DOMPDF
-        $options = new Options();
-        $options->set('defaultFont', 'Helvetica');
-        $options->set('isHtml5ParserEnabled', true); 
-        $options->set('isRemoteEnabled', true);
-
-        $dompdf = new Dompdf($options);
+        $dompdf = new \Dompdf\Dompdf();
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
-
-        // El parámetro ["Attachment" => false] permite que el PDF se abra en el navegador (nueva ventana/pestaña)
         $dompdf->stream('reporte_disponibles.pdf', ["Attachment" => false]);
+        exit;
+    }
+
+    public function completoView()
+    {
+        $libroModel = new \App\Models\LibroModel();
+        
+        // Manejo de filas por página
+        $perPageInput = $this->request->getGet('per_page');
+        $perPage = (is_numeric($perPageInput) && $perPageInput > 0) ? (int)$perPageInput : 10;
+
+        // Consulta con todos los joins necesarios
+        $libros = $libroModel->select('
+                libros.*, 
+                subcategorias.nombre as subcategoria_nombre,
+                subgeneros.nombre as subgenero_nombre,
+                colecciones.nombre as coleccion_nombre
+            ')
+            ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
+            ->join('subgeneros', 'subgeneros.subgenero_id = subcategorias.subgenero_id', 'left')
+            ->join('colecciones', 'colecciones.coleccion_id = subgeneros.coleccion_id', 'left')
+            ->paginate($perPage, 'default');
+
+        return view('Administrador/Reportes/completo', [
+            'libros'  => $libros,
+            'pager'   => $libroModel->pager,
+            'perPage' => $perPage
+        ]);
+    }
+
+    public function completoPDF()
+    {
+        $libroModel = new \App\Models\LibroModel();
+        
+        $libros = $libroModel->select('
+                libros.*, 
+                subcategorias.nombre as subcategoria_nombre,
+                subgeneros.nombre as subgenero_nombre,
+                colecciones.nombre as coleccion_nombre
+            ')
+            ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
+            ->join('subgeneros', 'subgeneros.subgenero_id = subcategorias.subgenero_id', 'left')
+            ->join('colecciones', 'colecciones.coleccion_id = subgeneros.coleccion_id', 'left')
+            ->findAll();
+
+        $html = $this->getReporteHeader('Inventario Completo de Libros');
+        
+        // Estilo específico para que quepan tantas columnas en el PDF
+        $html .= '<style>
+                    table { font-size: 9px; width: 100%; border-collapse: collapse; }
+                    th { background-color: #0C1E44; color: white; padding: 5px; }
+                    td { padding: 4px; border: 1px solid #ddd; }
+                </style>';
+
+        $html .= '<table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Código</th>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Editorial</th>
+                            <th>Año</th>
+                            <th>Págs</th>
+                            <th>Colección</th>
+                            <th>Subgénero</th>
+                            <th>Subcategoría</th>
+                            <th>Total</th>
+                            <th>Disp.</th>
+                        </tr>
+                    </thead>
+                    <tbody>';
+
+        foreach ($libros as $idx => $l) {
+            $colorDisp = ($l['cantidad_disponibles'] >= 1) ? 'color:green; font-weight:bold;' : '';
+            $html .= "<tr>
+                        <td style='text-align:center;'>".($idx+1)."</td>
+                        <td>".esc($l['codigo'])."</td>
+                        <td>".esc($l['titulo'])."</td>
+                        <td>".esc($l['autor'])."</td>
+                        <td>".esc($l['editorial'])."</td>
+                        <td style='text-align:center;'>".esc($l['ano'])."</td>
+                        <td style='text-align:center;'>".esc($l['paginas'])."</td>
+                        <td>".(esc($l['coleccion_nombre']) ?: '-')."</td>
+                        <td>".(esc($l['subgenero_nombre']) ?: '-')."</td>
+                        <td>".(esc($l['subcategoria_nombre']) ?: '-')."</td>
+                        <td style='text-align:center;'>".esc($l['cantidad_total'])."</td>
+                        <td style='text-align:center; {$colorDisp}'>".esc($l['cantidad_disponibles'])."</td>
+                    </tr>";
+        }
+        $html .= '</tbody></table>';
+
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'landscape');
+        $dompdf->render();
+        $dompdf->stream('inventario_completo.pdf', ["Attachment" => false]);
         exit;
     }
 }

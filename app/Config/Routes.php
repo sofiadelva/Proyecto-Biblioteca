@@ -106,6 +106,8 @@ $routes->get('reportes/activos', 'Reportes::activosView');
 $routes->post('reportes/activos/pdf', 'Reportes::prestamosActivos');
 $routes->get('reportes/disponibles', 'Reportes::disponiblesView');
 $routes->post('reportes/disponibles/pdf', 'Reportes::librosDisponibles');
+$routes->get('reportes/completo', 'Reportes::completoView');
+$routes->post('reportes/completo/pdf', 'Reportes::completoPDF');
 
 /**Ruta para ver inventario alumno */
 $routes->get('alumno/inventario', 'InventarioAlumno::index');

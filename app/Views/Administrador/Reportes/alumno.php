@@ -29,9 +29,8 @@
         </div>
         
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100" style="background-color:#0C1E44; border-color:#0C1E44;">
-                <i class="bi bi-search"></i> Filtrar
-            </button>
+            <a href="<?= base_url('reportes/alumno') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+            <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
         </div>
     </form>
 </div>
@@ -60,6 +59,8 @@
                 <?php 
                 $i = ($pager->getCurrentPage('default') - 1) * $perPage + 1; 
                 foreach($prestamos as $p): 
+                    // Lógica de alerta: Sin fecha de devolución y la fecha esperada ya pasó
+                    $esVencidoNoDevuelto = (empty($p['fecha_devuelto']) && $hoy > $p['fecha_de_devolucion']);
                 ?>
                 <tr>
                     <td><?= $i++; ?></td>
@@ -67,21 +68,31 @@
                     <td><?= esc($p['titulo']) ?></td>
                     <td><?= esc($p['no_copia']) ?></td>
                     <td><?= esc($p['fecha_prestamo']) ?></td>
-                    <td><?= esc($p['fecha_de_devolucion']) ?></td>
+                    <td class="<?= $esVencidoNoDevuelto ? : '' ?>">
+                        <?= esc($p['fecha_de_devolucion']) ?>
+                        <?php if ($esVencidoNoDevuelto): ?>
+                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                        <?php endif; ?>
+                    </td>
                     <td>
                         <?= esc($p['fecha_devuelto'] ?? '-') ?>
                         <?php if ($p['fecha_devuelto'] && $p['fecha_devuelto'] > $p['fecha_de_devolucion']): ?>
-                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                            <i class="bi bi-exclamation-triangle-fill text-danger" title="Devuelto tarde"></i>
                         <?php endif; ?>
                     </td>
                     <td>
                         <span class="badge 
                             <?php 
                                 $st = $p['estado'];
-                                if ($st == 'Devuelto') echo 'bg-success';
-                                elseif ($st == 'Vencido' || $st == 'Perdido') echo 'bg-danger';
-                                else echo 'bg-warning text-dark';
+                                if ($st == 'Devuelto') {
+                                    echo 'bg-success';
+                                } elseif ($st == 'Vencido' || $st == 'Perdido' || $esVencidoNoDevuelto) {
+                                    echo 'bg-danger'; // Se pone rojo si el estado es crítico O si está vencido aunque diga "En proceso"
+                                } else {
+                                    echo 'bg-warning text-dark';
+                                }
                             ?>">
+                            <i class="bi <?= $esVencidoNoDevuelto ? 'bi-patch-exclamation' : '' ?>"></i>
                             <?= esc($st) ?>
                         </span>
                     </td>

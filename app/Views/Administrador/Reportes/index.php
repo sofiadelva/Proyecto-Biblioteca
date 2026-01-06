@@ -39,6 +39,11 @@ Reportes
 ; border:none;">
             <i class="bi bi-arrow-repeat me-2"></i> Reporte de Libros Disponibles
         </a>
+
+        <a href="<?= base_url('reportes/completo') ?>" class="btn btn-primary btn-lg px-4 py-3" style="background-color:#A01E53
+; border:none;">
+            <i class="bi bi-journal-plus me-2"></i> Reporte Todos los Libros
+        </a>
     </div>
 </div>
 <!-- Cuatro botones principales que redirigen a los distintos reportes disponibles -->

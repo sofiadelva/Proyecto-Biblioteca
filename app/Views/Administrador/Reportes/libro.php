@@ -29,9 +29,8 @@
         </div>
         
         <div class="col-md-3">
-            <button type="submit" class="btn btn-primary w-100" style="background-color:#0C1E44; border-color:#0C1E44;">
-                <i class="bi bi-search"></i> Filtrar
-            </button>
+            <a href="<?= base_url('reportes/libro') ?>" class="btn btn-outline-secondary btn-sm me-2">Limpiar</a>
+            <button type="submit" class="btn btn-secondary btn-sm"><i class="bi bi-search"></i> Aplicar Filtros</button>
         </div>
     </form>
 </div>

@@ -120,85 +120,94 @@ Transacciones
         </tr>
     </thead>
     <tbody>
-        <?php if (!empty($transacciones)): ?>
+    <?php if (!empty($transacciones)): ?>
+        <?php foreach($transacciones as $t): ?>
+        <?php 
+            // --- LÓGICA DE ALERTA UNIFICADA ---
+            $hoy_str = date('Y-m-d');
+            $f_esperada_str = date('Y-m-d', strtotime($t['fecha_de_devolucion']));
+            $estado_limpio = trim($t['estado']);
+            $alerta_retraso = false;
+
+            if ($estado_limpio == 'En proceso') {
+                // Si aún no lo devuelve y hoy ya pasó la fecha esperada
+                if ($hoy_str > $f_esperada_str) {
+                    $alerta_retraso = true;
+                }
+            } elseif ($estado_limpio == 'Devuelto' && !empty($t['fecha_devuelto'])) {
+                // Si ya lo devolvió pero tarde
+                $f_real_str = date('Y-m-d', strtotime($t['fecha_devuelto']));
+                if ($f_real_str > $f_esperada_str) {
+                    $alerta_retraso = true;
+                }
+            }
+        ?>
+        <tr>
+            <td class="fw-bold text-muted"><?= $contador++ ?></td>
+            <td><?= esc($t['codigo']) ?></td>
+            <td><?= esc($t['titulo']) ?></td>
+            <td><?= esc($t['no_copia']) ?></td>
+            <td>
+                <div class="fw-bold"><?= esc($t['usuario_nombre']) ?></div>
+                <small class="text-muted"><?= esc($t['carne']) ?></small>
+            </td>
+            <td><?= esc($t['fecha_prestamo']) ?></td>
+            <td><?= esc($t['fecha_de_devolucion']) ?></td>
             
-            <?php foreach($transacciones as $t): ?>
-            <tr>
-                <td class="fw-bold text-muted"><?= $contador++ ?></td>
-                <td><?= esc($t['codigo']) ?></td>
-                <td><?= esc($t['titulo']) ?></td>
-                <td><?= esc($t['no_copia']) ?></td>
-                <td>
-                    <div class="fw-bold"><?= esc($t['usuario_nombre']) ?></div>
-                    <small class="text-muted"><?= esc($t['carne']) ?></small>
-                </td>
-                <td><?= esc($t['fecha_prestamo']) ?></td>
-                <td><?= esc($t['fecha_de_devolucion']) ?></td>
-                <td><?= esc($t['fecha_devuelto'] ?? 'N/A') ?></td>
-                
-                <!-- COLORES DINÁMICOS PARA EL ESTADO -->
-                <td>
-                    <?php 
-                        $clase_estado = '';
-                        $mostrar_retraso = false;
+            <td class="text-center">
+                <div class="d-flex align-items-center justify-content-center">
+                    <?php if ($alerta_retraso): ?>
+                        <i class="bi bi-exclamation-triangle-fill text-danger me-2" 
+                           style="font-size: 1.1rem;" 
+                           title="¡Retrasado!"></i>
+                    <?php endif; ?>
 
-                        // Limpiamos los valores de estado para comparar
-                        $estado_limpio = trim($t['estado']);
-
-                        if ($estado_limpio == 'En Proceso') {
-                            $clase_estado = 'bg-warning text-dark'; 
-                        } elseif ($estado_limpio == 'Devuelto') {
-                            $clase_estado = 'bg-success text-white'; 
-
-                            // LÓGICA DE RETRASO: Solo si ya está devuelto
-                            if (!empty($t['fecha_devuelto']) && !empty($t['fecha_de_devolucion'])) {
-                                // Convertimos a tiempo para comparar
-                                $f_esperada = strtotime($t['fecha_de_devolucion']);
-                                $f_real = strtotime($t['fecha_devuelto']);
-                                
-                                if ($f_real > $f_esperada) {
-                                    $mostrar_retraso = true;
-                                }
+                    <span class="<?= $alerta_retraso ? : '' ?>">
+                        <?php 
+                            if (empty($t['fecha_devuelto']) || $t['fecha_devuelto'] == '0000-00-00') {
+                                echo "N/A";
+                            } else {
+                                echo esc($t['fecha_devuelto']);
                             }
-                        } else {
-                            $clase_estado = 'bg-secondary text-white';
-                        }
-                    ?>
-                    
-                    <div class="d-flex flex-column align-items-center">
-                        <span class="badge <?= $clase_estado ?> p-2">
-                            <?= esc($t['estado']) ?>
-                        </span>
-                        
-                        <?php if ($mostrar_retraso): ?>
-                            <small class="text-danger fw-bold mt-1" style="font-size: 0.75rem;">
-                                <i class="bi bi-clock-history"></i> Con retraso
-                            </small>
-                        <?php endif; ?>
-                    </div>
-                </td>
-                
-                <td>
-                    <div class="d-flex gap-2">
-                        <!-- Botón para editar la transacción -->
-                        <a href="<?= base_url('transacciones/edit/'.$t['prestamo_id']); ?>" class="btn-sm btn-accion-editar">Editar</a>
-                        
-                        <!-- Botón para eliminar la transacción -->
-                        <a href="<?= base_url('transacciones/delete/'.$t['prestamo_id']); ?>" 
-                            class="btn-sm btn-accion-eliminar"
-                            onclick="return confirm('¿Estás seguro de eliminar este registro? \n\nSi el préstamo está activo (En Proceso), el libro se devolverá automáticamente al inventario.')">
-                            <i class="bi"></i> Eliminar
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <tr>
-                <td colspan="8" class="text-center text-muted">No se encontraron transacciones con los filtros aplicados.</td>
-            </tr>
-        <?php endif; ?>
-    </tbody>
+                        ?>
+                    </span>
+                </div>
+            </td>
+            
+            <td>
+                <?php 
+                    $clase_estado = ($estado_limpio == 'En Proceso') ? 'bg-warning text-dark' : (($estado_limpio == 'Devuelto') ? 'bg-success text-white' : 'bg-secondary text-white');
+                ?>
+                <div class="d-flex flex-column align-items-center">
+                    <span class="badge <?= $clase_estado ?> p-2">
+                        <?= esc($t['estado']) ?>
+                    </span>
+                    <?php if ($alerta_retraso && $estado_limpio == 'Devuelto'): ?>
+                        <small class="text-danger fw-bold mt-1" style="font-size: 0.75rem;">
+                            <i class="bi bi-clock-history"></i> Con retraso
+                        </small>
+                    <?php endif; ?>
+                </div>
+            </td>
+            
+            <td>
+                <div class="d-flex gap-2">
+                    <a href="<?= base_url('transacciones/edit/'.$t['prestamo_id']); ?>" class="btn-sm btn-accion-editar">Editar</a>
+                    <a href="<?= base_url('transacciones/delete/'.$t['prestamo_id']); ?>" 
+                        class="btn-sm btn-accion-eliminar"
+                        onclick="return confirm('¿Estás seguro de eliminar este registro?')">
+                        Eliminar
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <tr>
+            <td colspan="10" class="text-center text-muted">No se encontraron transacciones.</td>
+        </tr>
+    <?php endif; ?>
+</tbody>
 </table>
 
 <!-- Paginación -->
