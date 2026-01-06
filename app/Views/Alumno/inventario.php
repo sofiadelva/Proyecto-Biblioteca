@@ -1,187 +1,169 @@
-<?php 
-// Extiende de la plantilla principal del alumno
-echo $this->extend('Plantillas/plantilla_alumno'); 
-?>
+<?php echo $this->extend('Plantillas/plantilla_alumno'); ?>
 
-<?php 
-// Define la sección "titulo" de la plantilla
-$this->section('titulo'); 
-?>
-Inventario
-<?php 
-$this->endSection(); 
-?>
+<?php $this->section('titulo'); ?>Libros<?php $this->endSection(); ?>
 
-<?php 
-// Abre la sección "contenido" que se mostrará en el layout
-$this->section('contenido'); 
-?>
+<?php $this->section('contenido'); ?>
 
-<style>
-    /* Estilos específicos de la tabla/filtros si son necesarios */
-    .badge-estado-disponible {
-        background-color: #61A392 !important; 
-        color: white;
-    }
-    /* Estilo de la barra de búsqueda copiado */
-    .search-bar-container {
-        display: flex;
-        align-items: center;
-        border: 1px solid #ccc;
-        border-radius: 20px;
-        padding: 5px 15px;
-        background-color: #f8f9fa;
-        max-width: 400px;
-        transition: all 0.3s;
-    }
-
-    .search-bar-container:focus-within {
-        border-color: var(--color-primary); 
-        box-shadow: 0 0 5px rgba(32, 96, 96, 0.5); 
-    }
-
-    .search-bar-container input {
-        border: none;
-        outline: none;
-        background: transparent;
-        flex-grow: 1;
-        padding: 5px 0;
-        font-size: 1rem;
-    }
-
-    .search-icon {
-        background: none;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-        padding-left: 10px;
-    }
-    
-</style>
-
-<?php if(session()->getFlashdata('msg')): ?>
-    <div class="alert alert-success">
-        <?= session()->getFlashdata('msg') ?>
-    </div>
-<?php endif; ?>
-
-
-<div class="d-flex justify-content-end align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="text-muted"><i class="bi bi-book me-2"></i>Catálogo de Libros</h4>
     
     <form method="get" action="<?= base_url('alumno/inventario'); ?>" class="search-bar-container">
-        <input 
-            type="text" 
-            name="buscar" 
-            placeholder="Buscar por Título o Autor..." 
-            value="<?= esc($buscar ?? '') ?>" 
-        />
-        <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
-        <input type="hidden" name="categoria_id" value="<?= esc($_GET['categoria_id'] ?? '') ?>">
-        <input type="hidden" name="per_page" value="<?= esc($perPage ?? '10') ?>">
-        
-        <button type="submit" class="search-icon">
-            <i class="bi bi-search"></i>
-        </button>
+        <input type="text" name="buscar" placeholder="Buscar por Título o Autor..." value="<?= esc($buscar ?? '') ?>" />
+        <button type="submit" class="search-icon"><i class="bi bi-search"></i></button>
     </form>
 </div>
-<div class="row mb-3">
-    
-    <div class="col-md-6 mb-3">
-        <div class="card shadow-sm border-secondary border-opacity-25">
-            <div class="card-body py-3">
-                <h6 class="card-title text-muted mb-3"><i class="bi bi-sort-alpha-down me-2"></i>Opciones de Visualización</h6>
-                
-                <form class="d-flex align-items-center" method="get" action="<?= base_url('alumno/inventario'); ?>">
-                    <input 
-                        type="number" 
-                        name="per_page" 
-                        value="<?= $perPage ?? 10 ?>" 
-                        min="1" 
-                        max="100"
-                        class="form-control w-auto me-2" 
-                        style="max-width: 120px;" 
-                        placeholder="Filas"
-                    >
 
-                    <select name="ordenar" class="form-select w-auto me-2">
-                        <option value="">Ordenar por...</option>
-                        <option value="titulo_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'titulo_asc') ? 'selected' : '' ?>>Título A → Z</option>
-                        <option value="titulo_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'titulo_desc') ? 'selected' : '' ?>>Título Z → A</option>
-                        <option value="autor_asc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'autor_asc') ? 'selected' : '' ?>>Autor A → Z</option>
-                        <option value="autor_desc" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'autor_desc') ? 'selected' : '' ?>>Autor Z → A</option>
-                        <option value="reciente" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'reciente') ? 'selected' : '' ?>>Más reciente</option>
-                        <option value="viejo" <?= (isset($_GET['ordenar']) && $_GET['ordenar'] == 'viejo') ? 'selected' : '' ?>>Más viejo</option>
+<div class="card shadow-sm border-0 mb-4 bg-light">
+    <div class="card-body">
+        <form id="filterForm" method="get" action="<?= base_url('alumno/inventario'); ?>">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Colección</label>
+                    <select name="coleccion_id" id="filter_coleccion" class="form-select select2-ajax">
+                        <option value="">Todas las Colecciones</option>
                     </select>
-                    
-                    <button type="submit" class="btn btn-primary"><i class="bi bi-arrow-right-short"></i> Aplicar</button>
-
-                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
-                    <input type="hidden" name="categoria_id" value="<?= esc($_GET['categoria_id'] ?? '') ?>">
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <div class="col-md-6 mb-3">
-        <div class="card shadow-sm border-secondary border-opacity-25">
-            <div class="card-body py-3">
-                <h6 class="card-title text-muted mb-3"><i class="bi bi-funnel-fill me-2"></i>Opciones de Filtrado</h6>
-                <form class="d-flex align-items-center" method="get" action="<?= base_url('alumno/inventario'); ?>">
-                    
-                    <select name="categoria_id" class="form-select w-auto me-2">
-                        <option value="">Todas las Categorías</option>
-                        <?php foreach($categorias as $cat): ?>
-                            <option value="<?= esc($cat['categoria_id']) ?>" 
-                                <?= (isset($categoriaId) && $categoriaId == $cat['categoria_id']) ? 'selected' : '' ?>>
-                                <?= esc($cat['nombre']) ?>
-                            </option>
-                        <?php endforeach; ?>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold">Subgénero</label>
+                    <select name="subgenero_id" id="filter_subgenero" class="form-select select2-ajax" <?= empty($coleccion_id_sel) ? 'disabled' : '' ?>>
+                        <option value="">Todos los Subgéneros</option>
                     </select>
-
-                    <button type="submit" class="btn btn-secondary" style="background-color: var(--color-primary); color:white; border:none;"><i class="bi bi-search"></i> Aplicar Filtro</button>
-                    
-                    <input type="hidden" name="buscar" value="<?= esc($_GET['buscar'] ?? '') ?>">
-                    <input type="hidden" name="ordenar" value="<?= esc($_GET['ordenar'] ?? '') ?>">
-                    <input type="hidden" name="per_page" value="<?= esc($perPage ?? '10') ?>"> 
-                </form>
+                </div>
+                <div class="col-md-4 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel-fill me-2"></i>Filtrar
+                    </button>
+                    <a href="<?= base_url('alumno/inventario') ?>" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
             </div>
-        </div>
+            <input type="hidden" name="buscar" value="<?= esc($buscar ?? '') ?>">
+        </form>
     </div>
 </div>
 
-<table class="table clean-table my-3">
-    <thead>
-    <tr>
-        <th>Título</th>
-        <th>Autor</th>
-        <th>Editorial</th>
-        <th>Cantidad Disponibles</th>
-        <th>Categoría</th>
-    </tr>
-    </thead>
-    <tbody>
-    <?php if (!empty($libros)): ?>
-        <?php foreach($libros as $libro): ?>
+<div class="table-responsive">
+    <table class="clean-table">
+        <thead>
             <tr>
-                <td><?= esc($libro['titulo']) ?></td>
-                <td><?= esc($libro['autor']) ?></td>
-                <td><?= esc($libro['editorial']) ?></td>
-                <td><?= esc($libro['cantidad_disponibles'] ?? 0) ?></td> 
-                <td><?= esc($libro['categoria']) ?></td>
+                <th style="width: 50px;">#</th>
+                <th>Título</th>
+                <th>Autor</th>
+                <th>Editorial</th>
+                <th>Año</th>
+                <th>Colección</th>
+                <th>Subgénero</th>
+                <th>Subcategoría</th>
+                <th class="text-center">Disponibilidad</th>
             </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="5" class="text-center text-muted">No se encontraron libros disponibles que coincidan con los criterios.</td>
-        </tr>
-    <?php endif; ?>
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        <?php if (!empty($libros)): ?>
+            <?php 
+                // Usamos la función de ayuda request() para obtener la página actual
+                $page    = (int)(request()->getGet('page') ?? 1);
+                $perPage = 10;
+                $i       = ($page <= 1) ? 1 : (($page - 1) * $perPage + 1); 
+            ?>
+            <?php foreach($libros as $libro): ?>
+                <tr>
+                    <td class="text-muted fw-bold"><?= $i++ ?></td>
+                    <td class="fw-bold text-dark"><?= esc($libro['titulo']) ?></td>
+                    <td><?= esc($libro['autor']) ?></td>
+                    <td><?= esc($libro['editorial']) ?></td>
+                    <td><?= esc($libro['ano']) ?></td>
+                    <td><span><?= esc($libro['coleccion_nombre'] ?? 'N/A') ?></span></td>
+                    <td ><?= esc($libro['subgenero_nombre'] ?? 'N/A') ?></td>
+                    <td class="small text-muted italic"><?= esc($libro['subcategoria_nombre'] ?? '') ?></td>
+                    <td class="text-center">
+                        <?php if ($libro['cantidad_disponibles'] >= 1): ?>
+                            <span class="badge bg-success rounded-pill px-3">Disponible</span>
+                        <?php else: ?>
+                            <span class="badge bg-danger rounded-pill px-3">No disponible</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <tr>
+                <td colspan="9" class="text-center py-5 text-muted">
+                    <i class="bi bi-info-circle me-2"></i>No se encontraron resultados para tu búsqueda.
+                </td>
+            </tr>
+        <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 
-<div class="mt-4">
+
+
+<div class="mt-4 d-flex justify-content-center">
     <?= $pager->links('default', 'bootstrap_full') ?>
 </div>
+<div class="footer-credits">
+                Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar - Promo 2025
+            </div>
 
-<?php 
-$this->endSection(); 
-?>
+<style>
+    .footer-credits {
+        margin-top: auto; 
+        padding-top: 20px;
+        padding-bottom: 5px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #6c757d; 
+        border-top: 1px solid #e9ecef; 
+    }
+</style>
+<?php $this->endSection(); ?>
+
+<?php $this->section('scripts'); ?>
+<script>
+$(document).ready(function() {
+    // Configuración Select2 con tema Bootstrap 4 (el de tu plantilla)
+    $('#filter_coleccion').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Seleccione Colección',
+        ajax: {
+            url: '<?= base_url("libros/get_colecciones_json") ?>',
+            dataType: 'json',
+            processResults: function(data) { return { results: data.results }; }
+        }
+    });
+
+    $('#filter_subgenero').select2({
+        theme: 'bootstrap4',
+        placeholder: 'Seleccione Subgénero',
+        ajax: {
+            url: '<?= base_url("libros/get_subgeneros_json") ?>',
+            dataType: 'json',
+            data: function(params) {
+                return { term: params.term, coleccion_id: $('#filter_coleccion').val() };
+            },
+            processResults: function(data) { return { results: data.results }; }
+        }
+    });
+
+    // Lógica de cascada
+    $('#filter_coleccion').on('change', function() {
+        if ($(this).val()) {
+            $('#filter_subgenero').prop('disabled', false).val(null).trigger('change');
+        } else {
+            $('#filter_subgenero').prop('disabled', true).val(null).trigger('change');
+        }
+    });
+
+    // Precargar valores si existen
+    <?php if(!empty($coleccion_id_sel)): ?>
+        $.ajax({ 
+            url: '<?= base_url("libros/get_colecciones_json") ?>', 
+            data: { id: '<?= $coleccion_id_sel ?>' } 
+        }).then(function(data) {
+            if(data.results.length > 0) {
+                var option = new Option(data.results[0].text, data.results[0].id, true, true);
+                $('#filter_coleccion').append(option).trigger('change.select2');
+            }
+        });
+    <?php endif; ?>
+});
+</script>
+<?php $this->endSection(); ?>

@@ -112,3 +112,6 @@ $routes->post('reportes/completo/pdf', 'Reportes::completoPDF');
 /**Ruta para ver inventario alumno */
 $routes->get('alumno/inventario', 'InventarioAlumno::index');
 $routes->get('alumno/prestamos', 'PrestamosAlumno::index');
+
+$routes->get('alumno/password', 'AlumnoController::cambiarPassword');
+$routes->post('alumno/updatePassword', 'AlumnoController::updatePassword');

@@ -3,69 +3,61 @@
 namespace App\Controllers;
 
 use App\Models\LibroModel; 
-use App\Models\CategoriaModel; 
-use App\Controllers\BaseController; // Asegúrate de incluir el BaseController
+use App\Controllers\BaseController;
 
 class InventarioAlumno extends BaseController
 {
     public function index()
     {
         $libroModel = new LibroModel();
-        $categoriaModel = new CategoriaModel(); 
         
-        // --- 1. Obtener Parámetros de la URL ---
+        // 1. Obtener parámetros de búsqueda y filtros
         $buscar = $this->request->getGet('buscar');
-        $ordenar = $this->request->getGet('ordenar');
-        $categoriaId = $this->request->getGet('categoria_id'); // Filtro de Categoría
+        $coleccion_id = $this->request->getGet('coleccion_id');
+        $subgenero_id = $this->request->getGet('subgenero_id');
         
-        // Obtener el número de filas por página, default a 10
-        $perPage = (int)($this->request->getGet('per_page') ?? 10);
-        $perPage = ($perPage > 0 && $perPage <= 100) ? $perPage : 10; 
+        // Ley: Siempre 10 filas por página para el alumno
+        $perPage = 10; 
 
-        // --- 2. Iniciar Query Base y Filtrar por 'Disponible' (Fijo para Alumnos) ---
-        // La disponibilidad es SIEMPRE 1 o más, forzada por el estado 'Disponible'
-        $query = $libroModel
-            ->select('libros.*, categorias.nombre as categoria')
-            ->join('categorias', 'categorias.categoria_id = libros.categoria_id', 'left')
-            ->where('libros.estado', 'Disponible'); 
+        // 2. Construcción de la consulta con JOINs EN CADENA (Igual a tu ejemplo)
+        // Libros -> Subcategorías -> Subgéneros -> Colecciones
+        $builder = $libroModel
+            ->select('
+                libros.*, 
+                subcategorias.nombre as subcategoria_nombre,
+                subgeneros.nombre as subgenero_nombre,
+                colecciones.nombre as coleccion_nombre
+            ')
+            ->join('subcategorias', 'subcategorias.subcategoria_id = libros.subcategoria_id', 'left')
+            ->join('subgeneros', 'subgeneros.subgenero_id = subcategorias.subgenero_id', 'left')
+            ->join('colecciones', 'colecciones.coleccion_id = subgeneros.coleccion_id', 'left');
 
-        // --- 3. Aplicar Búsqueda (título o autor) ---
-        if (!empty($buscar)) {
-            $query->groupStart()
-                  ->like('libros.titulo', $buscar)
-                  ->orLike('libros.autor', $buscar)
-                  ->groupEnd();
-        }
-        
-        // --- 4. Aplicar Filtro de Categoría ---
-        if (!empty($categoriaId)) {
-            $query->where('libros.categoria_id', $categoriaId);
-        }
-
-        // --- 5. Aplicar Ordenamiento ---
-        if (!empty($ordenar)) {
-            switch ($ordenar) {
-                case 'titulo_asc': $query->orderBy('libros.titulo', 'ASC'); break;
-                case 'titulo_desc': $query->orderBy('libros.titulo', 'DESC'); break;
-                case 'autor_asc': $query->orderBy('libros.autor', 'ASC'); break;
-                case 'autor_desc': $query->orderBy('libros.autor', 'DESC'); break;
-                case 'reciente': $query->orderBy('libros.libro_id', 'DESC'); break; 
-                case 'viejo': $query->orderBy('libros.libro_id', 'ASC'); break;
-                default: $query->orderBy('libros.titulo', 'ASC'); 
-            }
-        } else {
-            $query->orderBy('libros.titulo', 'ASC');
+        // 3. Aplicar Búsqueda (Título o Autor)
+        if ($buscar) {
+            $builder->groupStart()
+                ->like('libros.titulo', $buscar, 'both')
+                ->orLike('libros.autor', $buscar, 'both')
+                ->groupEnd();
         }
 
-        // --- 6. Paginación y Envío de Datos ---
+        // 4. Aplicar Filtros de Clasificación (Usando las tablas del JOIN)
+        if (!empty($coleccion_id)) {
+            $builder->where('colecciones.coleccion_id', $coleccion_id);
+        }
+        if (!empty($subgenero_id)) {
+            $builder->where('subgeneros.subgenero_id', $subgenero_id);
+        }
+
+        // Orden predeterminado por título
+        $builder->orderBy('libros.titulo', 'ASC');
+
+        // 5. Preparar datos para la vista
         $data = [
-            'libros' => $query->paginate($perPage, 'default', $this->request->getVar('page')),
-            'pager' => $libroModel->pager, 
-            'buscar' => $buscar, 
-            'categorias' => $categoriaModel->findAll(), 
-            'categoriaId' => $categoriaId, 
-            'perPage' => $perPage,
-            // $cantidadDisponible se ELIMINÓ
+            'libros'           => $builder->paginate($perPage, 'default'),
+            'pager'            => $libroModel->pager,
+            'buscar'           => $buscar,
+            'coleccion_id_sel' => $coleccion_id,
+            'subgenero_id_sel' => $subgenero_id,
         ];
 
         return view('Alumno/inventario', $data); 

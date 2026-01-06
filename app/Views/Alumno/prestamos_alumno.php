@@ -98,7 +98,6 @@ Mis Préstamos
                         <option value="">Todos los Préstamos</option>
                         <option value="En proceso" <?= (isset($estadoFiltro) && $estadoFiltro == 'En proceso') ? 'selected' : '' ?>>En Proceso</option>
                         <option value="Devuelto" <?= (isset($estadoFiltro) && $estadoFiltro == 'Devuelto') ? 'selected' : '' ?>>Devuelto</option>
-                        <option value="Vencido" <?= (isset($estadoFiltro) && $estadoFiltro == 'Vencido') ? 'selected' : '' ?>>Vencido</option>
                     </select>
 
                     <button type="submit" class="btn btn-secondary" style="background-color: var(--color-primary); color:white; border:none;"><i class="bi bi-search"></i> Aplicar</button>
@@ -130,7 +129,7 @@ Mis Préstamos
                     <td><?= esc($prestamo['titulo']) ?></td>
                     <td><?= esc($prestamo['no_copia']) ?></td>
                     <td><?= date('d/m/Y', strtotime(esc($prestamo['fecha_prestamo']))) ?></td>
-                    <td class="<?= (strtotime($prestamo['fecha_de_devolucion']) < time() && $prestamo['estado'] === 'En proceso') ? 'text-danger fw-bold' : '' ?>">
+                    <td class="<?= (strtotime($prestamo['fecha_de_devolucion']) < strtotime(date('Y-m-d')) && $prestamo['estado'] === 'En proceso') ? 'text-danger fw-bold' : '' ?>">
                         <?= date('d/m/Y', strtotime(esc($prestamo['fecha_de_devolucion']))) ?>
                     </td>
                     <td>
@@ -139,15 +138,37 @@ Mis Préstamos
                             : '<span class="text-muted">Pendiente</span>' ?>
                     </td>
                     <td>
-                        <?php if ($prestamo['estado'] === 'En proceso'): ?>
-                            <span class="badge bg-warning text-dark">En proceso</span>
-                        <?php elseif ($prestamo['estado'] === 'Devuelto'): ?>
-                            <span class="badge bg-success">Devuelto</span>
-                        <?php elseif ($prestamo['estado'] === 'Vencido'): ?>
-                            <span class="badge bg-danger">Vencido</span>
-                        <?php else: ?>
-                            <span class="badge bg-secondary"><?= esc($prestamo['estado']) ?></span>
-                        <?php endif; ?>
+                        <?php 
+                            $estado = $prestamo['estado'];
+                            
+                            // Determinar clase del badge
+                            $clase_badge = 'bg-secondary text-white';
+                            if ($estado === 'En proceso') $clase_badge = 'bg-warning text-dark';
+                            elseif ($estado === 'Devuelto') $clase_badge = 'bg-success text-white';
+
+                            // Lógica de Retraso para libros DEVOLTOS
+                            $alerta_retraso = false;
+                            if ($estado === 'Devuelto' && !empty($prestamo['fecha_devuelto'])) {
+                                $fecha_entrega_real = strtotime(date('Y-m-d', strtotime($prestamo['fecha_devuelto'])));
+                                $fecha_limite = strtotime(date('Y-m-d', strtotime($prestamo['fecha_de_devolucion'])));
+                                
+                                if ($fecha_entrega_real > $fecha_limite) {
+                                    $alerta_retraso = true;
+                                }
+                            }
+                        ?>
+
+                        <div class="d-flex flex-column align-items-center">
+                            <span class="badge <?= $clase_badge ?> p-2" style="min-width: 90px;">
+                                <?= esc($estado) ?>
+                            </span>
+
+                            <?php if ($alerta_retraso): ?>
+                                <small class="text-danger fw-bold mt-1" style="font-size: 0.75rem; white-space: nowrap;">
+                                    <i class="bi bi-clock-history"></i> Con retraso
+                                </small>
+                            <?php endif; ?>
+                        </div>
                     </td>
                 </tr>
             <?php endforeach; ?>
@@ -162,5 +183,9 @@ Mis Préstamos
 <div class="mt-4">
     <?= $pager->links('default', 'bootstrap_full') ?>
 </div>
+
+<div class="footer-credits">
+                Página realizada por: Sofía del Valle Ajosal y Emily Abril Santizo Urízar - Promo 2025
+            </div>
 
 <?= $this->endSection(); ?>

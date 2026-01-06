@@ -290,7 +290,7 @@
 
                 <li class="nav-item mb-3">
                     <a class="nav-link" href="<?= base_url('alumno/inventario'); ?>">
-                        <i class="bi bi-journal-bookmark-fill"></i> Inventario
+                        <i class="bi bi-book-fill"></i> Libros
                     </a>
                 </li>
                 
@@ -300,7 +300,15 @@
                     </a>
                 </li>
                 
-                <hr style="margin: 15px 0; border-color: var(--color-accent-soft);">
+                <hr style="margin: 15px 0; border-color: var(--color-border-light);">
+
+                    <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'alumno/password') ? 'active' : '' ?>" 
+                            href="<?= base_url('alumno/password'); ?>">
+                            <i class="bi bi-shield-lock-fill"></i> Cambiar Contraseña
+                        </a>
+                    </li>
+                    <hr style="margin: 15px 0; border-color: var(--color-border-light);">
 
                 <li class="nav-item">
                     <a class="nav-link" href="<?= base_url('login/salir') ?>">
@@ -342,7 +350,7 @@
                         
                         <a href="<?= base_url('alumno/inventario') ?>" class="kpi-card">
                             <i class="bi bi-journals kpi-icon"></i>
-                            <p class="kpi-title">Explorar Inventario Completo</p>
+                            <p class="kpi-title">Explorar Libros</p>
                         </a>
 
                         <a href="<?= base_url('alumno/prestamos') ?>" class="kpi-card color-secondary">

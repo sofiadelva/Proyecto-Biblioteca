@@ -13,6 +13,17 @@
 
     <style>
         /* === ESTILOS PARA PAGINACIÓN CON COLOR #0C1E44 === */
+
+        .footer-credits {
+        margin-top: auto; 
+        padding-top: 20px;
+        padding-bottom: 5px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #6c757d; 
+        border-top: 1px solid #e9ecef; 
+    }
+
 .pagination .page-item.active .page-link {
     background-color: #0C1E44; /* Azul Marino Oscuro */
     border-color: #0C1E44;
@@ -302,7 +313,7 @@ body, html {
                     <li class="nav-item mb-3">
                         <a class="nav-link <?= (uri_string() === 'alumno/inventario') ? 'active' : '' ?>" 
                             href="<?= base_url('alumno/inventario'); ?>">
-                            <i class="bi bi-journal-bookmark-fill"></i> Inventario
+                            <i class="bi bi-book-fill"></i> Libros
                         </a>
                     </li>
                     <li class="nav-item mb-3">
@@ -311,7 +322,18 @@ body, html {
                             <i class="bi bi-box-arrow-in-right"></i> Mis Préstamos
                         </a>
                     </li>
+
                     <hr style="margin: 15px 0; border-color: var(--color-border-light);">
+
+                    <li class="nav-item mb-3">
+                        <a class="nav-link <?= (uri_string() === 'alumno/password') ? 'active' : '' ?>" 
+                            href="<?= base_url('alumno/password'); ?>">
+                            <i class="bi bi-shield-lock-fill"></i> Cambiar Contraseña
+                        </a>
+                    </li>
+                    <hr style="margin: 15px 0; border-color: var(--color-border-light);">
+
+
 
                 <li class="nav-item">
                     <a class="nav-link" href="<?= base_url('login/salir') ?>">
